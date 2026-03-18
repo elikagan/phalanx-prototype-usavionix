@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phalanx — Design System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ========================================
+     PHALANX DESIGN SYSTEM
+     ======================================== */
+
+  :root {
+    /* Backgrounds — cool undertone, not pure black */
+    --bg-base: #09090b;
+    --bg-surface: #0f1114;
+    --bg-elevated: #161a1e;
+    --bg-hover: #1c2027;
+
+    /* Borders */
+    --border-subtle: rgba(255,255,255,0.06);
+    --border-default: rgba(255,255,255,0.10);
+    --border-strong: rgba(255,255,255,0.16);
+
+    /* Text */
+    --text-primary: #e4e4e7;
+    --text-secondary: #a1a1aa;
+    --text-tertiary: #71717a;
+    --text-ghost: #52525b;
+    --text-bright: #fafafa;
+
+    /* Accent — muted steel blue */
+    --accent: #7c9aaf;
+    --accent-dim: rgba(124,154,175,0.12);
+    --accent-border: rgba(124,154,175,0.25);
+
+    /* Status — only for functional use */
+    --status-green: #4ade80;
+    --status-amber: #fbbf24;
+    --status-red: #f87171;
+    --status-green-dim: rgba(74,222,128,0.12);
+    --status-amber-dim: rgba(251,191,36,0.12);
+    --status-red-dim: rgba(248,113,113,0.12);
+
+    /* Typography */
+    --font-sans: 'Inter', -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+
+    /* Spacing */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+
+    /* Radii */
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 10px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--bg-base);
+    color: var(--text-primary);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ========================================
+     LAYOUT
+     ======================================== */
+
+  .dashboard {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto;
+    gap: var(--space-6);
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: var(--space-8);
+  }
+
+  .full-width { grid-column: 1 / -1; }
+
+  /* ========================================
+     TOP BAR
+     ======================================== */
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4) var(--space-5);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+  }
+
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .logo {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-bright);
+    letter-spacing: -0.02em;
+  }
+
+  .topbar-divider {
+    width: 1px;
+    height: 16px;
+    background: var(--border-default);
+  }
+
+  .topbar-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-tertiary);
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .topbar-time {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--status-green);
+    box-shadow: 0 0 6px rgba(74,222,128,0.4);
+  }
+
+  /* ========================================
+     SECTION LABEL
+     ======================================== */
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-ghost);
+    margin-bottom: var(--space-3);
+  }
+
+  /* ========================================
+     TYPOGRAPHY SHOWCASE
+     ======================================== */
+
+  .type-sample {
+    padding: var(--space-6);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+  }
+
+  .type-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .type-row:last-child { border-bottom: none; }
+
+  .type-row .meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-ghost);
+    flex-shrink: 0;
+    margin-left: var(--space-6);
+  }
+
+  .t-heading {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-bright);
+    letter-spacing: -0.02em;
+  }
+
+  .t-subheading {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .t-body {
+    font-size: 14px;
+    color: var(--text-primary);
+  }
+
+  .t-secondary {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .t-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-tertiary);
+  }
+
+  .t-mono {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .t-mono-small {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+
+  /* ========================================
+     COLOR SWATCHES
+     ======================================== */
+
+  .swatches {
+    padding: var(--space-6);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+  }
+
+  .swatch-group {
+    margin-bottom: var(--space-5);
+  }
+
+  .swatch-group:last-child { margin-bottom: 0; }
+
+  .swatch-group-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-ghost);
+    margin-bottom: var(--space-3);
+  }
+
+  .swatch-row {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .swatch {
+    flex: 1;
+    height: 48px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: flex-end;
+    padding: var(--space-1) var(--space-2);
+  }
+
+  .swatch span {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-ghost);
+  }
+
+  /* ========================================
+     BUTTONS
+     ======================================== */
+
+  .buttons-panel {
+    padding: var(--space-6);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+  }
+
+  .btn-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
+  }
+
+  .btn-row:last-child { margin-bottom: 0; }
+
+  .btn-row-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-ghost);
+    width: 80px;
+    flex-shrink: 0;
+  }
+
+  button {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: none;
+    outline: none;
+  }
+
+  .btn-primary {
+    padding: 8px 20px;
+    border-radius: var(--radius-md);
+    background: var(--text-primary);
+    color: var(--bg-base);
+  }
+  .btn-primary:hover { background: var(--text-bright); }
+
+  .btn-secondary {
+    padding: 8px 20px;
+    border-radius: var(--radius-md);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-default);
+    color: var(--text-primary);
+  }
+  .btn-secondary:hover {
+    background: var(--bg-hover);
+    border-color: var(--border-strong);
+  }
+
+  .btn-ghost {
+    padding: 8px 20px;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--text-secondary);
+  }
+  .btn-ghost:hover {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+  }
+
+  .btn-accent {
+    padding: 8px 20px;
+    border-radius: var(--radius-md);
+    background: var(--accent-dim);
+    border: 1px solid var(--accent-border);
+    color: var(--accent);
+  }
+  .btn-accent:hover {
+    background: rgba(124,154,175,0.18);
+    border-color: rgba(124,154,175,0.35);
+  }
+
+  .btn-danger {
+    padding: 8px 20px;
+    border-radius: var(--radius-md);
+    background: var(--status-red-dim);
+    border: 1px solid rgba(248,113,113,0.2);
+    color: var(--status-red);
+  }
+  .btn-danger:hover {
+    background: rgba(248,113,113,0.18);
+  }
+
+  .btn-sm {
+    font-size: 12px;
+    padding: 5px 14px;
+  }
+
+  /* ========================================
+     DATA CARD
+     ======================================== */
+
+  .data-card {
+    padding: var(--space-6);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+  }
+
+  .data-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-5);
+  }
+
+  .data-card-title {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-tertiary);
+  }
+
+  .data-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: var(--space-4);
+  }
+
+  .data-item {}
+
+  .data-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-ghost);
+    margin-bottom: var(--space-1);
+  }
+
+  .data-value {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-bright);
+  }
+
+  .data-value.mono {
+    font-family: var(--font-mono);
+    font-size: 14px;
+  }
+
+  .data-value .unit {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    font-weight: 400;
+    margin-left: 2px;
+  }
+
+  /* ========================================
+     CHAT PREVIEW
+     ======================================== */
+
+  .chat-panel {
+    padding: var(--space-6);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .chat-msg {
+    max-width: 85%;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+  }
+
+  .chat-msg.system {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    align-self: flex-start;
+  }
+
+  .chat-msg.user {
+    background: var(--accent-dim);
+    border: 1px solid var(--accent-border);
+    align-self: flex-end;
+  }
+
+  .chat-sender {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-tertiary);
+    margin-bottom: var(--space-1);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .chat-sender .timestamp {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-ghost);
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .chat-text {
+    font-size: 14px;
+    color: var(--text-primary);
+    line-height: 1.5;
+  }
+
+  .chat-input-row {
+    display: flex;
+    gap: var(--space-3);
+    margin-top: var(--space-2);
+  }
+
+  .chat-input {
+    flex: 1;
+    padding: var(--space-3) var(--space-4);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+
+  .chat-input::placeholder { color: var(--text-ghost); }
+  .chat-input:focus { border-color: var(--border-strong); }
+
+  /* ========================================
+     STATUS BAR / PILLS
+     ======================================== */
+
+  .pills-panel {
+    padding: var(--space-6);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+  }
+
+  .pills-row {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-4);
+  }
+
+  .pills-row:last-child { margin-bottom: 0; }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 11px;
+    font-weight: 500;
+    font-family: var(--font-mono);
+    letter-spacing: 0.02em;
+  }
+
+  .pill-default {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+  }
+
+  .pill-green {
+    background: var(--status-green-dim);
+    border: 1px solid rgba(74,222,128,0.2);
+    color: var(--status-green);
+  }
+
+  .pill-amber {
+    background: var(--status-amber-dim);
+    border: 1px solid rgba(251,191,36,0.2);
+    color: var(--status-amber);
+  }
+
+  .pill-red {
+    background: var(--status-red-dim);
+    border: 1px solid rgba(248,113,113,0.2);
+    color: var(--status-red);
+  }
+
+  .pill-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  /* ========================================
+     NAV DOTS
+     ======================================== */
+
+  .nav-demo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-4) 0;
+  }
+
+  .nav-dot-demo {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1px solid var(--border-default);
+    background: transparent;
+    transition: all 0.2s ease;
+  }
+
+  .nav-dot-demo.completed {
+    background: var(--text-ghost);
+    border-color: var(--text-ghost);
+  }
+
+  .nav-dot-demo.active {
+    background: var(--text-primary);
+    border-color: var(--text-primary);
+    box-shadow: 0 0 8px rgba(228,228,231,0.3);
+  }
+
+  /* ========================================
+     MAP PREVIEW
+     ======================================== */
+
+  .map-preview {
+    position: relative;
+    height: 240px;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: url('satellite.png') center/cover;
+    border: 1px solid var(--border-subtle);
+  }
+
+  .map-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    padding: var(--space-4);
+    background: linear-gradient(to top, rgba(9,9,11,0.7) 0%, transparent 60%);
+  }
+
+  .map-controls {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .map-btn {
+    padding: 5px 12px;
+    font-size: 11px;
+    font-weight: 500;
+    font-family: var(--font-mono);
+    border-radius: var(--radius-sm);
+    background: rgba(15,17,20,0.8);
+    border: 1px solid var(--border-default);
+    color: var(--text-secondary);
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: all 0.15s ease;
+  }
+
+  .map-btn:hover {
+    background: rgba(22,26,30,0.9);
+    color: var(--text-primary);
+  }
+
+  .map-btn.active {
+    background: rgba(22,26,30,0.9);
+    border-color: var(--border-strong);
+    color: var(--text-bright);
+  }
+
+</style>
+</head>
+<body>
+
+<div class="dashboard">
+
+  <!-- TOP BAR -->
+  <div class="topbar full-width">
+    <div class="topbar-left">
+      <span class="logo">Phalanx</span>
+      <div class="topbar-divider"></div>
+      <span class="topbar-label">Mission Control</span>
+    </div>
+    <div class="topbar-right">
+      <div class="status-dot"></div>
+      <span class="topbar-label">Connected</span>
+      <div class="topbar-divider"></div>
+      <span class="topbar-time">14:43:12</span>
+    </div>
+  </div>
+
+  <!-- TYPOGRAPHY -->
+  <div class="full-width">
+    <div class="section-label">Typography</div>
+    <div class="type-sample">
+      <div class="type-row">
+        <span class="t-heading">Mission Active — Delta SA-128</span>
+        <span class="meta">20 / 700 / Inter</span>
+      </div>
+      <div class="type-row">
+        <span class="t-subheading">Search Area Confirmed</span>
+        <span class="meta">15 / 600 / Inter</span>
+      </div>
+      <div class="type-row">
+        <span class="t-body">Drone detected. I found the following device in range.</span>
+        <span class="meta">14 / 400 / Inter</span>
+      </div>
+      <div class="type-row">
+        <span class="t-secondary">Last calibration 2 hours ago. Signal nominal.</span>
+        <span class="meta">13 / 400 / Inter</span>
+      </div>
+      <div class="type-row">
+        <span class="t-label">Battery Level</span>
+        <span class="meta">11 / 500 / uppercase / 0.08em</span>
+      </div>
+      <div class="type-row">
+        <span class="t-mono">DSA-0128-X &nbsp; v3.2.1 &nbsp; 34.0522°N</span>
+        <span class="meta">12 / 400 / JetBrains Mono</span>
+      </div>
+      <div class="type-row">
+        <span class="t-mono-small">09:40:15 &nbsp; 15.2 km &nbsp; ALT 120m</span>
+        <span class="meta">11 / 400 / JetBrains Mono</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLORS -->
+  <div>
+    <div class="section-label">Surfaces</div>
+    <div class="swatches">
+      <div class="swatch-group">
+        <div class="swatch-group-label">Backgrounds</div>
+        <div class="swatch-row">
+          <div class="swatch" style="background:var(--bg-base)"><span>#09090b</span></div>
+          <div class="swatch" style="background:var(--bg-surface)"><span>#0f1114</span></div>
+          <div class="swatch" style="background:var(--bg-elevated)"><span>#161a1e</span></div>
+          <div class="swatch" style="background:var(--bg-hover)"><span>#1c2027</span></div>
+        </div>
+      </div>
+      <div class="swatch-group">
+        <div class="swatch-group-label">Status</div>
+        <div class="swatch-row">
+          <div class="swatch" style="background:var(--status-green)"><span style="color:#09090b">#4ade80</span></div>
+          <div class="swatch" style="background:var(--status-amber)"><span style="color:#09090b">#fbbf24</span></div>
+          <div class="swatch" style="background:var(--status-red)"><span style="color:#09090b">#f87171</span></div>
+          <div class="swatch" style="background:var(--accent)"><span style="color:#09090b">#7c9aaf</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BUTTONS -->
+  <div>
+    <div class="section-label">Buttons</div>
+    <div class="buttons-panel">
+      <div class="btn-row">
+        <span class="btn-row-label">primary</span>
+        <button class="btn-primary">Yes, Connect</button>
+        <button class="btn-primary btn-sm">Confirm</button>
+      </div>
+      <div class="btn-row">
+        <span class="btn-row-label">secondary</span>
+        <button class="btn-secondary">Scan Again</button>
+        <button class="btn-secondary btn-sm">Cancel</button>
+      </div>
+      <div class="btn-row">
+        <span class="btn-row-label">ghost</span>
+        <button class="btn-ghost">Skip</button>
+        <button class="btn-ghost btn-sm">Dismiss</button>
+      </div>
+      <div class="btn-row">
+        <span class="btn-row-label">accent</span>
+        <button class="btn-accent">Begin Mission</button>
+        <button class="btn-accent btn-sm">Execute</button>
+      </div>
+      <div class="btn-row">
+        <span class="btn-row-label">danger</span>
+        <button class="btn-danger">Abort Mission</button>
+        <button class="btn-danger btn-sm">Abort</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATA CARD -->
+  <div>
+    <div class="section-label">Data Card</div>
+    <div class="data-card">
+      <div class="data-card-header">
+        <span class="data-card-title">Drone Telemetry</span>
+        <span class="pill pill-green"><span class="pill-dot"></span> Connected</span>
+      </div>
+      <div class="data-grid">
+        <div class="data-item">
+          <div class="data-label">Model</div>
+          <div class="data-value">Delta SA-128</div>
+        </div>
+        <div class="data-item">
+          <div class="data-label">Battery</div>
+          <div class="data-value">98<span class="unit">%</span></div>
+        </div>
+        <div class="data-item">
+          <div class="data-label">Signal</div>
+          <div class="data-value">Strong</div>
+        </div>
+        <div class="data-item">
+          <div class="data-label">Serial</div>
+          <div class="data-value mono">DSA-0128-X</div>
+        </div>
+        <div class="data-item">
+          <div class="data-label">Firmware</div>
+          <div class="data-value mono">v3.2.1</div>
+        </div>
+        <div class="data-item">
+          <div class="data-label">Range</div>
+          <div class="data-value">15<span class="unit">km</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PILLS / STATUS -->
+  <div>
+    <div class="section-label">Status Pills</div>
+    <div class="pills-panel">
+      <div class="pills-row">
+        <span class="pill pill-green"><span class="pill-dot"></span> Connected</span>
+        <span class="pill pill-green"><span class="pill-dot"></span> GPS Lock</span>
+        <span class="pill pill-amber"><span class="pill-dot"></span> Calibrating</span>
+        <span class="pill pill-red"><span class="pill-dot"></span> Low Battery</span>
+      </div>
+      <div class="pills-row">
+        <span class="pill pill-default">TARGET: 34.05°N, 118.24°W</span>
+        <span class="pill pill-default">ALT: 120m</span>
+        <span class="pill pill-default">MISSION BOUNDARY</span>
+      </div>
+      <div class="section-label" style="margin-top:var(--space-5)">Navigation</div>
+      <div class="nav-demo">
+        <div class="nav-dot-demo completed"></div>
+        <div class="nav-dot-demo completed"></div>
+        <div class="nav-dot-demo completed"></div>
+        <div class="nav-dot-demo active"></div>
+        <div class="nav-dot-demo"></div>
+        <div class="nav-dot-demo"></div>
+        <div class="nav-dot-demo"></div>
+        <div class="nav-dot-demo"></div>
+        <div class="nav-dot-demo"></div>
+        <div class="nav-dot-demo"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT PREVIEW -->
+  <div>
+    <div class="section-label">Chat — SARA</div>
+    <div class="chat-panel">
+      <div class="chat-msg system">
+        <div class="chat-sender">SARA <span class="timestamp">09:40:10</span></div>
+        <div class="chat-text">Scanning for nearby drones...</div>
+      </div>
+      <div class="chat-msg system">
+        <div class="chat-sender">SARA <span class="timestamp">09:40:15</span></div>
+        <div class="chat-text"><strong>Drone detected.</strong> I found the following device in range. Ready to connect.</div>
+      </div>
+      <div class="chat-msg user">
+        <div class="chat-sender">Operator <span class="timestamp">09:40:22</span></div>
+        <div class="chat-text">Connect to Delta SA-128</div>
+      </div>
+      <div class="chat-input-row">
+        <input class="chat-input" type="text" placeholder="Type a message to SARA...">
+        <button class="btn-primary btn-sm">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAP PREVIEW -->
+  <div>
+    <div class="section-label">Map View</div>
+    <div class="map-preview">
+      <div class="map-overlay">
+        <div class="map-controls">
+          <button class="map-btn active">Map</button>
+          <button class="map-btn">Video</button>
+          <button class="map-btn">Telemetry</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

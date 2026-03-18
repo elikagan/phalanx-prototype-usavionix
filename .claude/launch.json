@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "phalanx-usavionix",
+      "runtimeExecutable": "ruby",
+      "runtimeArgs": ["-run", "-ehttpd", "/tmp/phalanx-prototype-usavionix"],
+      "port": 8081
+    }
+  ]
+}
