@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phalanx — Access</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #000;
+    color: rgba(255,255,255,.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  .gate {
+    text-align: center;
+    max-width: 360px;
+    padding: 40px;
+  }
+  .logo {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    color: #fff;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,.4);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 40px;
+  }
+  .input-group {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  input {
+    flex: 1;
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 9999px;
+    padding: 12px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: rgba(255,255,255,.9);
+    outline: none;
+    transition: border-color .3s;
+  }
+  input:focus { border-color: rgba(255,255,255,.3); }
+  input::placeholder { color: rgba(255,255,255,.2); }
+  button {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 12px 24px;
+    background: rgba(255,255,255,.25);
+    border: 1px solid rgba(255,255,255,.3);
+    border-radius: 9999px;
+    color: #fff;
+    cursor: pointer;
+    transition: all .3s;
+    backdrop-filter: blur(12px);
+  }
+  button:hover { background: rgba(255,255,255,.35); }
+  .error {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,.5);
+    opacity: 0;
+    transition: opacity .2s;
+  }
+  .error.visible { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="gate">
+  <div class="logo">Phalanx</div>
+  <div class="subtitle">Drone Mission Control</div>
+  <div class="input-group">
+    <input type="password" id="pw" placeholder="Enter access code..." autofocus
+      onkeydown="if(event.key==='Enter')check()">
+    <button onclick="check()">Enter</button>
+  </div>
+  <div class="error" id="err">Incorrect access code</div>
+</div>
+<script>
+  function check() {
+    const v = document.getElementById('pw').value;
+    if (v === 'phalanx') {
+      window.location.href = 'app.html';
+    } else {
+      document.getElementById('err').classList.add('visible');
+      document.getElementById('pw').value = '';
+      setTimeout(() => document.getElementById('err').classList.remove('visible'), 2000);
+    }
+  }
+</script>
+</body>
+</html>
