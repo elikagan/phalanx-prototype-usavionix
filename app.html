@@ -1125,7 +1125,7 @@
       <span id="stateText">Authenticate</span>
     </div>
     <div class="pills">
-      <div class="pill" id="dronePill">
+      <div class="pill" id="dronePill" onclick="openPillModal('drone')">
         <span class="pill-dot" style="background:var(--green)"></span>
         <span style="font-family:var(--mono);font-size:10px;letter-spacing:0.02em" id="dronePillText">DSA-128</span>
       </div>
@@ -1798,6 +1798,46 @@
       </div>
     </div>
 
+    <!-- DRONE CONNECTION MODAL -->
+    <div class="pill-modal" id="droneModal" style="display:none">
+      <div class="pill-modal-header">
+        <span>Drone Connection</span>
+        <button class="pill-modal-close" onclick="closePillModal()">&times;</button>
+      </div>
+      <div class="pill-modal-body">
+        <div class="drone-card" style="margin:0;grid-template-columns:1fr 1fr">
+          <div class="meta-item">
+            <span class="meta-label">Model</span>
+            <span class="meta-value">Delta SA-128</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Status</span>
+            <span class="meta-value" style="color:var(--green)">Connected</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Battery</span>
+            <span class="meta-value" id="droneBatteryDisplay" style="color:var(--green)">98%</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Signal</span>
+            <span class="meta-value" style="color:var(--green)">Strong</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Serial</span>
+            <span class="meta-value">DSA-0128-X</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Firmware</span>
+            <span class="meta-value">v3.2.1</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button class="choice-btn" style="flex:1;text-align:center" onclick="closePillModal()">Recalibrate</button>
+          <button class="choice-btn danger" style="flex:1;text-align:center" onclick="closePillModal()">Disconnect</button>
+        </div>
+      </div>
+    </div>
+
     <!-- BOUNDARY EDIT MODAL -->
     <div class="pill-modal" id="boundaryModal" style="display:none">
       <div class="pill-modal-header">
@@ -1939,13 +1979,18 @@
     const targetModal = document.getElementById('targetModal');
     const boundaryModal = document.getElementById('boundaryModal');
 
+    const droneModal = document.getElementById('droneModal');
+
     targetModal.style.display = 'none';
     boundaryModal.style.display = 'none';
+    droneModal.style.display = 'none';
 
     // Set timestamps
     document.querySelectorAll('.modal-time').forEach(el => el.textContent = getTimeStr());
 
-    if (type === 'target') {
+    if (type === 'drone') {
+      droneModal.style.display = 'flex';
+    } else if (type === 'target') {
       document.getElementById('currentTargetDisplay').textContent =
         document.getElementById('targetPillText').textContent.replace('Target: ', '');
       document.getElementById('targetModalInput').value = '';
