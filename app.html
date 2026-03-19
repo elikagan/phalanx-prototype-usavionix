@@ -1,4 +1,50 @@
 <!DOCTYPE html>
+<!--
+  ============================================================================
+  PHALANX — DESIGN PRINCIPLES
+  ============================================================================
+
+  Every design decision in this prototype MUST be made with analytical intent.
+  Do not add decoration for its own sake. Every visual element earns its place.
+
+  1. LEGIBILITY FIRST
+     - Text must be effortlessly readable at its intended distance/size.
+     - Never sacrifice readability for aesthetic. If contrast is too low, fix it.
+     - Minimum body text: 13px. Minimum secondary/label text: 11px.
+     - Line height: 1.5–1.6 for body, tighter (1.2–1.3) for labels/mono.
+
+  2. VISUAL HIERARCHY
+     - Every screen has ONE primary focus. Support it, don't compete with it.
+     - Use weight, size, and opacity to create clear reading order — not color.
+     - Headings: bright (#fafafa), body: default (#e4e4e7), secondary: dim (#a1a1aa),
+       metadata: ghost (#71717a). Each tier has a purpose.
+
+  3. SPACING & RHYTHM
+     - Consistent spacing creates perceived quality. Use 4/8/12/16/20/24/32px scale.
+     - White space is a feature, not wasted space. Generous padding signals confidence.
+     - Group related elements tightly; separate unrelated groups with clear gaps.
+
+  4. RESTRAINT
+     - No gratuitous borders, glows, gradients, or shadows.
+     - Color is functional: green=active/success, amber=caution, red=critical, cyan=info.
+     - No decorative color. If it's not communicating status, it shouldn't have color.
+     - Buttons and controls: minimal. No heavy outlines or busy edge treatments.
+
+  5. TYPOGRAPHY
+     - Inter for all UI text. Weight does the work (400/500/600/700).
+     - JetBrains Mono for technical data: coordinates, timestamps, telemetry, codes.
+     - One size per context. Left chat and right chat = same size. Consistency > variety.
+
+  6. FUNCTIONALITY
+     - Every element must be obviously interactive or obviously static. No ambiguity.
+     - Hover/focus states: subtle but clear. Border or background shift, not color change.
+     - Modals, pills, controls: follow established patterns. Don't invent new paradigms
+       for each feature.
+
+  Apply these principles on every edit. Question any choice that doesn't serve
+  legibility, hierarchy, or function.
+  ============================================================================
+-->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -166,8 +212,8 @@
     max-width:70%;
     padding:12px 16px;
     border-radius:var(--radius);
-    font-size:14px;
-    line-height:1.5;
+    font-size:13px;
+    line-height:1.55;
     animation:fadeIn .25s ease;
   }
   .msg.wide { max-width:95%; }
@@ -367,7 +413,7 @@
     background:var(--bg-base);
   }
   .split-chat .chat-messages { font-size:13px; }
-  .split-chat .msg { max-width:92%; font-size:12px; }
+  .split-chat .msg { max-width:92%; font-size:13px; }
 
   /* MAP ELEMENTS */
   .map-bg {
