@@ -178,29 +178,12 @@
     border:1px solid var(--border-subtle);
     border-radius:var(--radius);
   }
-  .msg.sara .sender {
-    font-size:11px;
-    font-weight:500;
-    color:var(--text-dim);
-    margin-bottom:4px;
-    text-transform:uppercase;
-    letter-spacing:0.06em;
-  }
-  .msg.sara .sender::after {
-    content:'';
-  }
   .msg.user {
     align-self:flex-end;
     background:var(--accent-dim);
     border:1px solid var(--accent-border);
     border-radius:var(--radius);
     color:var(--text-bright);
-  }
-  .msg .timestamp {
-    font-family:var(--mono);
-    font-size:10px;
-    color:var(--text-ghost);
-    margin-top:6px;
   }
 
   /* CHAT CHOICES */
@@ -1098,11 +1081,9 @@
     <div class="chat-layout">
       <div class="chat-messages" id="chat1">
         <div class="msg sara">
-          <div class="sender">SARA &bull; 09:40:00</div>
           Hello! I'm <strong>SARA</strong>, your mission assistant. Let's get started by connecting your drone.
         </div>
         <div class="msg sara">
-          <div class="sender">SARA &bull; 09:40:02</div>
           Please ensure your drone is powered on and within range. Then tap <strong>"Scan for Drones"</strong> below.
           <div style="margin-top:12px">
             <button class="choice-btn primary" onclick="goToScreen(2)">Scan for Drones</button>
@@ -1110,7 +1091,7 @@
         </div>
       </div>
       <div class="chat-input-bar">
-        <input class="chat-input" placeholder="Type a message to SARA..." disabled>
+        <input class="chat-input" placeholder="Type a message..." disabled>
         <button class="send-btn">Send</button>
       </div>
     </div>
@@ -1121,11 +1102,9 @@
     <div class="chat-layout">
       <div class="chat-messages" id="chat2">
         <div class="msg sara">
-          <div class="sender">SARA &bull; 09:40:10</div>
           Scanning for nearby drones...
         </div>
         <div class="msg sara">
-          <div class="sender">SARA &bull; 09:40:15</div>
           <strong>Drone detected!</strong> I found the following device:
           <div class="drone-card">
             <div class="meta-item">
@@ -1155,7 +1134,6 @@
           </div>
         </div>
         <div class="msg sara">
-          <div class="sender">SARA &bull; 09:40:16</div>
           Do you wish to connect to <strong>Delta SA-128</strong>?
           <div class="choices">
             <button class="choice-btn primary" onclick="goToScreen(3)">Yes, Connect</button>
@@ -1164,7 +1142,7 @@
         </div>
       </div>
       <div class="chat-input-bar">
-        <input class="chat-input" placeholder="Type a message to SARA...">
+        <input class="chat-input" placeholder="Type a message...">
         <button class="send-btn">Send</button>
       </div>
     </div>
@@ -1175,39 +1153,30 @@
     <div class="chat-layout">
       <div class="chat-messages" id="chat3">
         <div class="msg sara">
-          <div class="sender">SARA &bull; 09:40:30</div>
           Drone connected successfully! Now let's set up your mission.
         </div>
         <div class="msg sara">
-          <div class="sender">SARA &bull; 09:40:32</div>
           <strong>What are you looking for?</strong> Describe the target you want to detect. You can also upload an image.
         </div>
         <div class="msg user">
           A red Nissan Pathfinder
-          <div class="timestamp">09:40:45</div>
         </div>
         <div class="msg sara">
-          <div class="sender">SARA &bull; 09:40:47</div>
           Got it — a <strong>red Nissan Pathfinder</strong>. A few more questions:
         </div>
         <div class="msg sara">
-          <div class="sender">SARA &bull; 09:40:48</div>
           Do you know the <strong>license plate number</strong>?
         </div>
         <div class="msg user">
           No, I don't have the plate number
-          <div class="timestamp">09:40:55</div>
         </div>
         <div class="msg sara">
-          <div class="sender">SARA &bull; 09:40:57</div>
           No problem. Any other identifying features? (damage, stickers, roof rack, etc.)
         </div>
         <div class="msg user">
           It has a black roof rack and a dent on the rear bumper
-          <div class="timestamp">09:41:05</div>
         </div>
         <div class="msg sara">
-          <div class="sender">SARA &bull; 09:41:07</div>
           Do you have a <strong>reference image</strong> of the target?
           <div class="image-upload-area">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
@@ -1215,7 +1184,6 @@
           </div>
         </div>
         <div class="msg sara">
-          <div class="sender">SARA &bull; 09:41:15</div>
           Target configured:<br>
           <strong>Red Nissan Pathfinder</strong> with black roof rack and rear bumper dent.<br><br>
           Ready to set up the search area?
@@ -1226,7 +1194,7 @@
         </div>
       </div>
       <div class="chat-input-bar">
-        <input class="chat-input" placeholder="Type a message to SARA...">
+        <input class="chat-input" placeholder="Type a message...">
         <button class="send-btn">Send</button>
       </div>
     </div>
@@ -1270,11 +1238,9 @@
       <div class="split-chat">
         <div class="chat-messages" id="chat4">
           <div class="msg sara">
-            <div class="sender">SARA &bull; 09:41:20</div>
             Position the mission boundary on the map. The circle shows the default search area around your drone.
           </div>
           <div class="msg sara">
-            <div class="sender">SARA &bull; 09:41:22</div>
             Drag the handles to resize. Press <strong>DONE</strong> when you're satisfied with the boundary.
           </div>
         </div>
@@ -1314,11 +1280,9 @@
       <div class="split-chat">
         <div class="chat-messages" id="chat5">
           <div class="msg sara">
-            <div class="sender">SARA &bull; 09:41:40</div>
             Running pre-flight checks...
           </div>
           <div class="msg sara">
-            <div class="sender">SARA &bull; 09:41:42</div>
             <strong>Pre-flight checklist:</strong><br>
             &#10003; Battery: 98%<br>
             &#10003; GPS Lock: Acquired (12 satellites)<br>
@@ -1328,13 +1292,12 @@
             &#10003; Weather: Wind 5 mph NW
           </div>
           <div class="msg sara">
-            <div class="sender">SARA &bull; 09:41:45</div>
             All systems go. <strong>Drone is ready for takeoff.</strong><br><br>
             Press <strong>"Launch Mission"</strong> on the map when you're ready.
           </div>
         </div>
         <div class="chat-input-bar">
-          <input class="chat-input" placeholder="Type a message to SARA...">
+          <input class="chat-input" placeholder="Type a message...">
           <button class="send-btn">Send</button>
         </div>
       </div>
@@ -1391,24 +1354,20 @@
       <div class="split-chat">
         <div class="chat-messages" id="chat6">
           <div class="msg sara">
-            <div class="sender">SARA &bull; 09:42:00</div>
             Drone taking off. To abort, press <strong>Pause/Abort</strong> or type it in chat.
           </div>
           <div class="msg sara">
-            <div class="sender">SARA &bull; 09:42:05</div>
             Drone is airborne. Beginning search pattern.
           </div>
           <div class="msg sara">
-            <div class="sender">SARA &bull; 09:44:00</div>
             Search progress: <strong>25% complete</strong>. No targets detected yet.
           </div>
           <div class="msg sara">
-            <div class="sender">SARA &bull; 09:45:00</div>
             Battery at <strong>87%</strong>. Estimated remaining flight time: 32 minutes.
           </div>
         </div>
         <div class="chat-input-bar">
-          <input class="chat-input" placeholder="Type a message to SARA...">
+          <input class="chat-input" placeholder="Type a message...">
           <button class="send-btn" onclick="goToScreen(7)">Send</button>
         </div>
         <div style="text-align:right;margin-top:4px">
@@ -1479,7 +1438,6 @@
             <strong>Potential target spotted!</strong> Entering orbit mode for close inspection.
           </div>
           <div class="msg sara">
-            <div class="sender">SARA &bull; 09:52:50</div>
             I've detected a <strong>red SUV</strong> matching your target description at coordinates 23.2817, 20.8772.<br><br>
             The drone is now orbiting for a closer look. Please confirm: <strong>Is this your target?</strong>
             <div class="choices">
@@ -1489,7 +1447,7 @@
           </div>
         </div>
         <div class="chat-input-bar">
-          <input class="chat-input" placeholder="Type a message to SARA...">
+          <input class="chat-input" placeholder="Type a message...">
           <button class="send-btn">Send</button>
         </div>
       </div>
@@ -1556,32 +1514,26 @@
       <div class="split-chat">
         <div class="chat-messages" id="chat8">
           <div class="msg sara" style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.2)">
-            <div class="sender">&#10003; SARA &bull; 09:55:23</div>
             <strong>Target confirmed.</strong> Keeping orbit active until further instruction.
           </div>
           <div class="msg sara">
-            <div class="sender">SARA &bull; 09:55:30</div>
             Drone is maintaining visual contact. I'll narrate any changes.
           </div>
           <div class="msg sara">
-            <div class="sender">SARA &bull; 09:56:10</div>
             <strong>Update:</strong> Vehicle is stationary. One person visible near driver side door.
           </div>
           <div class="msg sara">
-            <div class="sender">SARA &bull; 09:57:45</div>
             <strong>Update:</strong> Person has exited the vehicle and is walking eastbound.
           </div>
           <div class="msg user">
             Can you get a closer look from the north side?
-            <div class="timestamp">09:58:00</div>
           </div>
           <div class="msg sara">
-            <div class="sender">SARA &bull; 09:58:03</div>
             Adjusting orbit position. Repositioning to north-facing view.
           </div>
         </div>
         <div class="chat-input-bar">
-          <input class="chat-input" placeholder="Give SARA instructions...">
+          <input class="chat-input" placeholder="Type a message...">
           <button class="send-btn">Send</button>
         </div>
       </div>
@@ -1625,19 +1577,15 @@
       <div class="split-chat">
         <div class="chat-messages" id="chat9">
           <div class="msg sara">
-            <div class="sender">SARA &bull; 10:00:00</div>
             <strong>Drone returning home.</strong> Estimated arrival: 2 minutes 30 seconds.
           </div>
           <div class="msg sara">
-            <div class="sender">SARA &bull; 10:01:15</div>
             Approaching home point. Initiating landing sequence.
           </div>
           <div class="msg sara">
-            <div class="sender">SARA &bull; 10:02:20</div>
             <strong>Drone is landing.</strong> Please keep the landing area clear.
           </div>
           <div class="msg sara">
-            <div class="sender">SARA &bull; 10:02:45</div>
             Touchdown confirmed. Motors disarmed.
             <div style="margin-top:12px">
               <button class="choice-btn primary" onclick="goToScreen(10)">View Mission Summary</button>
@@ -1645,7 +1593,7 @@
           </div>
         </div>
         <div class="chat-input-bar">
-          <input class="chat-input" placeholder="Type a message to SARA...">
+          <input class="chat-input" placeholder="Type a message...">
           <button class="send-btn">Send</button>
         </div>
       </div>
@@ -1657,7 +1605,6 @@
     <div class="chat-layout">
       <div class="chat-messages" id="chat10">
         <div class="msg sara">
-          <div class="sender">SARA &bull; 10:03:00</div>
           <strong>Mission completed.</strong> Here's your mission summary:
           <div class="summary-card">
             <div class="summary-item">
@@ -1687,11 +1634,9 @@
           </div>
         </div>
         <div class="msg sara">
-          <div class="sender">SARA &bull; 10:03:05</div>
           Target was located at coordinates <strong>23.2817, 20.8772</strong> at 09:52:47. Orbit was maintained for 7 minutes 13 seconds with continuous visual contact.
         </div>
         <div class="msg sara">
-          <div class="sender">SARA &bull; 10:03:10</div>
           Flight recording and mission data have been saved.<br><br>
           <strong>It is now safe to turn off your drone.</strong>
           <div style="margin-top:16px">
@@ -1700,7 +1645,7 @@
         </div>
       </div>
       <div class="chat-input-bar">
-        <input class="chat-input" placeholder="Type a message to SARA...">
+        <input class="chat-input" placeholder="Type a message...">
         <button class="send-btn">Send</button>
       </div>
     </div>
@@ -1735,7 +1680,6 @@
       </div>
       <div class="pill-modal-body" id="targetModalChat">
         <div class="msg sara">
-          <div class="sender">SARA &bull; <span class="modal-time"></span></div>
           Current target: <strong id="currentTargetDisplay">Red Nissan Pathfinder</strong><br><br>
           What would you like to change the target to? Describe the vehicle type, color, and any identifying features.
         </div>
@@ -1754,7 +1698,6 @@
       </div>
       <div class="pill-modal-body">
         <div class="msg sara">
-          <div class="sender">SARA &bull; <span class="modal-time"></span></div>
           Adjust the mission boundary below. Drag the handles to resize the search area.
         </div>
         <div class="boundary-modal-map">
@@ -1846,7 +1789,6 @@
     const chat = document.getElementById('chat4');
     const msg = document.createElement('div');
     msg.className = 'msg sara';
-    msg.innerHTML = '<div class="sender">SARA &bull; 09:41:35</div>Mission boundary saved. Search pattern generated.<br><br>Ready for takeoff when you are.';
     chat.appendChild(msg);
     chat.scrollTop = chat.scrollHeight;
   }
@@ -1918,7 +1860,6 @@
     // Add user message
     const userMsg = document.createElement('div');
     userMsg.className = 'msg user';
-    userMsg.innerHTML = val + '<div class="timestamp">' + getTimeStr() + '</div>';
     chat.appendChild(userMsg);
 
     // Update pill text
@@ -1927,7 +1868,6 @@
     // Add SARA confirmation
     const saraMsg = document.createElement('div');
     saraMsg.className = 'msg sara confirmation';
-    saraMsg.innerHTML = '<div class="sender">SARA &bull; ' + getTimeStr() + '</div>Target updated to <strong>' + val + '</strong>. I\'ll adjust the search parameters accordingly.';
     chat.appendChild(saraMsg);
     chat.scrollTop = chat.scrollHeight;
 
@@ -1936,7 +1876,6 @@
     if (screenChat) {
       const chatMsg = document.createElement('div');
       chatMsg.className = 'msg sara';
-      chatMsg.innerHTML = '<div class="sender">SARA &bull; ' + getTimeStr() + '</div>Target updated to <strong>' + val + '</strong>. Search parameters adjusted.';
       screenChat.appendChild(chatMsg);
       screenChat.scrollTop = screenChat.scrollHeight;
     }
@@ -1953,7 +1892,6 @@
     if (screenChat) {
       const msg = document.createElement('div');
       msg.className = 'msg sara';
-      msg.innerHTML = '<div class="sender">SARA &bull; ' + getTimeStr() + '</div>Mission boundary updated. Search pattern recalculated.';
       screenChat.appendChild(msg);
       screenChat.scrollTop = screenChat.scrollHeight;
     }
