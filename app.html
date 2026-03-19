@@ -1125,6 +1125,10 @@
       <span id="stateText">Authenticate</span>
     </div>
     <div class="pills">
+      <div class="pill" id="dronePill">
+        <span class="pill-dot" style="background:var(--green)"></span>
+        <span style="font-family:var(--mono);font-size:10px;letter-spacing:0.02em" id="dronePillText">DSA-128</span>
+      </div>
       <div class="pill" id="targetPill" onclick="openPillModal('target')">
         <span class="pill-dot" style="background:var(--red)"></span>
         <span id="targetPillText">Target: Red Nissan Pathfinder</span>
@@ -1864,6 +1868,7 @@
     const dot = document.getElementById('stateDot');
     dot.className = 'dot ' + cfg.dot;
 
+    document.getElementById('dronePill').classList.toggle('visible', n >= 3);
     document.getElementById('targetPill').classList.toggle('visible', n >= 4);
     document.getElementById('boundaryPill').classList.toggle('visible', n >= 5 && n <= 9);
 
