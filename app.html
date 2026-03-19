@@ -170,6 +170,7 @@
     line-height:1.5;
     animation:fadeIn .25s ease;
   }
+  .msg.wide { max-width:95%; }
   @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
 
   .msg.sara {
@@ -286,6 +287,64 @@
     font-size:13px;
     font-weight:500;
     color:var(--text-bright);
+  }
+
+  /* DRONE SELECTION CARDS */
+  .drone-select-card {
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    background:var(--bg-panel);
+    margin-top:10px;
+    overflow:hidden;
+    transition:border-color .15s, background .15s;
+  }
+  .drone-select-card:not(.disabled):hover {
+    border-color:var(--border-strong);
+    background:var(--bg-card);
+  }
+  .drone-select-card:not(.disabled):active {
+    background:var(--bg-hover);
+  }
+  .drone-select-card.disabled {
+    opacity:0.5;
+    cursor:default;
+  }
+  .drone-select-card.selected {
+    border-color:var(--accent);
+    background:var(--accent-dim);
+  }
+  .drone-select-header {
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    padding:12px 14px 8px;
+  }
+  .drone-select-stats {
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr 1fr;
+    gap:0;
+    border-top:1px solid var(--border-subtle);
+  }
+  .drone-select-stats > div {
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    padding:8px 12px;
+    border-right:1px solid var(--border-subtle);
+  }
+  .drone-select-stats > div:last-child { border-right:none; }
+  .drone-stat-label {
+    font-size:10px;
+    font-weight:500;
+    color:var(--text-ghost);
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+  }
+  .drone-stat-value {
+    font-family:var(--mono);
+    font-size:12px;
+    font-weight:500;
+    color:var(--text-secondary);
   }
 
   /* SPLIT LAYOUT (map + chat) */
@@ -1078,17 +1137,18 @@
     <div style="font-family:var(--mono);font-size:10px;color:var(--text-dim);white-space:nowrap;letter-spacing:1px" id="clockDisplay">09:40:00</div>
   </div>
 
-  <!-- ========== SCREEN 1: DRONE CONNECTION - WELCOME ========== -->
+  <!-- ========== SCREEN 1: AUTHENTICATE ========== -->
   <div class="screen active" id="screen1">
     <div class="chat-layout">
       <div class="chat-messages" id="chat1">
         <div class="msg sara">
-          Hello! I'm <strong>SARA</strong>, your mission assistant. Let's get started by connecting your drone.
+          Welcome to <strong>Phalanx</strong>. I'm your mission assistant.
         </div>
         <div class="msg sara">
-          Please ensure your drone is powered on and within range. Then tap <strong>"Scan for Drones"</strong> below.
-          <div style="margin-top:12px">
-            <button class="choice-btn primary" onclick="goToScreen(2)">Scan for Drones</button>
+          Enter your <strong>organization token</strong> to get started.
+          <div style="margin-top:12px;display:flex;gap:8px">
+            <input type="text" id="tokenInput" class="chat-input" placeholder="Paste token..." style="flex:1;margin:0;font-family:var(--mono);font-size:12px;letter-spacing:0.02em" value="pk_org_9f2a1b8c">
+            <button class="choice-btn primary" onclick="goToScreen(2)" style="white-space:nowrap">Connect</button>
           </div>
         </div>
       </div>
@@ -1099,47 +1159,89 @@
     </div>
   </div>
 
-  <!-- ========== SCREEN 2: DRONE DETECTED ========== -->
+  <!-- ========== SCREEN 2: ORG + DRONE SELECTION ========== -->
   <div class="screen" id="screen2">
     <div class="chat-layout">
       <div class="chat-messages" id="chat2">
         <div class="msg sara">
-          Scanning for nearby drones...
+          Authenticated. Organization: <strong>Riverside County SAR</strong>
         </div>
-        <div class="msg sara">
-          <strong>Drone detected!</strong> I found the following device:
-          <div class="drone-card">
-            <div class="meta-item">
-              <span class="meta-label">Model</span>
-              <span class="meta-value">Delta SA-128</span>
+        <div class="msg sara wide">
+          Select a drone to begin your mission.
+          <div class="drone-select-card" onclick="selectDrone(this)" style="cursor:pointer">
+            <div class="drone-select-header">
+              <div>
+                <div style="font-weight:600;font-size:14px;color:var(--text-bright)">Delta SA-128</div>
+                <div style="font-family:var(--mono);font-size:11px;color:var(--text-ghost);margin-top:2px">SN DSA-0128-X</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <div style="width:6px;height:6px;background:var(--green);border-radius:50%"></div>
+                <span style="font-family:var(--mono);font-size:11px;color:var(--green)">AVAILABLE</span>
+              </div>
             </div>
-            <div class="meta-item">
-              <span class="meta-label">Battery</span>
-              <span class="meta-value" style="color:var(--green)">98%</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-label">Signal</span>
-              <span class="meta-value" style="color:var(--green)">Strong</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-label">Serial</span>
-              <span class="meta-value">DSA-0128-X</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-label">Firmware</span>
-              <span class="meta-value">v3.2.1</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-label">Range</span>
-              <span class="meta-value">15 km</span>
+            <div class="drone-select-stats">
+              <div><span class="drone-stat-label">Battery</span><span class="drone-stat-value" style="color:var(--green)">98%</span></div>
+              <div><span class="drone-stat-label">Signal</span><span class="drone-stat-value" style="color:var(--green)">Strong</span></div>
+              <div><span class="drone-stat-label">Range</span><span class="drone-stat-value">15 km</span></div>
+              <div><span class="drone-stat-label">Firmware</span><span class="drone-stat-value">v3.2.1</span></div>
             </div>
           </div>
-        </div>
-        <div class="msg sara">
-          Do you wish to connect to <strong>Delta SA-128</strong>?
-          <div class="choices">
-            <button class="choice-btn primary" onclick="goToScreen(3)">Yes, Connect</button>
-            <button class="choice-btn">No, Scan Again</button>
+          <!-- Drone 2: Available -->
+          <div class="drone-select-card" onclick="selectDrone(this)" style="cursor:pointer">
+            <div class="drone-select-header">
+              <div>
+                <div style="font-weight:600;font-size:14px;color:var(--text-bright)">Delta SA-064</div>
+                <div style="font-family:var(--mono);font-size:11px;color:var(--text-ghost);margin-top:2px">SN DSA-0064-R</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <div style="width:6px;height:6px;background:var(--green);border-radius:50%"></div>
+                <span style="font-family:var(--mono);font-size:11px;color:var(--green)">AVAILABLE</span>
+              </div>
+            </div>
+            <div class="drone-select-stats">
+              <div><span class="drone-stat-label">Battery</span><span class="drone-stat-value" style="color:var(--amber)">67%</span></div>
+              <div><span class="drone-stat-label">Signal</span><span class="drone-stat-value" style="color:var(--green)">Strong</span></div>
+              <div><span class="drone-stat-label">Range</span><span class="drone-stat-value">12 km</span></div>
+              <div><span class="drone-stat-label">Firmware</span><span class="drone-stat-value">v3.1.8</span></div>
+            </div>
+          </div>
+          <!-- Drone 3: In Use -->
+          <div class="drone-select-card disabled">
+            <div class="drone-select-header">
+              <div>
+                <div style="font-weight:600;font-size:14px;color:var(--text-ghost)">Delta SA-256</div>
+                <div style="font-family:var(--mono);font-size:11px;color:var(--text-ghost);margin-top:2px">SN DSA-0256-K</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <div style="width:6px;height:6px;background:var(--amber);border-radius:50%"></div>
+                <span style="font-family:var(--mono);font-size:11px;color:var(--amber)">IN MISSION</span>
+              </div>
+            </div>
+            <div class="drone-select-stats">
+              <div><span class="drone-stat-label">Operator</span><span class="drone-stat-value">J. Torres</span></div>
+              <div><span class="drone-stat-label">Battery</span><span class="drone-stat-value">54%</span></div>
+              <div><span class="drone-stat-label">ETA</span><span class="drone-stat-value">~18 min</span></div>
+              <div><span class="drone-stat-label">Range</span><span class="drone-stat-value">15 km</span></div>
+            </div>
+          </div>
+          <!-- Drone 4: Offline -->
+          <div class="drone-select-card disabled">
+            <div class="drone-select-header">
+              <div>
+                <div style="font-weight:600;font-size:14px;color:var(--text-ghost)">Delta SA-032</div>
+                <div style="font-family:var(--mono);font-size:11px;color:var(--text-ghost);margin-top:2px">SN DSA-0032-M</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <div style="width:6px;height:6px;background:var(--text-ghost);border-radius:50%"></div>
+                <span style="font-family:var(--mono);font-size:11px;color:var(--text-ghost)">OFFLINE</span>
+              </div>
+            </div>
+            <div class="drone-select-stats">
+              <div><span class="drone-stat-label">Battery</span><span class="drone-stat-value">—</span></div>
+              <div><span class="drone-stat-label">Signal</span><span class="drone-stat-value">None</span></div>
+              <div><span class="drone-stat-label">Last Seen</span><span class="drone-stat-value">2h ago</span></div>
+              <div><span class="drone-stat-label">Firmware</span><span class="drone-stat-value">v3.0.4</span></div>
+            </div>
           </div>
         </div>
       </div>
@@ -1734,8 +1836,8 @@
   const totalScreens = 10;
 
   const stateConfig = {
-    1:  { text: 'Connect Drone', dot: 'dot-yellow' },
-    2:  { text: 'Connect Drone', dot: 'dot-yellow' },
+    1:  { text: 'Authenticate', dot: 'dot-yellow' },
+    2:  { text: 'Select Drone', dot: 'dot-yellow' },
     3:  { text: 'Mission Setup', dot: 'dot-blue' },
     4:  { text: 'Mission Setup — Search Area', dot: 'dot-blue' },
     5:  { text: 'Takeoff', dot: 'dot-green' },
@@ -1773,6 +1875,13 @@
 
   function nextScreen() { goToScreen(currentScreen + 1); }
   function prevScreen() { goToScreen(currentScreen - 1); }
+
+  function selectDrone(card) {
+    if (card.classList.contains('disabled')) return;
+    document.querySelectorAll('.drone-select-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    setTimeout(() => goToScreen(3), 400);
+  }
 
   function toggleView(btn) {
     const feed = btn.closest('.video-feed');
