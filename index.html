@@ -84,19 +84,20 @@
   <div class="logo">Phalanx</div>
   <div class="subtitle">Drone Mission Control</div>
   <div class="input-group">
-    <input type="text" id="pw" placeholder="Enter organization token..." autofocus
-      onkeydown="if(event.key==='Enter')check()" style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.02em">
-    <button onclick="check()">Connect</button>
+    <input type="password" id="pw" placeholder="Enter access code..." autofocus
+      onkeydown="if(event.key==='Enter')check()">
+    <button onclick="check()">Enter</button>
   </div>
-  <div class="error" id="err">Invalid token</div>
+  <div class="error" id="err">Incorrect access code</div>
 </div>
 <script>
   function check() {
-    const v = document.getElementById('pw').value.trim();
-    if (v.length > 0) {
+    const v = document.getElementById('pw').value;
+    if (v === 'phalanx') {
       window.location.href = 'app.html';
     } else {
       document.getElementById('err').classList.add('visible');
+      document.getElementById('pw').value = '';
       setTimeout(() => document.getElementById('err').classList.remove('visible'), 2000);
     }
   }
