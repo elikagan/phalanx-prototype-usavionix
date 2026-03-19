@@ -77,6 +77,29 @@
     transition: opacity .2s;
   }
   .error.visible { opacity: 1; }
+
+  /* Wireframe mode */
+  body.wireframe {
+    background: #f0f0f0;
+    color: #1a1a1a;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  body.wireframe .logo { color: #1a1a1a; }
+  body.wireframe .subtitle { color: #999; }
+  body.wireframe input {
+    background: #fff;
+    border: 1px solid #ccc;
+    color: #1a1a1a;
+  }
+  body.wireframe input:focus { border-color: #999; }
+  body.wireframe input::placeholder { color: #999; }
+  body.wireframe button {
+    background: #fff;
+    border: 1px solid #999;
+    color: #333;
+  }
+  body.wireframe button:hover { background: #f0f0f0; }
+  body.wireframe .error { color: #333; }
 </style>
 </head>
 <body>
@@ -91,10 +114,14 @@
   <div class="error" id="err">Incorrect access code</div>
 </div>
 <script>
+  if (new URLSearchParams(window.location.search).has('wireframe')) {
+    document.body.classList.add('wireframe');
+  }
   function check() {
     const v = document.getElementById('pw').value;
     if (v === 'phalanx') {
-      window.location.href = 'app.html';
+      const params = new URLSearchParams(window.location.search);
+      window.location.href = 'app.html' + (params.has('wireframe') ? '?wireframe' : '');
     } else {
       document.getElementById('err').classList.add('visible');
       document.getElementById('pw').value = '';
