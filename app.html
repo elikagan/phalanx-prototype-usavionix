@@ -16,8 +16,8 @@
   2. VISUAL HIERARCHY
      - Every screen has ONE primary focus. Support it, don't compete with it.
      - Use weight, size, and opacity to create clear reading order — not color.
-     - Headings: bright (#fafafa), body: default (#e4e4e7), secondary: dim (#a1a1aa),
-       metadata: ghost (#71717a). Each tier has a purpose.
+     - Headings: bright (#d0d0d6), body: default (#b4b4bc), secondary: dim (#6e6e78),
+       metadata: ghost (#3a3a42). Each tier has a purpose.
 
   3. SPACING & RHYTHM
      - Consistent spacing creates perceived quality. Use 4/8/12/16/20/24/32px scale.
@@ -31,8 +31,8 @@
      - Buttons and controls: minimal. No heavy outlines or busy edge treatments.
 
   5. TYPOGRAPHY
-     - Inter for all UI text. Weight does the work (400/500/600/700).
-     - JetBrains Mono for technical data: coordinates, timestamps, telemetry, codes.
+     - System sans-serif for all UI text (-apple-system, etc.). Weight does the work (400/500/600/700).
+     - Monospace stack (SF Mono → Fira Code → Consolas → JetBrains Mono) for technical data: coordinates, timestamps, telemetry, codes.
      - One size per context. Left chat and right chat = same size. Consistency > variety.
 
   6. FUNCTIONALITY
@@ -52,51 +52,51 @@
 <title>Phalanx — Drone Mission Control</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" />
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
 
   :root {
     /* Backgrounds — cool undertone, not pure black */
-    --bg-base: #09090b;
-    --bg-panel: #0f1114;
-    --bg-card: #161a1e;
-    --bg-hover: #1c2027;
+    --bg-base: #18181b;
+    --bg-panel: #141417;
+    --bg-card: #212126;
+    --bg-hover: #28282e;
 
     /* Borders */
-    --border: rgba(255,255,255,0.10);
-    --border-subtle: rgba(255,255,255,0.06);
-    --border-strong: rgba(255,255,255,0.16);
+    --border: #2c2c33;
+    --border-subtle: #242429;
+    --border-strong: #3a3a42;
 
     /* Text */
-    --text: #e4e4e7;
-    --text-dim: #71717a;
-    --text-secondary: #a1a1aa;
-    --text-ghost: #52525b;
-    --text-bright: #fafafa;
+    --text: #b4b4bc;
+    --text-dim: #4e4e56;
+    --text-secondary: #6e6e78;
+    --text-ghost: #3a3a42;
+    --text-bright: #d0d0d6;
 
     /* Accent — muted steel blue */
-    --accent: #7c9aaf;
-    --accent-dim: rgba(124,154,175,0.12);
-    --accent-border: rgba(124,154,175,0.25);
+    --accent: #5f8fad;
+    --accent-dim: rgba(95,143,173,0.08);
+    --accent-border: rgba(95,143,173,0.20);
 
     /* Semantic — functional status colors only */
-    --green: #4ade80;
-    --green-dim: rgba(74,222,128,0.12);
-    --green-border: rgba(74,222,128,0.2);
-    --cyan: #67e8f9;
-    --cyan-dim: rgba(103,232,249,0.12);
-    --amber: #fbbf24;
-    --amber-dim: rgba(251,191,36,0.12);
-    --red: #f87171;
-    --red-dim: rgba(248,113,113,0.12);
+    --green: #4a9a65;
+    --green-dim: rgba(74,154,101,0.10);
+    --green-border: rgba(74,154,101,0.20);
+    --cyan: #5a8fbf;
+    --cyan-dim: rgba(90,143,191,0.10);
+    --amber: #a89540;
+    --amber-dim: rgba(168,149,64,0.08);
+    --red: #b85454;
+    --red-dim: rgba(184,84,84,0.10);
 
     /* Typography */
-    --mono: 'JetBrains Mono', 'SF Mono', monospace;
-    --sans: 'Inter', -apple-system, sans-serif;
+    --mono: 'SF Mono', 'Fira Code', 'Consolas', 'JetBrains Mono', monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 
     /* Radii */
     --radius: 6px;
     --radius-sm: 4px;
-    --radius-lg: 10px;
+    --radius-lg: 8px;
   }
 
   * { margin:0; padding:0; box-sizing:border-box; -webkit-text-size-adjust:100%; text-size-adjust:100%; }
@@ -107,7 +107,7 @@
   }
   body {
     font-family: var(--sans);
-    background: #06060a;
+    background: #111114;
     color: var(--text);
     display:flex;
     justify-content:center;
@@ -151,6 +151,10 @@
     color:var(--text-dim);
     text-transform:uppercase;
     letter-spacing:0.08em;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    min-width:0;
   }
   .status-bar .state .dot {
     display:inline-block;
@@ -159,16 +163,18 @@
     margin-right:8px;
     vertical-align:middle;
   }
-  .dot-yellow { background:var(--amber); box-shadow:0 0 6px rgba(251,191,36,0.4); }
-  .dot-green { background:var(--green); box-shadow:0 0 6px rgba(74,222,128,0.4); }
-  .dot-red { background:var(--red); box-shadow:0 0 6px rgba(248,113,113,0.4); }
-  .dot-blue { background:var(--cyan); box-shadow:0 0 6px rgba(103,232,249,0.4); }
+  .dot-yellow { background:var(--amber); box-shadow:0 0 6px rgba(168,149,64,0.4); }
+  .dot-green { background:var(--green); box-shadow:0 0 6px rgba(74,154,101,0.4); }
+  .dot-red { background:var(--red); box-shadow:0 0 6px rgba(184,84,84,0.4); }
+  .dot-blue { background:var(--cyan); box-shadow:0 0 6px rgba(90,143,191,0.4); }
 
   /* PILLS */
   .pills {
     display:flex; gap:6px;
     margin-left:auto;
-    flex-shrink:0;
+    flex-shrink:1;
+    min-width:0;
+    overflow:hidden;
   }
   .pill {
     background:var(--bg-card);
@@ -183,7 +189,7 @@
     white-space:nowrap;
     letter-spacing:0.02em;
   }
-  .pill.visible { display:flex; align-items:center; gap:5px; }
+  .pill.visible { display:flex; align-items:center; gap:5px; overflow:hidden; text-overflow:ellipsis; }
   .pill .pill-dot {
     width:5px;height:5px;border-radius:50%;
   }
@@ -231,12 +237,12 @@
     border:none;
     border-radius:0;
     padding:12px 0;
-    color:var(--text-secondary);
+    color:var(--text);
   }
   .msg.user {
     align-self:flex-end;
-    background:rgba(255,255,255,0.08);
-    border:1px solid rgba(255,255,255,0.10);
+    background:rgba(255,255,255,0.05);
+    border:1px solid #2c2c33;
     border-radius:var(--radius);
     color:var(--text-bright);
   }
@@ -260,17 +266,17 @@
   }
   .choice-btn:hover { background:var(--bg-hover); border-color:var(--border-strong); color:var(--text); }
   .choice-btn.primary {
-    background:var(--text);
-    border-color:var(--text);
-    color:var(--bg-base);
+    background:#3d6b85;
+    border-color:#3d6b85;
+    color:#d4e0e8;
   }
-  .choice-btn.primary:hover { background:var(--text-bright); }
+  .choice-btn.primary:hover { background:#4a7a96; }
   .choice-btn.danger {
     background:var(--red-dim);
-    border-color:rgba(248,113,113,0.2);
+    border-color:rgba(184,84,84,0.2);
     color:var(--red);
   }
-  .choice-btn.danger:hover { background:rgba(248,113,113,0.18); }
+  .choice-btn.danger:hover { background:rgba(184,84,84,0.18); }
 
   /* CHAT INPUT */
   .chat-input-bar {
@@ -407,7 +413,7 @@
   .split-map {
     flex:1;
     position:relative;
-    background:#080c14;
+    background:#141417;
     overflow:hidden;
   }
   .split-chat {
@@ -548,11 +554,11 @@
     backdrop-filter:blur(8px);
   }
   .map-btn-primary {
-    background:rgba(15,17,20,.8);
+    background:rgba(20,20,23,.85);
     color:var(--text);
     border:1px solid var(--border);
   }
-  .map-btn-primary:hover { background:rgba(22,26,30,.9); color:var(--text-bright); }
+  .map-btn-primary:hover { background:rgba(33,33,38,.9); color:var(--text-bright); }
   .map-btn-secondary {
     background:transparent;
     color:var(--text-secondary);
@@ -560,20 +566,20 @@
   }
   .map-btn-secondary:hover { color:var(--text); border-color:var(--border); }
   .map-btn-launch {
-    background:var(--text);
-    color:var(--bg-base);
+    background:#3d6b85;
+    color:#d4e0e8;
     padding:12px 36px;
     font-size:14px;
     font-weight:600;
     border:none;
   }
-  .map-btn-launch:hover { background:var(--text-bright); }
+  .map-btn-launch:hover { background:#4a7a96; }
   .map-btn-abort {
     background:var(--red-dim);
     color:var(--red);
-    border:1px solid rgba(248,113,113,0.2);
+    border:1px solid rgba(184,84,84,0.2);
   }
-  .map-btn-abort:hover { background:rgba(248,113,113,0.18); }
+  .map-btn-abort:hover { background:rgba(184,84,84,0.18); }
 
   /* SHAPE TOGGLE */
   .shape-toggle {
@@ -590,13 +596,13 @@
     font-weight:500;
     cursor:pointer;
     border:1px solid var(--border);
-    background:rgba(15,17,20,.8);
+    background:rgba(20,20,23,.85);
     color:var(--text-dim);
     backdrop-filter:blur(8px);
     transition:all .15s ease;
   }
   .shape-option.active {
-    background:rgba(22,26,30,.9);
+    background:rgba(33,33,38,.9);
     border-color:var(--border-strong);
     color:var(--text-bright);
   }
@@ -609,7 +615,7 @@
   .video-feed {
     position:relative;
     flex:1;
-    background:#060810 url('aerial.jpg') center/cover no-repeat;
+    background:#141417 url('aerial.jpg') center/cover no-repeat;
     overflow:hidden;
   }
   .video-static {
@@ -731,7 +737,7 @@
     border:1px solid var(--border);
     overflow:hidden;
     z-index:8;
-    background:#080c14;
+    background:#141417;
   }
   .map-thumbnail .map-grid {
     background-size:20px 20px;
@@ -789,7 +795,7 @@
     border:1px solid var(--border);
     overflow:hidden;
     z-index:8;
-    background:#060810;
+    background:#141417;
   }
   .video-thumb {
     display:none;
@@ -833,23 +839,23 @@
     font-weight:500;
     cursor:pointer;
     border:1px solid var(--border);
-    background:rgba(15,17,20,.8);
+    background:rgba(20,20,23,.85);
     backdrop-filter:blur(8px);
     color:var(--text-secondary);
     transition:all .15s ease;
   }
-  .exec-btn:hover { background:rgba(22,26,30,.9); color:var(--text-bright); border-color:var(--border-strong); }
+  .exec-btn:hover { background:rgba(33,33,38,.9); color:var(--text-bright); border-color:var(--border-strong); }
   .exec-btn.abort-btn {
-    border-color:rgba(248,113,113,0.2);
+    border-color:rgba(184,84,84,0.2);
     color:var(--red);
-    background:rgba(248,113,113,0.08);
+    background:rgba(184,84,84,0.08);
   }
-  .exec-btn.abort-btn:hover { background:rgba(248,113,113,0.15); }
+  .exec-btn.abort-btn:hover { background:rgba(184,84,84,0.15); }
 
   /* ALERT FLASH */
   .alert-flash {
     position:absolute; inset:0;
-    background:rgba(255,255,255,.12);
+    background:rgba(255,255,255,.08);
     z-index:20;
     animation:alertFlash .6s ease;
     pointer-events:none;
@@ -866,7 +872,7 @@
     position:absolute;
     bottom:0; left:0; right:0;
     height:40px;
-    background:rgba(9,9,11,.9);
+    background:rgba(20,20,23,.92);
     backdrop-filter:blur(8px);
     display:flex;
     align-items:center;
@@ -926,7 +932,7 @@
     transition:all .2s;
     border:1px solid transparent;
   }
-  .nav-dot.active { background:var(--text); width:8px; border-radius:50%; box-shadow:0 0 8px rgba(228,228,231,.3); }
+  .nav-dot.active { background:var(--text); width:8px; border-radius:50%; box-shadow:0 0 8px rgba(180,180,188,.3); }
   .nav-dot.completed { background:var(--text-ghost); border-color:transparent; }
   .nav-arrows {
     position:absolute;
@@ -1081,7 +1087,7 @@
     justify-content:center;
     transition:all .15s;
   }
-  .pill-modal-close:hover { background:var(--red-dim); border-color:rgba(248,113,113,0.2); color:var(--red); }
+  .pill-modal-close:hover { background:var(--red-dim); border-color:rgba(184,84,84,0.2); color:var(--red); }
 
   .pill-modal-body {
     flex:1;
@@ -1117,14 +1123,14 @@
     font-size:13px;
     font-weight:500;
     padding:8px 16px;
-    background:var(--text);
+    background:#3d6b85;
     border:none;
     border-radius:var(--radius);
-    color:var(--bg-base);
+    color:#d4e0e8;
     cursor:pointer;
     transition:all .15s;
   }
-  .pill-modal-input-bar button:hover { background:var(--text-bright); }
+  .pill-modal-input-bar button:hover { background:#4a7a96; }
 
   /* Boundary modal map */
   .boundary-modal-map {
@@ -1162,8 +1168,8 @@
     transition:all .15s;
   }
   .boundary-modal-actions button:hover { border-color:var(--border-strong); color:var(--text); }
-  .boundary-modal-actions button.primary { background:var(--text); border-color:var(--text); color:var(--bg-base); }
-  .boundary-modal-actions button.primary:hover { background:var(--text-bright); }
+  .boundary-modal-actions button.primary { background:#3d6b85; border-color:#3d6b85; color:#d4e0e8; }
+  .boundary-modal-actions button.primary:hover { background:#4a7a96; }
 
 /* ============================================
    WIREFRAME MODE
@@ -2274,7 +2280,7 @@ body.wireframe .msg strong { font-weight: 600; }
         <div class="boundary-modal-map">
           <div class="map-bg"></div>
           <div class="map-grid"></div>
-          <div class="mission-circle" style="width:180px;height:180px;top:50%;left:50%;transform:translate(-50%,-50%);border:2px dashed rgba(124,154,175,.4);border-radius:50%;position:absolute;z-index:2">
+          <div class="mission-circle" style="width:180px;height:180px;top:50%;left:50%;transform:translate(-50%,-50%);border:2px dashed rgba(95,143,173,.4);border-radius:50%;position:absolute;z-index:2">
             <div class="circle-handle handle-top"></div>
             <div class="circle-handle handle-bottom"></div>
             <div class="circle-handle handle-left"></div>
