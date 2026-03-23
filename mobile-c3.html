@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>C3 — Context-Aware Density</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-text-size-adjust:100%; }
+  :root {
+    --bg-base: #18181b; --bg-panel: #141417; --bg-card: #212126; --bg-hover: #28282e;
+    --border: #2c2c33; --border-subtle: #242429; --border-strong: #3a3a42;
+    --text: #b4b4bc; --text-dim: #4e4e56; --text-secondary: #6e6e78; --text-ghost: #3a3a42; --text-bright: #d0d0d6;
+    --green: #4a9a65; --amber: #a89540; --red: #b85454;
+    --mono: 'SF Mono','Fira Code','Consolas','JetBrains Mono',monospace;
+    --sans: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    --radius: 6px; --radius-sm: 4px;
+  }
+  body { font-family:var(--sans); background:#000; color:var(--text); height:100vh; height:100dvh; overflow:hidden; -webkit-font-smoothing:antialiased; }
+
+  /* VIDEO */
+  .video-full { position:absolute; inset:0; background:#141417 url('aerial.jpg') center/cover no-repeat; }
+  .video-static { position:absolute; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.1) 2px,rgba(0,0,0,.1) 4px); }
+  .crosshair { position:absolute; top:42%; left:50%; transform:translate(-50%,-50%); width:30px; height:30px; }
+  .crosshair::before,.crosshair::after { content:''; position:absolute; background:rgba(255,255,255,.12); }
+  .crosshair::before { width:1px; height:100%; left:50%; }
+  .crosshair::after { height:1px; width:100%; top:50%; }
+  .video-hud { position:absolute; top:50px; left:12px; right:12px; bottom:90px; border:1px solid rgba(255,255,255,.05); }
+  .hud-corner { position:absolute; width:14px; height:14px; border-color:rgba(255,255,255,.2); border-style:solid; }
+  .hud-tl { top:0;left:0; border-width:2px 0 0 2px; }
+  .hud-tr { top:0;right:0; border-width:2px 2px 0 0; }
+  .hud-bl { bottom:0;left:0; border-width:0 0 2px 2px; }
+  .hud-br { bottom:0;right:0; border-width:0 2px 2px 0; }
+
+  /* TOPBAR */
+  .topbar {
+    position:absolute; top:0; left:0; right:0; z-index:100;
+    height:44px; display:flex; align-items:center; padding:0 12px; gap:8px;
+    background:rgba(20,20,23,.7); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    border-bottom:1px solid rgba(255,255,255,.04);
+  }
+  .topbar .logo { font-weight:700; font-size:15px; color:var(--text-bright); letter-spacing:-0.02em; }
+  .topbar .state { font-size:10px; font-weight:500; color:var(--text-dim); text-transform:uppercase; letter-spacing:.06em; }
+  .topbar .dot { display:inline-block; width:6px; height:6px; border-radius:50%; margin-right:6px; vertical-align:middle; }
+  .topbar .pills { margin-left:auto; display:flex; gap:4px; }
+  .topbar .pill { background:rgba(33,33,38,.6); border:1px solid rgba(255,255,255,.06); border-radius:var(--radius-sm); padding:3px 8px; font-family:var(--mono); font-size:9px; color:var(--text-secondary); display:flex; align-items:center; gap:4px; }
+  .pill-dot { width:4px; height:4px; border-radius:50%; }
+
+  /* HUD telemetry */
+  .hud-telem {
+    position:absolute; z-index:20;
+    font-family:var(--mono); font-size:9px; font-weight:500; color:rgba(255,255,255,.45);
+    letter-spacing:.5px; text-shadow:0 1px 4px rgba(0,0,0,.8);
+  }
+  .hud-telem-tl { top:56px; left:18px; }
+  .hud-telem-bl { bottom:96px; left:18px; }
+  .exec-actions { position:absolute; top:56px; right:18px; z-index:30; }
+  .exec-btn {
+    padding:5px 10px; border-radius:var(--radius-sm);
+    font-family:var(--mono); font-size:10px; font-weight:500;
+    border:1px solid rgba(184,84,84,.2); background:rgba(184,84,84,.08);
+    backdrop-filter:blur(6px); color:var(--red);
+    display:flex; align-items:center; gap:4px; cursor:pointer;
+  }
+
+  /* OVERLAY ZONE — where messages appear */
+  .overlay-zone {
+    position:absolute;
+    bottom:76px; left:12px; right:12px;
+    z-index:50;
+    display:flex; flex-direction:column; gap:6px;
+    transition:all .4s cubic-bezier(.32,.72,0,1);
+    pointer-events:none;
+  }
+
+  /* CALM STATE — single subtle message */
+  .calm-msg {
+    background:rgba(20,20,23,.72);
+    backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    border:1px solid rgba(255,255,255,.04);
+    border-radius:var(--radius);
+    padding:10px 14px;
+    font-size:13px; line-height:1.5; color:var(--text);
+    pointer-events:auto;
+    animation:fadeUp .4s ease;
+  }
+  .calm-msg .msg-label {
+    font-family:var(--mono); font-size:9px; font-weight:500;
+    color:var(--text-dim); text-transform:uppercase; letter-spacing:.06em;
+    margin-bottom:3px;
+  }
+
+  /* ALERT STATE — big dramatic expansion */
+  .alert-zone {
+    display:none;
+    flex-direction:column;
+    gap:8px;
+    pointer-events:auto;
+    animation:alertExpand .5s cubic-bezier(.32,.72,0,1);
+  }
+  .alert-zone.active { display:flex; }
+  @keyframes alertExpand { from { opacity:0; transform:translateY(20px) scale(.96); } to { opacity:1; transform:translateY(0) scale(1); } }
+
+  .alert-header {
+    background:rgba(184,84,84,.15);
+    backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    border:1px solid rgba(184,84,84,.3);
+    border-radius:var(--radius);
+    padding:14px 16px;
+    animation:alertPulse 2s ease infinite;
+  }
+  @keyframes alertPulse {
+    0%,100% { box-shadow:0 0 0 0 rgba(184,84,84,0); }
+    50% { box-shadow:0 0 20px 2px rgba(184,84,84,.15); }
+  }
+  .alert-header .alert-label {
+    font-family:var(--mono); font-size:10px; font-weight:600;
+    color:var(--red); text-transform:uppercase; letter-spacing:.06em;
+    margin-bottom:6px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .alert-header .alert-label .material-symbols-outlined { font-size:16px; }
+  .alert-header .alert-text {
+    font-size:14px; line-height:1.5; color:var(--text-bright);
+  }
+
+  .alert-body {
+    background:rgba(20,20,23,.82);
+    backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:var(--radius);
+    padding:12px 14px;
+    font-size:13px; line-height:1.5; color:var(--text);
+  }
+
+  .alert-choices {
+    display:flex; gap:8px;
+  }
+  .alert-choice {
+    flex:1;
+    padding:14px 12px;
+    border-radius:var(--radius);
+    font-family:var(--sans); font-size:14px; font-weight:500;
+    text-align:center; cursor:pointer;
+    border:none;
+    transition:all .15s;
+    pointer-events:auto;
+  }
+  .alert-choice.confirm {
+    background:#3d6b85; color:#d4e0e8;
+  }
+  .alert-choice.confirm:active { background:#4a7a96; }
+  .alert-choice.reject {
+    background:rgba(184,84,84,.12); border:1px solid rgba(184,84,84,.25); color:var(--red);
+  }
+  .alert-choice.reject:active { background:rgba(184,84,84,.2); }
+
+  /* PTT bar — pulses in alert state */
+  .ptt-bar {
+    position:absolute; bottom:0; left:0; right:0; z-index:60;
+    padding:8px 12px;
+    padding-bottom:max(8px, env(safe-area-inset-bottom));
+    background:rgba(20,20,23,.85);
+    backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    border-top:1px solid rgba(255,255,255,.04);
+    display:flex; align-items:center; gap:8px;
+    transition:all .3s;
+  }
+  body.alert-mode .ptt-bar {
+    border-top-color:rgba(184,84,84,.15);
+  }
+  .ptt-button {
+    flex:1; height:52px; border-radius:8px;
+    background:rgba(33,33,38,.6); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    font-family:var(--sans); font-size:14px; font-weight:500;
+    color:var(--text-secondary); cursor:pointer;
+    transition:all .15s; user-select:none; -webkit-user-select:none;
+  }
+  /* In alert mode, PTT has a subtle breathing pulse */
+  body.alert-mode .ptt-button {
+    animation:pttBreath 3s ease infinite;
+    border-color:rgba(184,84,84,.15);
+  }
+  @keyframes pttBreath {
+    0%,100% { box-shadow:0 0 0 0 rgba(184,84,84,0); }
+    50% { box-shadow:0 0 12px 1px rgba(184,84,84,.08); }
+  }
+  .ptt-button:active,.ptt-button.live {
+    background:rgba(184,84,84,.15); border-color:rgba(184,84,84,.4);
+    color:var(--text-bright); box-shadow:0 0 30px rgba(184,84,84,.12);
+    animation:none;
+  }
+  .ptt-button .material-symbols-outlined { font-size:22px; color:var(--text-dim); transition:color .15s; }
+  .ptt-button:active .material-symbols-outlined,.ptt-button.live .material-symbols-outlined { color:var(--red); }
+  .ptt-button.live .ptt-label { display:none; }
+  .ptt-button.live .ptt-waveform { display:flex; }
+  .ptt-waveform { display:none; align-items:center; gap:3px; height:26px; }
+  .ptt-waveform span { width:3px; background:var(--red); border-radius:1px; animation:wave .8s ease-in-out infinite; }
+  .ptt-waveform span:nth-child(1){height:10px;animation-delay:0s}
+  .ptt-waveform span:nth-child(2){height:20px;animation-delay:.1s}
+  .ptt-waveform span:nth-child(3){height:14px;animation-delay:.2s}
+  .ptt-waveform span:nth-child(4){height:24px;animation-delay:.15s}
+  .ptt-waveform span:nth-child(5){height:12px;animation-delay:.25s}
+  .ptt-waveform span:nth-child(6){height:18px;animation-delay:.05s}
+  .ptt-waveform span:nth-child(7){height:10px;animation-delay:.2s}
+  .ptt-waveform span:nth-child(8){height:22px;animation-delay:.12s}
+  .ptt-waveform span:nth-child(9){height:14px;animation-delay:.08s}
+  @keyframes wave { 0%,100%{transform:scaleY(.3)} 50%{transform:scaleY(1)} }
+  .text-toggle {
+    width:52px; height:52px; border-radius:8px;
+    background:rgba(33,33,38,.6); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;
+  }
+  .text-toggle .material-symbols-outlined { font-size:22px; color:var(--text-dim); }
+
+  @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+  /* Simulate button */
+  .sim-btn {
+    position:fixed; bottom:80px; right:12px; z-index:200;
+    font-family:var(--mono); font-size:9px; color:var(--text-ghost);
+    text-decoration:underline; text-decoration-color:var(--text-ghost);
+    cursor:pointer; background:none; border:none;
+  }
+
+  .layout-label {
+    position:fixed; top:50px; left:12px; z-index:200;
+    background:rgba(168,149,64,.15); border:1px solid rgba(168,149,64,.3); color:var(--amber);
+    font-family:var(--mono); font-size:10px; font-weight:600; padding:4px 8px; border-radius:var(--radius-sm); letter-spacing:.04em;
+  }
+
+  /* Target bbox for alert state */
+  .target-bbox {
+    display:none;
+    position:absolute;
+    top:35%; left:42%;
+    width:80px; height:56px;
+    border:2px solid rgba(255,255,255,.7);
+    z-index:15;
+  }
+  .target-bbox .bbox-label {
+    position:absolute; top:-22px; left:0;
+    font-family:var(--mono); font-size:9px; font-weight:600;
+    background:rgba(0,0,0,.7); color:#fff;
+    padding:3px 6px; border-radius:3px;
+    text-transform:uppercase; letter-spacing:.04em;
+    backdrop-filter:blur(4px);
+  }
+  .bbox-corner { position:absolute; width:10px; height:10px; border-color:#fff; border-style:solid; }
+  .bbox-tl { top:-2px;left:-2px; border-width:3px 0 0 3px; }
+  .bbox-tr { top:-2px;right:-2px; border-width:3px 3px 0 0; }
+  .bbox-bl { bottom:-2px;left:-2px; border-width:0 0 3px 3px; }
+  .bbox-br { bottom:-2px;right:-2px; border-width:0 3px 3px 0; }
+
+  body.alert-mode .target-bbox { display:block; }
+  body.alert-mode .crosshair { display:none; }
+</style>
+</head>
+<body>
+<div class="layout-label">C3 — CONTEXT-AWARE</div>
+
+<div class="video-full">
+  <div class="video-static"></div>
+  <div class="crosshair"></div>
+  <div class="video-hud">
+    <div class="hud-corner hud-tl"></div><div class="hud-corner hud-tr"></div>
+    <div class="hud-corner hud-bl"></div><div class="hud-corner hud-br"></div>
+  </div>
+  <div class="target-bbox">
+    <div class="bbox-label">Potential Target</div>
+    <div class="bbox-corner bbox-tl"></div><div class="bbox-corner bbox-tr"></div>
+    <div class="bbox-corner bbox-bl"></div><div class="bbox-corner bbox-br"></div>
+  </div>
+</div>
+
+<div class="topbar">
+  <span class="logo">Phalanx</span>
+  <span class="state" id="stateText"><span class="dot" id="stateDot" style="background:var(--green)"></span>Searching</span>
+  <div class="pills">
+    <div class="pill"><span class="pill-dot" style="background:var(--green)"></span>DSA-128</div>
+  </div>
+</div>
+
+<div class="hud-telem hud-telem-tl">ALT 120m · SPD 45 km/h</div>
+<div class="exec-actions"><button class="exec-btn"><span class="material-symbols-outlined" style="font-size:14px">pause_circle</span> Pause</button></div>
+<div class="hud-telem hud-telem-bl">BAT <span style="color:var(--green)">87%</span> · PROG 25% · SIG <span style="color:var(--green)">Strong</span></div>
+
+<!-- OVERLAY ZONE -->
+<div class="overlay-zone" id="overlayZone">
+  <!-- CALM STATE -->
+  <div class="calm-msg" id="calmMsg">
+    <div class="msg-label">SARA</div>
+    Battery at <strong>87%</strong>. Estimated remaining flight time: 32 minutes.
+  </div>
+
+  <!-- ALERT STATE (hidden initially) -->
+  <div class="alert-zone" id="alertZone">
+    <div class="alert-header">
+      <div class="alert-label"><span class="material-symbols-outlined">warning</span> TARGET DETECTED</div>
+      <div class="alert-text"><strong>Potential target spotted!</strong> Red SUV matching description at coordinates 23.2817, 20.8772. Entering orbit mode.</div>
+    </div>
+    <div class="alert-body">
+      The drone is orbiting for a closer look. <strong>Is this your target?</strong>
+    </div>
+    <div class="alert-choices">
+      <button class="alert-choice confirm" onclick="resolveAlert(true)">Yes, Confirm</button>
+      <button class="alert-choice reject" onclick="resolveAlert(false)">No, Continue</button>
+    </div>
+  </div>
+</div>
+
+<div class="ptt-bar">
+  <div class="ptt-button" id="pttBtn">
+    <span class="material-symbols-outlined">mic</span>
+    <span class="ptt-label">Hold to talk</span>
+    <div class="ptt-waveform"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+  </div>
+  <div class="text-toggle"><span class="material-symbols-outlined">keyboard</span></div>
+</div>
+
+<button class="sim-btn" id="simBtn" onclick="triggerAlert()">simulate target detected →</button>
+
+<script>
+  let isAlert = false;
+
+  function triggerAlert() {
+    isAlert = true;
+    document.body.classList.add('alert-mode');
+    document.getElementById('calmMsg').style.display = 'none';
+    document.getElementById('alertZone').classList.add('active');
+    document.getElementById('stateDot').style.background = 'var(--red)';
+    document.getElementById('stateText').innerHTML = '<span class="dot" id="stateDot" style="background:var(--red)"></span>Target Spotted';
+    document.getElementById('simBtn').style.display = 'none';
+
+    // Haptic-like visual flash
+    document.body.style.transition = 'background .1s';
+    document.body.style.background = '#1a0808';
+    setTimeout(() => { document.body.style.background = '#000'; }, 150);
+  }
+
+  function resolveAlert(confirmed) {
+    document.getElementById('alertZone').classList.remove('active');
+    document.body.classList.remove('alert-mode');
+
+    const calm = document.getElementById('calmMsg');
+    calm.style.display = 'block';
+
+    if (confirmed) {
+      calm.innerHTML = '<div class="msg-label">SARA</div><strong>Target confirmed.</strong> Maintaining orbit. You\'ll be updated on any changes.';
+      document.getElementById('stateText').innerHTML = '<span class="dot" style="background:var(--green)"></span>Orbiting Target';
+    } else {
+      calm.innerHTML = '<div class="msg-label">SARA</div>Continuing search pattern. I\'ll alert you if I spot anything else.';
+      document.getElementById('stateText').innerHTML = '<span class="dot" style="background:var(--green)"></span>Searching';
+      document.getElementById('simBtn').style.display = 'block';
+    }
+  }
+
+  // PTT
+  const ptt = document.getElementById('pttBtn');
+  ptt.addEventListener('touchstart', (e) => { e.preventDefault(); ptt.classList.add('live'); });
+  ptt.addEventListener('touchend', () => ptt.classList.remove('live'));
+  ptt.addEventListener('mousedown', () => ptt.classList.add('live'));
+  ptt.addEventListener('mouseup', () => ptt.classList.remove('live'));
+  ptt.addEventListener('mouseleave', () => ptt.classList.remove('live'));
+</script>
+</body>
+</html>
