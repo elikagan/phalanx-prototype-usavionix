@@ -26,8 +26,8 @@
   .crosshair::before,.crosshair::after { content:''; position:absolute; background:rgba(255,255,255,.12); }
   .crosshair::before { width:1px; height:100%; left:50%; }
   .crosshair::after { height:1px; width:100%; top:50%; }
-  .video-hud { position:absolute; top:50px; left:12px; right:12px; bottom:90px; border:1px solid rgba(255,255,255,.05); }
-  .hud-corner { position:absolute; width:14px; height:14px; border-color:rgba(255,255,255,.2); border-style:solid; }
+  .video-hud { position:absolute; top:76px; left:12px; right:12px; bottom:90px; border:1px solid rgba(255,255,255,.04); pointer-events:none; }
+  .hud-corner { position:absolute; width:14px; height:14px; border-color:rgba(255,255,255,.18); border-style:solid; }
   .hud-tl { top:0;left:0; border-width:2px 0 0 2px; }
   .hud-tr { top:0;right:0; border-width:2px 2px 0 0; }
   .hud-bl { bottom:0;left:0; border-width:0 0 2px 2px; }
@@ -37,7 +37,7 @@
   .topbar {
     position:absolute; top:0; left:0; right:0; z-index:100;
     height:44px; display:flex; align-items:center; padding:0 12px; gap:8px;
-    background:rgba(20,20,23,.7); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    background:rgba(20,20,23,.75); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
     border-bottom:1px solid rgba(255,255,255,.04);
   }
   .topbar .logo { font-weight:700; font-size:15px; color:var(--text-bright); letter-spacing:-0.02em; }
@@ -47,15 +47,20 @@
   .topbar .pill { background:rgba(33,33,38,.6); border:1px solid rgba(255,255,255,.06); border-radius:var(--radius-sm); padding:3px 8px; font-family:var(--mono); font-size:9px; color:var(--text-secondary); display:flex; align-items:center; gap:4px; }
   .pill-dot { width:4px; height:4px; border-radius:50%; }
 
-  /* HUD telemetry */
-  .hud-telem {
-    position:absolute; z-index:20;
-    font-family:var(--mono); font-size:9px; font-weight:500; color:rgba(255,255,255,.45);
-    letter-spacing:.5px; text-shadow:0 1px 4px rgba(0,0,0,.8);
+  /* TELEMETRY BAR — directly under topbar, no overlap */
+  .telem-bar {
+    position:absolute; top:44px; left:0; right:0; z-index:90;
+    height:28px; display:flex; align-items:center; padding:0 12px;
+    background:rgba(20,20,23,.6); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    border-bottom:1px solid rgba(255,255,255,.03);
+    font-family:var(--mono); font-size:9px; color:var(--text-dim); letter-spacing:.3px;
+    gap:12px;
   }
-  .hud-telem-tl { top:56px; left:18px; }
-  .hud-telem-bl { bottom:96px; left:18px; }
-  .exec-actions { position:absolute; top:56px; right:18px; z-index:30; }
+  .telem-bar .telem-value { color:var(--text-secondary); font-weight:500; }
+  .telem-bar .telem-green { color:var(--green); }
+
+  /* Exec button — top right, below telem bar */
+  .exec-actions { position:absolute; top:80px; right:12px; z-index:30; }
   .exec-btn {
     padding:5px 10px; border-radius:var(--radius-sm);
     font-family:var(--mono); font-size:10px; font-weight:500;
@@ -64,19 +69,18 @@
     display:flex; align-items:center; gap:4px; cursor:pointer;
   }
 
-  /* OVERLAY ZONE — where messages appear */
+  /* OVERLAY ZONE — message stack */
   .overlay-zone {
     position:absolute;
     bottom:76px; left:12px; right:12px;
     z-index:50;
-    display:flex; flex-direction:column; gap:6px;
-    transition:all .4s cubic-bezier(.32,.72,0,1);
+    display:flex; flex-direction:column; gap:4px;
     pointer-events:none;
   }
 
-  /* CALM STATE — single subtle message */
-  .calm-msg {
-    background:rgba(20,20,23,.72);
+  /* MESSAGE CARDS */
+  .msg-card {
+    background:rgba(20,20,23,.75);
     backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
     border:1px solid rgba(255,255,255,.04);
     border-radius:var(--radius);
@@ -84,24 +88,80 @@
     font-size:13px; line-height:1.5; color:var(--text);
     pointer-events:auto;
     animation:fadeUp .4s ease;
+    transition:all .3s ease;
   }
-  .calm-msg .msg-label {
+  .msg-card.collapsed {
+    padding:6px 14px;
+    font-size:11px;
+    opacity:.5;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .msg-card.collapsed .msg-voice { display:none; }
+  .msg-card.collapsed .msg-label { display:none; }
+
+  .msg-card .msg-label {
     font-family:var(--mono); font-size:9px; font-weight:500;
     color:var(--text-dim); text-transform:uppercase; letter-spacing:.06em;
-    margin-bottom:3px;
+    margin-bottom:4px;
+    display:flex; align-items:center; gap:6px;
   }
 
-  /* ALERT STATE — big dramatic expansion */
+  /* VOICE PLAYBACK — waveform inside message card */
+  .msg-voice {
+    display:flex; align-items:center; gap:8px;
+    margin-bottom:6px;
+    padding:6px 0;
+  }
+  .msg-voice .voice-icon {
+    width:28px; height:28px; border-radius:50%;
+    background:rgba(95,143,173,.12); border:1px solid rgba(95,143,173,.2);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .msg-voice .voice-icon .material-symbols-outlined { font-size:16px; color:#5f8fad; }
+  .msg-voice .voice-wave {
+    flex:1; display:flex; align-items:center; gap:1.5px; height:20px;
+  }
+  .msg-voice .voice-wave span {
+    flex:1; max-width:4px; background:rgba(95,143,173,.5); border-radius:1px;
+    animation:voiceWave 1.2s ease-in-out infinite;
+  }
+  .msg-voice.done .voice-wave span { animation:none; background:rgba(95,143,173,.2); }
+  .msg-voice.done .voice-icon { background:rgba(95,143,173,.06); border-color:rgba(95,143,173,.1); }
+  .msg-voice.done .voice-icon .material-symbols-outlined { color:rgba(95,143,173,.4); }
+  .msg-voice .voice-dur {
+    font-family:var(--mono); font-size:9px; color:var(--text-dim); flex-shrink:0;
+  }
+  /* Stagger wave bar heights */
+  .msg-voice .voice-wave span:nth-child(1) { animation-delay:0s; }
+  .msg-voice .voice-wave span:nth-child(2) { animation-delay:.07s; }
+  .msg-voice .voice-wave span:nth-child(3) { animation-delay:.14s; }
+  .msg-voice .voice-wave span:nth-child(4) { animation-delay:.05s; }
+  .msg-voice .voice-wave span:nth-child(5) { animation-delay:.12s; }
+  .msg-voice .voice-wave span:nth-child(6) { animation-delay:.03s; }
+  .msg-voice .voice-wave span:nth-child(7) { animation-delay:.1s; }
+  .msg-voice .voice-wave span:nth-child(8) { animation-delay:.08s; }
+  .msg-voice .voice-wave span:nth-child(9) { animation-delay:.15s; }
+  .msg-voice .voice-wave span:nth-child(10) { animation-delay:.02s; }
+  .msg-voice .voice-wave span:nth-child(11) { animation-delay:.11s; }
+  .msg-voice .voice-wave span:nth-child(12) { animation-delay:.06s; }
+  .msg-voice .voice-wave span:nth-child(13) { animation-delay:.13s; }
+  .msg-voice .voice-wave span:nth-child(14) { animation-delay:.04s; }
+  .msg-voice .voice-wave span:nth-child(15) { animation-delay:.09s; }
+  .msg-voice .voice-wave span:nth-child(16) { animation-delay:.01s; }
+  @keyframes voiceWave {
+    0%,100% { height:4px; }
+    50% { height:16px; }
+  }
+
+  /* ALERT STATE */
   .alert-zone {
-    display:none;
-    flex-direction:column;
-    gap:8px;
-    pointer-events:auto;
-    animation:alertExpand .5s cubic-bezier(.32,.72,0,1);
+    display:none; flex-direction:column; gap:8px;
+    pointer-events:auto; animation:alertExpand .5s cubic-bezier(.32,.72,0,1);
   }
   .alert-zone.active { display:flex; }
   @keyframes alertExpand { from { opacity:0; transform:translateY(20px) scale(.96); } to { opacity:1; transform:translateY(0) scale(1); } }
-
   .alert-header {
     background:rgba(184,84,84,.15);
     backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
@@ -117,59 +177,42 @@
   .alert-header .alert-label {
     font-family:var(--mono); font-size:10px; font-weight:600;
     color:var(--red); text-transform:uppercase; letter-spacing:.06em;
-    margin-bottom:6px;
-    display:flex; align-items:center; gap:6px;
+    margin-bottom:4px; display:flex; align-items:center; gap:6px;
   }
   .alert-header .alert-label .material-symbols-outlined { font-size:16px; }
-  .alert-header .alert-text {
-    font-size:14px; line-height:1.5; color:var(--text-bright);
-  }
+  /* Alert voice */
+  .alert-header .msg-voice .voice-icon { background:rgba(184,84,84,.12); border-color:rgba(184,84,84,.25); }
+  .alert-header .msg-voice .voice-icon .material-symbols-outlined { color:var(--red); }
+  .alert-header .msg-voice .voice-wave span { background:rgba(184,84,84,.5); }
+  .alert-header .alert-text { font-size:14px; line-height:1.5; color:var(--text-bright); }
 
   .alert-body {
     background:rgba(20,20,23,.82);
     backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
     border:1px solid rgba(255,255,255,.06);
-    border-radius:var(--radius);
-    padding:12px 14px;
+    border-radius:var(--radius); padding:12px 14px;
     font-size:13px; line-height:1.5; color:var(--text);
   }
-
-  .alert-choices {
-    display:flex; gap:8px;
-  }
+  .alert-choices { display:flex; gap:8px; }
   .alert-choice {
-    flex:1;
-    padding:14px 12px;
-    border-radius:var(--radius);
+    flex:1; padding:14px 12px; border-radius:var(--radius);
     font-family:var(--sans); font-size:14px; font-weight:500;
-    text-align:center; cursor:pointer;
-    border:none;
-    transition:all .15s;
-    pointer-events:auto;
+    text-align:center; cursor:pointer; border:none; transition:all .15s; pointer-events:auto;
   }
-  .alert-choice.confirm {
-    background:#3d6b85; color:#d4e0e8;
-  }
+  .alert-choice.confirm { background:#3d6b85; color:#d4e0e8; }
   .alert-choice.confirm:active { background:#4a7a96; }
-  .alert-choice.reject {
-    background:rgba(184,84,84,.12); border:1px solid rgba(184,84,84,.25); color:var(--red);
-  }
+  .alert-choice.reject { background:rgba(184,84,84,.12); border:1px solid rgba(184,84,84,.25); color:var(--red); }
   .alert-choice.reject:active { background:rgba(184,84,84,.2); }
 
-  /* PTT bar — pulses in alert state */
+  /* PTT bar */
   .ptt-bar {
     position:absolute; bottom:0; left:0; right:0; z-index:60;
-    padding:8px 12px;
-    padding-bottom:max(8px, env(safe-area-inset-bottom));
-    background:rgba(20,20,23,.85);
-    backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    padding:8px 12px; padding-bottom:max(8px, env(safe-area-inset-bottom));
+    background:rgba(20,20,23,.85); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
     border-top:1px solid rgba(255,255,255,.04);
-    display:flex; align-items:center; gap:8px;
-    transition:all .3s;
+    display:flex; align-items:center; gap:8px; transition:all .3s;
   }
-  body.alert-mode .ptt-bar {
-    border-top-color:rgba(184,84,84,.15);
-  }
+  body.alert-mode .ptt-bar { border-top-color:rgba(184,84,84,.15); }
   .ptt-button {
     flex:1; height:52px; border-radius:8px;
     background:rgba(33,33,38,.6); border:1px solid var(--border);
@@ -178,19 +221,14 @@
     color:var(--text-secondary); cursor:pointer;
     transition:all .15s; user-select:none; -webkit-user-select:none;
   }
-  /* In alert mode, PTT has a subtle breathing pulse */
-  body.alert-mode .ptt-button {
-    animation:pttBreath 3s ease infinite;
-    border-color:rgba(184,84,84,.15);
-  }
+  body.alert-mode .ptt-button { animation:pttBreath 3s ease infinite; border-color:rgba(184,84,84,.15); }
   @keyframes pttBreath {
     0%,100% { box-shadow:0 0 0 0 rgba(184,84,84,0); }
     50% { box-shadow:0 0 12px 1px rgba(184,84,84,.08); }
   }
   .ptt-button:active,.ptt-button.live {
     background:rgba(184,84,84,.15); border-color:rgba(184,84,84,.4);
-    color:var(--text-bright); box-shadow:0 0 30px rgba(184,84,84,.12);
-    animation:none;
+    color:var(--text-bright); box-shadow:0 0 30px rgba(184,84,84,.12); animation:none;
   }
   .ptt-button .material-symbols-outlined { font-size:22px; color:var(--text-dim); transition:color .15s; }
   .ptt-button:active .material-symbols-outlined,.ptt-button.live .material-symbols-outlined { color:var(--red); }
@@ -217,43 +255,34 @@
 
   @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
 
-  /* Simulate button */
   .sim-btn {
     position:fixed; bottom:80px; right:12px; z-index:200;
     font-family:var(--mono); font-size:9px; color:var(--text-ghost);
     text-decoration:underline; text-decoration-color:var(--text-ghost);
     cursor:pointer; background:none; border:none;
   }
-
   .layout-label {
     position:fixed; top:50px; left:12px; z-index:200;
     background:rgba(168,149,64,.15); border:1px solid rgba(168,149,64,.3); color:var(--amber);
     font-family:var(--mono); font-size:10px; font-weight:600; padding:4px 8px; border-radius:var(--radius-sm); letter-spacing:.04em;
   }
 
-  /* Target bbox for alert state */
+  /* Target bbox */
   .target-bbox {
-    display:none;
-    position:absolute;
-    top:35%; left:42%;
-    width:80px; height:56px;
-    border:2px solid rgba(255,255,255,.7);
-    z-index:15;
+    display:none; position:absolute; top:35%; left:42%;
+    width:80px; height:56px; border:2px solid rgba(255,255,255,.7); z-index:15;
   }
   .target-bbox .bbox-label {
     position:absolute; top:-22px; left:0;
     font-family:var(--mono); font-size:9px; font-weight:600;
     background:rgba(0,0,0,.7); color:#fff;
-    padding:3px 6px; border-radius:3px;
-    text-transform:uppercase; letter-spacing:.04em;
-    backdrop-filter:blur(4px);
+    padding:3px 6px; border-radius:3px; text-transform:uppercase; letter-spacing:.04em;
   }
   .bbox-corner { position:absolute; width:10px; height:10px; border-color:#fff; border-style:solid; }
   .bbox-tl { top:-2px;left:-2px; border-width:3px 0 0 3px; }
   .bbox-tr { top:-2px;right:-2px; border-width:3px 3px 0 0; }
   .bbox-bl { bottom:-2px;left:-2px; border-width:0 0 3px 3px; }
   .bbox-br { bottom:-2px;right:-2px; border-width:0 3px 3px 0; }
-
   body.alert-mode .target-bbox { display:block; }
   body.alert-mode .crosshair { display:none; }
 </style>
@@ -283,22 +312,54 @@
   </div>
 </div>
 
-<div class="hud-telem hud-telem-tl">ALT 120m · SPD 45 km/h</div>
-<div class="exec-actions"><button class="exec-btn"><span class="material-symbols-outlined" style="font-size:14px">pause_circle</span> Pause</button></div>
-<div class="hud-telem hud-telem-bl">BAT <span style="color:var(--green)">87%</span> · PROG 25% · SIG <span style="color:var(--green)">Strong</span></div>
+<div class="telem-bar">
+  <span>ALT <span class="telem-value">120m</span></span>
+  <span>SPD <span class="telem-value">45km/h</span></span>
+  <span>BAT <span class="telem-value telem-green">87%</span></span>
+  <span>PROG <span class="telem-value">25%</span></span>
+  <span>SIG <span class="telem-value telem-green">Strong</span></span>
+</div>
 
-<!-- OVERLAY ZONE -->
+<div class="exec-actions"><button class="exec-btn"><span class="material-symbols-outlined" style="font-size:14px">pause_circle</span> Pause</button></div>
+
+<!-- OVERLAY ZONE — stacked messages -->
 <div class="overlay-zone" id="overlayZone">
-  <!-- CALM STATE -->
-  <div class="calm-msg" id="calmMsg">
-    <div class="msg-label">SARA</div>
-    Battery at <strong>87%</strong>. Estimated remaining flight time: 32 minutes.
+  <div id="calmMessages">
+    <!-- Collapsed older message -->
+    <div class="msg-card collapsed" id="msg1">Drone is airborne. Beginning search pattern.</div>
+
+    <!-- Previous message — voice done -->
+    <div class="msg-card" id="msg2" style="opacity:.7">
+      <div class="msg-label"><span class="material-symbols-outlined" style="font-size:12px">volume_up</span> SARA</div>
+      <div class="msg-voice done">
+        <div class="voice-icon"><span class="material-symbols-outlined">graphic_eq</span></div>
+        <div class="voice-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <span class="voice-dur">0:04</span>
+      </div>
+      Search progress: <strong>25% complete</strong>. No targets detected yet.
+    </div>
+
+    <!-- Latest message — SARA currently speaking -->
+    <div class="msg-card" id="msg3">
+      <div class="msg-label"><span class="material-symbols-outlined" style="font-size:12px">volume_up</span> SARA · Speaking</div>
+      <div class="msg-voice" id="activeVoice">
+        <div class="voice-icon"><span class="material-symbols-outlined">graphic_eq</span></div>
+        <div class="voice-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <span class="voice-dur" id="voiceDur">0:02</span>
+      </div>
+      Battery at <strong>87%</strong>. Estimated remaining flight time: 32 minutes.
+    </div>
   </div>
 
-  <!-- ALERT STATE (hidden initially) -->
+  <!-- ALERT STATE -->
   <div class="alert-zone" id="alertZone">
     <div class="alert-header">
       <div class="alert-label"><span class="material-symbols-outlined">warning</span> TARGET DETECTED</div>
+      <div class="msg-voice" id="alertVoice">
+        <div class="voice-icon"><span class="material-symbols-outlined">graphic_eq</span></div>
+        <div class="voice-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <span class="voice-dur">0:06</span>
+      </div>
       <div class="alert-text"><strong>Potential target spotted!</strong> Red SUV matching description at coordinates 23.2817, 20.8772. Entering orbit mode.</div>
     </div>
     <div class="alert-body">
@@ -323,35 +384,57 @@
 <button class="sim-btn" id="simBtn" onclick="triggerAlert()">simulate target detected →</button>
 
 <script>
-  let isAlert = false;
+  // Simulate the active voice finishing after 3 seconds
+  setTimeout(() => {
+    const voice = document.getElementById('activeVoice');
+    voice.classList.add('done');
+    document.getElementById('msg3').querySelector('.msg-label').innerHTML =
+      '<span class="material-symbols-outlined" style="font-size:12px">volume_up</span> SARA';
+  }, 4000);
+
+  // Count up voice duration
+  let dur = 2;
+  const durEl = document.getElementById('voiceDur');
+  const durInterval = setInterval(() => {
+    dur++;
+    durEl.textContent = '0:0' + dur;
+    if (dur >= 5) {
+      clearInterval(durInterval);
+      durEl.textContent = '0:05';
+    }
+  }, 1000);
 
   function triggerAlert() {
-    isAlert = true;
     document.body.classList.add('alert-mode');
-    document.getElementById('calmMsg').style.display = 'none';
+    document.getElementById('calmMessages').style.display = 'none';
     document.getElementById('alertZone').classList.add('active');
-    document.getElementById('stateDot').style.background = 'var(--red)';
-    document.getElementById('stateText').innerHTML = '<span class="dot" id="stateDot" style="background:var(--red)"></span>Target Spotted';
+    document.getElementById('stateText').innerHTML = '<span class="dot" style="background:var(--red)"></span>Target Spotted';
     document.getElementById('simBtn').style.display = 'none';
 
-    // Haptic-like visual flash
+    // Flash
     document.body.style.transition = 'background .1s';
     document.body.style.background = '#1a0808';
     setTimeout(() => { document.body.style.background = '#000'; }, 150);
+
+    // Alert voice finishes after 5s
+    setTimeout(() => {
+      document.getElementById('alertVoice').classList.add('done');
+    }, 5000);
   }
 
   function resolveAlert(confirmed) {
     document.getElementById('alertZone').classList.remove('active');
     document.body.classList.remove('alert-mode');
 
-    const calm = document.getElementById('calmMsg');
-    calm.style.display = 'block';
+    const msgs = document.getElementById('calmMessages');
+    msgs.style.display = 'block';
 
+    // Clear old messages, show new single
     if (confirmed) {
-      calm.innerHTML = '<div class="msg-label">SARA</div><strong>Target confirmed.</strong> Maintaining orbit. You\'ll be updated on any changes.';
+      msgs.innerHTML = '<div class="msg-card"><div class="msg-label"><span class="material-symbols-outlined" style="font-size:12px">volume_up</span> SARA</div><div class="msg-voice done"><div class="voice-icon"><span class="material-symbols-outlined">graphic_eq</span></div><div class="voice-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><span class="voice-dur">0:03</span></div><strong>Target confirmed.</strong> Maintaining orbit. You\'ll be updated on any changes.</div>';
       document.getElementById('stateText').innerHTML = '<span class="dot" style="background:var(--green)"></span>Orbiting Target';
     } else {
-      calm.innerHTML = '<div class="msg-label">SARA</div>Continuing search pattern. I\'ll alert you if I spot anything else.';
+      msgs.innerHTML = '<div class="msg-card"><div class="msg-label"><span class="material-symbols-outlined" style="font-size:12px">volume_up</span> SARA</div><div class="msg-voice done"><div class="voice-icon"><span class="material-symbols-outlined">graphic_eq</span></div><div class="voice-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><span class="voice-dur">0:02</span></div>Continuing search pattern. I\'ll alert you if I spot anything else.</div>';
       document.getElementById('stateText').innerHTML = '<span class="dot" style="background:var(--green)"></span>Searching';
       document.getElementById('simBtn').style.display = 'block';
     }
