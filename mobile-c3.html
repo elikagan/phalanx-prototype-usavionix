@@ -47,14 +47,20 @@ body{height:100%;overflow:hidden;position:fixed;inset:0;font-family:var(--sans);
 
 /* ═══════ RESIDUAL MESSAGES ═══════ */
 .residual{position:fixed;bottom:58px;left:0;right:0;z-index:15;padding:0 14px}
-.r-msg{padding:7px 0;border-top:1px solid rgba(255,255,255,.06);font-size:13px;line-height:1.4;display:flex;align-items:flex-start;gap:5px}
+.r-msg{padding:7px 0;border-top:1px solid rgba(255,255,255,.06);font-size:13px;line-height:1.4;display:flex;align-items:flex-start;gap:5px;max-width:80%}
 .r-msg:first-child{border-top:none}
-.r-msg.op100{color:rgba(255,255,255,.92)}
-.r-msg.op50{color:rgba(255,255,255,.45)}
-.r-msg.op20{color:rgba(255,255,255,.18);max-height:20px;overflow:hidden}
+.r-msg.sara-r{color:rgba(255,255,255,.92)}
+.r-msg.user-r{flex-direction:row-reverse;margin-left:auto;text-align:right;color:rgba(255,255,255,.4)}
+.r-msg.op100.sara-r{color:rgba(255,255,255,.92)}
+.r-msg.op100.user-r{color:rgba(255,255,255,.4)}
+.r-msg.op50.sara-r{color:rgba(255,255,255,.45)}
+.r-msg.op50.user-r{color:rgba(255,255,255,.2)}
+.r-msg.op20{max-height:20px;overflow:hidden}
+.r-msg.op20.sara-r{color:rgba(255,255,255,.18)}
+.r-msg.op20.user-r{color:rgba(255,255,255,.1)}
 .r-msg .ico{font-size:11px;flex-shrink:0;margin-top:2px}
 .r-msg .ico.sara-ico{color:rgba(95,143,173,.5)}
-.r-msg .ico.user-ico{color:rgba(255,255,255,.25)}
+.r-msg .ico.user-ico{color:rgba(255,255,255,.15)}
 .r-msg .r-text{flex:1;min-width:0}
 .r-bottom{border-top:1px solid rgba(255,255,255,.08)}
 
@@ -101,13 +107,13 @@ body{height:100%;overflow:hidden;position:fixed;inset:0;font-family:var(--sans);
 .ch-msg.sara{padding-left:10px;border-left:2px solid rgba(95,143,173,.25);max-width:82%}
 .ch-msg.sara .ch-role{font-family:var(--mono);font-size:9px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;display:flex;align-items:center;gap:4px}
 .ch-msg.sara .ch-role .material-symbols-outlined{font-size:11px}
-.ch-msg.sara .ch-text{font-size:13px;line-height:1.5;color:rgba(255,255,255,.75)}
+.ch-msg.sara .ch-text{font-size:13px;line-height:1.5;color:rgba(255,255,255,.92)}
 
 /* USER — right-aligned, max-width, pushed to right */
 .ch-msg.user{text-align:right;padding-right:10px;border-right:2px solid rgba(255,255,255,.12);border-left:none;max-width:82%;margin-left:auto}
 .ch-msg.user .ch-role{font-family:var(--mono);font-size:9px;font-weight:600;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:4px}
 .ch-msg.user .ch-role .material-symbols-outlined{font-size:11px}
-.ch-msg.user .ch-text{font-size:13px;line-height:1.5;color:rgba(255,255,255,.9)}
+.ch-msg.user .ch-text{font-size:13px;line-height:1.5;color:rgba(255,255,255,.45)}
 
 /* ═══════ TRANSCRIPTION AREA ═══════ */
 .tx-area{flex-shrink:0;padding:14px 16px;border-top:1px solid rgba(255,255,255,.06);display:none;background:rgba(255,255,255,.02)}
@@ -211,26 +217,35 @@ let open=false, recording=false, wt=null, demoIdx=0;
 const msgs=[];
 
 // Multiple scripted exchanges — each PTT press plays the next one
+// Intersection of Washington Blvd & Dupont St, Pasadena
+const WASHINGTON_DUPONT = [34.1502, -118.1398];
+const DRONE_START = [34.1478, -118.1445];
+
 const exchanges=[
   {
     user:["What's","the","wind","looking","like?"],
-    sara:["Wind","5","mph","NW.","Conditions","nominal."]
+    sara:["Wind","5","mph","NW.","Conditions","nominal."],
+    mapAction: null // no map change
   },
   {
     user:["Head","toward","the","east","side","of","the","park","first."],
-    sara:["Adjusting","route.","Heading","east","toward","the","park","boundary."]
+    sara:["Adjusting","route.","Heading","east","toward","the","park","boundary."],
+    mapAction: 'panEast' // pan map east
   },
   {
     user:["Please","focus","on","the","intersection","of","Washington","and","Dupont.","I","think","the","car","might","be","there."],
-    sara:["Confirmed.","Rerouting","to","Washington","and","Dupont","for","observation."]
+    sara:["Confirmed.","Rerouting","to","Washington","and","Dupont","for","observation."],
+    mapAction: 'flyToIntersection' // fly to Washington & Dupont
   },
   {
     user:["Can","you","drop","altitude","and","get","a","closer","look?"],
-    sara:["Descending","to","60","meters.","Switching","to","high-resolution","camera."]
+    sara:["Descending","to","60","meters.","Switching","to","high-resolution","camera."],
+    mapAction: 'zoomIn' // zoom in closer
   },
   {
     user:["I","think","I","see","it.","Circle","that","red","vehicle."],
-    sara:["Target","acquired.","Entering","orbit","mode","around","red","SUV","at","Washington","and","Dupont."]
+    sara:["Target","acquired.","Entering","orbit","mode","around","red","SUV","at","Washington","and","Dupont."],
+    mapAction: 'targetAcquired' // add target marker + orbit circle
   },
 ];
 
@@ -249,10 +264,11 @@ function updateResidual(){
   const last3=msgs.slice(-3);
   const ops=['op20','op50','op100'];
   el.innerHTML=last3.map((m,i)=>{
+    const side=m.r==='sara'?'sara-r':'user-r';
     const ic=m.r==='sara'
       ?'<span class="material-symbols-outlined ico sara-ico">volume_up</span>'
       :'<span class="material-symbols-outlined ico user-ico">mic</span>';
-    return `<div class="r-msg ${ops[i]}">${ic}<span class="r-text">${m.t}</span></div>`;
+    return `<div class="r-msg ${ops[i]} ${side}">${ic}<span class="r-text">${m.t}</span></div>`;
   }).join('')+'<div class="r-bottom"></div>';
 }
 
@@ -368,6 +384,8 @@ function stopRec(){
         clearInterval(timer);
         msgs.push({r:'sara',t:sW.join(' ')});
         renderChat();
+        // Execute map action for this exchange
+        if(typeof execMapAction==='function') execMapAction(exchanges[demoIdx].mapAction);
         demoIdx++;
         processing=false;
         setTimeout(closeDrawer,1200);
@@ -404,17 +422,17 @@ L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/
   maxZoom: 19,
 }).addTo(map);
 
-// Drone marker at center
+// Drone marker
 const droneIcon = L.divIcon({
   className: '',
   html: '<div style="width:32px;height:32px;background:rgba(255,255,255,.9);border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(0,0,0,.5)"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:#111"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg></div>',
   iconSize: [32, 32],
   iconAnchor: [16, 16],
 });
-L.marker([34.1478, -118.1445], { icon: droneIcon }).addTo(map);
+const droneMarker = L.marker(DRONE_START, { icon: droneIcon }).addTo(map);
 
 // Mission circle
-L.circle([34.1478, -118.1445], {
+const missionCircle = L.circle(DRONE_START, {
   radius: 200,
   color: 'rgba(255,255,255,.6)',
   weight: 2,
@@ -422,6 +440,62 @@ L.circle([34.1478, -118.1445], {
   fillColor: 'rgba(0,0,0,.15)',
   fillOpacity: 1,
 }).addTo(map);
+
+// Target marker (hidden initially)
+const targetIcon = L.divIcon({
+  className: '',
+  html: '<div style="width:16px;height:16px;background:rgba(184,84,84,.9);border:2px solid #fff;border-radius:50%;box-shadow:0 0 12px rgba(184,84,84,.6),0 0 30px rgba(184,84,84,.3)"></div>',
+  iconSize: [16,16],
+  iconAnchor: [8,8],
+});
+let targetMarker = null;
+let orbitCircle = null;
+
+// ═══════ MAP ACTIONS — called after each SARA response ═══════
+function execMapAction(action) {
+  if (!action) return;
+
+  switch(action) {
+    case 'panEast':
+      // Pan east — shift center to the right
+      const c = map.getCenter();
+      map.flyTo([c.lat, c.lng + 0.003], map.getZoom(), {duration:1.5});
+      droneMarker.setLatLng([c.lat, c.lng + 0.003]);
+      break;
+
+    case 'flyToIntersection':
+      // Fly to Washington & Dupont intersection
+      map.flyTo(WASHINGTON_DUPONT, 18, {duration:2});
+      droneMarker.setLatLng(WASHINGTON_DUPONT);
+      // Move mission circle
+      missionCircle.setLatLng(WASHINGTON_DUPONT);
+      missionCircle.setRadius(100);
+      break;
+
+    case 'zoomIn':
+      // Zoom in tighter
+      map.flyTo(map.getCenter(), 19, {duration:1.5});
+      break;
+
+    case 'targetAcquired':
+      // Add target marker + red orbit circle
+      const pos = map.getCenter();
+      // Offset target slightly from drone
+      const tPos = [pos.lat + 0.0002, pos.lng - 0.0001];
+      targetMarker = L.marker(tPos, {icon: targetIcon}).addTo(map);
+      orbitCircle = L.circle(tPos, {
+        radius: 25,
+        color: 'rgba(184,84,84,.7)',
+        weight: 2,
+        dashArray: '4,4',
+        fillColor: 'rgba(184,84,84,.08)',
+        fillOpacity: 1,
+      }).addTo(map);
+      // Move drone to orbit position
+      droneMarker.setLatLng([tPos[0] + 0.00015, tPos[1] + 0.00015]);
+      break;
+  }
+}
 </script>
 </body>
 </html>
