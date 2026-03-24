@@ -51,7 +51,7 @@ body{height:100%;overflow:hidden;position:fixed;inset:0;font-family:var(--sans);
 .bottom-grad{position:fixed;bottom:0;left:0;right:0;height:42%;background:linear-gradient(to top,#000 0%,rgba(0,0,0,.95) 25%,rgba(0,0,0,.55) 60%,transparent 100%);pointer-events:none;z-index:10}
 
 /* ═══════ RESIDUAL MESSAGES ═══════ */
-.residual{position:fixed;bottom:68px;left:0;right:0;z-index:15;padding:0 14px}
+.residual{position:fixed;bottom:max(20px,env(safe-area-inset-bottom));left:0;right:90px;z-index:15;padding:0 14px}
 .r-msg{padding:7px 0;border-top:1px solid rgba(255,255,255,.06);font-size:13px;line-height:1.4;display:flex;align-items:flex-start;gap:5px;max-width:80%}
 .r-msg:first-child{border-top:none;padding-top:0}
 .r-msg.sara-r{color:rgba(255,255,255,.92)}
@@ -69,14 +69,56 @@ body{height:100%;overflow:hidden;position:fixed;inset:0;font-family:var(--sans);
 .r-msg .r-text{flex:1;min-width:0}
 .r-bottom{border-top:1px solid rgba(255,255,255,.08);margin-top:2px;padding-bottom:4px}
 
-/* ═══════ PTT BAR ═══════ */
-.ptt-bar{position:fixed;bottom:0;left:0;right:0;z-index:100;padding:8px 14px;padding-bottom:max(14px,env(safe-area-inset-bottom));background:#000;display:flex;align-items:center;gap:6px}
-.ptt-btn{flex:1;height:54px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;gap:10px;font-size:15px;font-weight:600;color:rgba(255,255,255,.4);cursor:pointer;transition:all .2s;user-select:none;-webkit-user-select:none;touch-action:none;letter-spacing:.02em}
-.ptt-btn .material-symbols-outlined{font-size:22px;color:rgba(255,255,255,.3);transition:color .15s}
-.ptt-btn.active{background:rgba(184,84,84,.15);border-color:rgba(184,84,84,.35);color:#fff;box-shadow:0 0 30px rgba(184,84,84,.15),inset 0 0 20px rgba(184,84,84,.05)}
-.ptt-btn.active .material-symbols-outlined{color:var(--red)}
-.kb-btn{width:54px;height:54px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.kb-btn .material-symbols-outlined{font-size:20px;color:rgba(255,255,255,.18)}
+/* ═══════ FAB — Floating Action Button ═══════ */
+.fab{
+  position:fixed;bottom:max(24px,env(safe-area-inset-bottom));right:20px;z-index:110;
+  width:64px;height:64px;border-radius:50%;
+  background:linear-gradient(135deg,#3d6b85 0%,#2d5a74 100%);
+  border:none;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:none;
+  box-shadow:0 4px 20px rgba(61,107,133,.4),0 2px 8px rgba(0,0,0,.3);
+  transition:all .25s cubic-bezier(.32,.72,0,1);
+}
+.fab .material-symbols-outlined{font-size:28px;color:#fff;transition:all .2s}
+/* Idle pulse ring */
+.fab::before{
+  content:'';position:absolute;inset:-4px;border-radius:50%;
+  border:2px solid rgba(61,107,133,.3);
+  animation:fabIdle 3s ease infinite;
+}
+@keyframes fabIdle{0%,100%{transform:scale(1);opacity:.3}50%{transform:scale(1.15);opacity:0}}
+
+/* Active — recording */
+.fab.active{
+  background:linear-gradient(135deg,#b85454 0%,#8a3e3e 100%);
+  box-shadow:0 4px 30px rgba(184,84,84,.5),0 0 60px rgba(184,84,84,.15);
+  transform:scale(1.08);
+}
+.fab.active::before{
+  border-color:rgba(184,84,84,.4);
+  animation:fabActive 1s ease infinite;
+}
+@keyframes fabActive{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.4);opacity:0}}
+
+/* Processing — after release */
+.fab.processing{
+  background:linear-gradient(135deg,#3d6b85 0%,#2d5a74 100%);
+  transform:scale(1);
+}
+.fab.processing::before{animation:none;opacity:0}
+.fab.processing .material-symbols-outlined{animation:fabSpin .8s linear infinite}
+@keyframes fabSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+/* Drawer-open mode — FAB becomes close button */
+.fab.close-mode{
+  background:rgba(255,255,255,.08);
+  box-shadow:0 2px 12px rgba(0,0,0,.3);
+  width:48px;height:48px;
+  bottom:max(16px,env(safe-area-inset-bottom));right:16px;
+}
+.fab.close-mode::before{animation:none;opacity:0}
+.fab.close-mode .material-symbols-outlined{font-size:24px;color:rgba(255,255,255,.5)}
 
 /* ═══════ DRAWER ═══════ */
 .drawer-scrim{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .35s}
@@ -156,8 +198,10 @@ body{height:100%;overflow:hidden;position:fixed;inset:0;font-family:var(--sans);
 .sr-text{font-size:14px;line-height:1.55;color:rgba(255,255,255,.85)}
 .sr-text .w{display:inline;animation:wordIn .15s ease both}
 
-/* Drawer PTT */
-.drawer-ptt{flex-shrink:0;padding:8px 14px;padding-bottom:max(14px,env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:6px;background:#0c0c0e}
+/* Drawer bottom bar — keyboard toggle + spacing for FAB */
+.drawer-bottom{flex-shrink:0;padding:8px 16px;padding-bottom:max(14px,env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,.04);display:flex;align-items:center;background:#0c0c0e}
+.drawer-bottom .kb-btn{width:40px;height:40px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center}
+.drawer-bottom .kb-btn .material-symbols-outlined{font-size:18px;color:rgba(255,255,255,.2)}
 </style>
 </head>
 <body>
@@ -188,11 +232,8 @@ body{height:100%;overflow:hidden;position:fixed;inset:0;font-family:var(--sans);
 <!-- RESIDUAL -->
 <div class="residual" id="residual"></div>
 
-<!-- PTT -->
-<div class="ptt-bar" id="pttBar">
-  <div class="ptt-btn" id="pttBtn"><span class="material-symbols-outlined">mic</span><span>Hold to talk</span></div>
-  <div class="kb-btn"><span class="material-symbols-outlined">keyboard</span></div>
-</div>
+<!-- FAB -->
+<button class="fab" id="fab"><span class="material-symbols-outlined" id="fabIcon">mic</span></button>
 
 <!-- DRAWER -->
 <div class="drawer-scrim" id="scrim"></div>
@@ -208,8 +249,7 @@ body{height:100%;overflow:hidden;position:fixed;inset:0;font-family:var(--sans);
       <div class="sr-text" id="srText"></div>
     </div>
   </div>
-  <div class="drawer-ptt">
-    <div class="ptt-btn" id="dPttBtn"><span class="material-symbols-outlined">mic</span><span>Hold to talk</span></div>
+  <div class="drawer-bottom">
     <div class="kb-btn"><span class="material-symbols-outlined">keyboard</span></div>
   </div>
 </div>
@@ -277,15 +317,22 @@ function updateResidual(){
   }).join('')+'<div class="r-bottom"></div>';
 }
 
-// ═══════ DRAWER ═══════
-function openDrawer(){
+// ═══════ FAB + DRAWER ═══════
+const fab=document.getElementById('fab');
+const fabIcon=document.getElementById('fabIcon');
+
+function openDrawer(forRecording){
   if(open) return;
   open=true;
   renderChat();
   document.getElementById('drawer').classList.add('open');
   document.getElementById('scrim').classList.add('on');
-  document.getElementById('pttBar').style.display='none';
   document.getElementById('residual').style.pointerEvents='none';
+  if(!forRecording){
+    // History mode — FAB becomes close button
+    fab.classList.add('close-mode');
+    fabIcon.textContent='close';
+  }
   setTimeout(()=>{document.getElementById('chatHistory').scrollTop=document.getElementById('chatHistory').scrollHeight},60);
 }
 function closeDrawer(){
@@ -299,15 +346,17 @@ function closeDrawer(){
   document.getElementById('sr').classList.remove('on');
   document.getElementById('scan').classList.remove('on');
   document.getElementById('waveform').classList.remove('off');
-  document.getElementById('pttBar').style.display='flex';
   document.getElementById('residual').style.pointerEvents='auto';
+  // Reset FAB
+  fab.classList.remove('close-mode','active','processing');
+  fabIcon.textContent='mic';
   updateResidual();
 }
 
 // Scrim tap closes
 document.getElementById('scrim').addEventListener('click',closeDrawer);
-// Residual tap opens
-document.getElementById('residual').addEventListener('click',()=>{if(!open)openDrawer()});
+// Residual tap opens history
+document.getElementById('residual').addEventListener('click',()=>{if(!open)openDrawer(false)});
 
 // Swipe down on handle
 let sy=0;
@@ -315,13 +364,24 @@ const ha=document.getElementById('handleArea');
 ha.addEventListener('touchstart',e=>{sy=e.touches[0].clientY},{passive:true});
 ha.addEventListener('touchmove',e=>{if(e.touches[0].clientY-sy>50)closeDrawer()},{passive:true});
 
-// ═══════ PTT ═══════
-let processing=false; // block new recordings while SARA is responding
+// FAB tap — if in close-mode, close drawer. Otherwise ignore (PTT is hold, not tap)
+fab.addEventListener('click',()=>{
+  if(fab.classList.contains('close-mode')) closeDrawer();
+});
+
+// ═══════ PTT via FAB ═══════
+let processing=false;
 
 function startRec(){
   if(recording||processing||demoIdx>=exchanges.length) return;
   recording=true;
-  if(!open) openDrawer();
+
+  // FAB goes active (red)
+  fab.classList.remove('close-mode');
+  fab.classList.add('active');
+  fabIcon.textContent='mic';
+
+  if(!open) openDrawer(true);
 
   const ex=exchanges[demoIdx];
   const uW=ex.user;
@@ -335,9 +395,6 @@ function startRec(){
   document.getElementById('sr').classList.remove('on');
   document.getElementById('srText').innerHTML='';
   document.getElementById('waveform').classList.remove('off');
-
-  document.getElementById('pttBtn').classList.add('active');
-  document.getElementById('dPttBtn').classList.add('active');
 
   let wi=0;
   const tt=document.getElementById('txText');
@@ -362,8 +419,10 @@ function stopRec(){
   const uW=ex.user;
   const sW=ex.sara;
 
-  document.getElementById('pttBtn').classList.remove('active');
-  document.getElementById('dPttBtn').classList.remove('active');
+  // FAB goes to processing state
+  fab.classList.remove('active');
+  fab.classList.add('processing');
+  fabIcon.textContent='pending';
 
   // Fill remaining words
   const tt=document.getElementById('txText');
@@ -381,8 +440,12 @@ function stopRec(){
   setTimeout(()=>{document.getElementById('scan').classList.add('on')},400);
   // Dim
   setTimeout(()=>{tt.classList.add('dim')},700);
-  // SARA
+  // SARA responds
   setTimeout(()=>{
+    // FAB shows speaker icon while SARA talks
+    fab.classList.remove('processing');
+    fabIcon.textContent='volume_up';
+
     document.getElementById('sr').classList.add('on');
     const st=document.getElementById('srText');
     let si=0;
@@ -394,22 +457,33 @@ function stopRec(){
         clearInterval(timer);
         msgs.push({r:'sara',t:sW.join(' ')});
         renderChat();
-        // Execute map action for this exchange
         if(typeof execMapAction==='function') execMapAction(exchanges[demoIdx].mapAction);
         demoIdx++;
         processing=false;
+        // FAB back to mic before drawer closes
+        fabIcon.textContent='mic';
         setTimeout(closeDrawer,1200);
       }
     },120);
   },1800);
 }
 
-// Bind both PTT buttons
-[document.getElementById('pttBtn'),document.getElementById('dPttBtn')].forEach(b=>{
-  b.addEventListener('touchstart',e=>{e.preventDefault();startRec()});
-  b.addEventListener('touchend',e=>{e.preventDefault();stopRec()});
-  b.addEventListener('mousedown',e=>{e.preventDefault();startRec()});
-  b.addEventListener('mouseup',e=>{e.preventDefault();stopRec()});
+// FAB hold = record (touch + mouse)
+fab.addEventListener('touchstart',e=>{
+  if(fab.classList.contains('close-mode')) return;
+  e.preventDefault();startRec();
+},{passive:false});
+fab.addEventListener('touchend',e=>{
+  if(fab.classList.contains('close-mode')) return;
+  e.preventDefault();stopRec();
+},{passive:false});
+fab.addEventListener('mousedown',e=>{
+  if(fab.classList.contains('close-mode')) return;
+  e.preventDefault();startRec();
+});
+fab.addEventListener('mouseup',e=>{
+  if(fab.classList.contains('close-mode')) return;
+  e.preventDefault();stopRec();
 });
 
 // ═══════ INIT ═══════
