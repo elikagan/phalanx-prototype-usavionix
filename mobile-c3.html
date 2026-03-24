@@ -67,84 +67,75 @@
     display:flex; align-items:center; gap:3px; cursor:pointer;
   }
 
-  /* SCROLLING MESSAGE ZONE — fades to fully transparent at top */
+  /* SCROLLING MESSAGE ZONE
+     - No backdrop-filter on children so CSS mask actually works on mobile Safari
+     - Solid opaque backgrounds on all messages for legibility over satellite imagery */
   .overlay-zone {
     position:absolute;
-    top:42px; bottom:66px; left:10px; right:10px;
+    top:42px; bottom:62px; left:0; right:0;
     z-index:50;
     display:flex; flex-direction:column;
     justify-content:flex-end;
     overflow-y:auto;
     overflow-x:hidden;
     pointer-events:none;
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, transparent 8%, rgba(0,0,0,1) 30%);
-    mask-image: linear-gradient(to bottom, transparent 0%, transparent 8%, rgba(0,0,0,1) 30%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, transparent 5%, black 25%);
+    mask-image: linear-gradient(to bottom, transparent 0%, transparent 5%, black 25%);
   }
   .overlay-zone::-webkit-scrollbar { display:none; }
   .msg-stack {
-    display:flex; flex-direction:column; gap:3px;
-    padding-top:80px; /* space for messages to scroll into fade zone */
+    display:flex; flex-direction:column; gap:2px;
+    padding:80px 10px 4px 10px;
+    pointer-events:auto;
   }
 
-  /* MESSAGE CARDS — single-line voice, compact */
+  /* SARA MESSAGES — solid dark, left-aligned, full width */
   .msg-card {
-    background:rgba(14,14,17,.72);
-    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
-    border:1px solid rgba(255,255,255,.04);
+    background:#141417;
     border-radius:var(--radius);
-    padding:7px 10px;
-    font-size:12px; line-height:1.4; color:var(--text);
+    padding:8px 12px;
+    font-size:13px; line-height:1.45; color:var(--text);
     pointer-events:auto;
     animation:fadeUp .3s ease;
     flex-shrink:0;
-    /* HORIZONTAL layout: icon + waveform + text all in one row */
-    display:flex; align-items:center; gap:8px;
   }
-  /* User messages — right-aligned, different bg */
+
+  /* USER MESSAGES — distinct lighter bg, right-aligned */
   .msg-card.user {
     align-self:flex-end;
-    background:rgba(255,255,255,.06);
-    border:1px solid rgba(255,255,255,.08);
-    max-width:80%;
+    background:#28282e;
+    color:var(--text-bright);
+    max-width:85%;
+    border-radius:var(--radius);
   }
-  .msg-card.user .voice-icon {
-    background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.12);
-  }
-  .msg-card.user .voice-icon .material-symbols-outlined { color:var(--text-secondary); }
-  .msg-card.user .voice-wave span { background:rgba(255,255,255,.25); }
-  .msg-card.user .voice-dur { color:var(--text-dim); }
-  .msg-card.user .msg-text { color:var(--text-bright); }
 
-  .msg-text { flex:1; min-width:0; }
-
-  /* VOICE — inline, same row as text */
-  .voice-icon {
-    width:20px; height:20px; border-radius:50%; flex-shrink:0;
-    background:rgba(95,143,173,.1); border:1px solid rgba(95,143,173,.16);
-    display:flex; align-items:center; justify-content:center;
+  /* SPEAKING INDICATOR — only on the active message */
+  .msg-card.speaking {
+    border-left:2px solid var(--accent);
+    padding-left:10px;
   }
-  .voice-icon .material-symbols-outlined { font-size:12px; color:#5f8fad; }
-  .voice-wave {
-    display:flex; align-items:center; gap:1px; height:16px;
-    width:40px; flex-shrink:0;
+  .msg-card.speaking .speaking-bar {
+    display:flex; align-items:center; gap:6px;
+    margin-bottom:4px;
   }
-  .voice-wave span {
-    flex:1; background:rgba(95,143,173,.4); border-radius:1px;
-    animation:voiceWave 1.2s ease-in-out infinite;
+  .speaking-bar { display:none; }
+  .speaking-label {
+    font-family:var(--mono); font-size:8px; font-weight:600;
+    color:var(--accent); text-transform:uppercase; letter-spacing:.06em;
   }
-  .done .voice-wave span { animation:none; background:rgba(95,143,173,.12); }
-  .done .voice-icon { background:rgba(95,143,173,.04); border-color:rgba(95,143,173,.08); }
-  .done .voice-icon .material-symbols-outlined { color:rgba(95,143,173,.25); }
-  .voice-dur { font-family:var(--mono); font-size:8px; color:var(--text-dim); flex-shrink:0; }
-  .voice-wave span:nth-child(1){animation-delay:0s}
-  .voice-wave span:nth-child(2){animation-delay:.07s}
-  .voice-wave span:nth-child(3){animation-delay:.14s}
-  .voice-wave span:nth-child(4){animation-delay:.05s}
-  .voice-wave span:nth-child(5){animation-delay:.12s}
-  .voice-wave span:nth-child(6){animation-delay:.03s}
-  .voice-wave span:nth-child(7){animation-delay:.1s}
-  .voice-wave span:nth-child(8){animation-delay:.08s}
-  @keyframes voiceWave { 0%,100% { height:3px; } 50% { height:14px; } }
+  .speaking-wave {
+    display:flex; align-items:center; gap:1px; height:12px;
+  }
+  .speaking-wave span {
+    width:2px; background:var(--accent); border-radius:1px;
+    animation:voiceWave 1s ease-in-out infinite;
+  }
+  .speaking-wave span:nth-child(1){animation-delay:0s}
+  .speaking-wave span:nth-child(2){animation-delay:.1s}
+  .speaking-wave span:nth-child(3){animation-delay:.05s}
+  .speaking-wave span:nth-child(4){animation-delay:.15s}
+  .speaking-wave span:nth-child(5){animation-delay:.08s}
+  @keyframes voiceWave { 0%,100% { height:3px; } 50% { height:12px; } }
 
   /* ALERT STATE */
   .alert-zone {
@@ -155,9 +146,8 @@
   .alert-zone.active { display:flex; }
   @keyframes alertExpand { from { opacity:0; transform:translateY(16px) scale(.97); } to { opacity:1; transform:translateY(0) scale(1); } }
   .alert-header {
-    background:rgba(184,84,84,.14);
-    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
-    border:1px solid rgba(184,84,84,.28);
+    background:#1e1518;
+    border:1px solid rgba(184,84,84,.3);
     border-radius:var(--radius); padding:10px 12px;
     animation:alertPulse 2s ease infinite;
   }
@@ -171,15 +161,11 @@
     margin-bottom:3px; display:flex; align-items:center; gap:5px;
   }
   .alert-header .alert-label .material-symbols-outlined { font-size:14px; }
-  .alert-header .voice-icon { background:rgba(184,84,84,.1); border-color:rgba(184,84,84,.22); }
-  .alert-header .voice-icon .material-symbols-outlined { color:var(--red); }
-  .alert-header .voice-wave span { background:rgba(184,84,84,.45); }
-  .alert-header .done .voice-wave span { background:rgba(184,84,84,.15); }
+  /* Alert voice indicator uses red accent */
   .alert-header .alert-text { font-size:13px; line-height:1.45; color:var(--text-bright); }
 
   .alert-body {
-    background:rgba(14,14,17,.8);
-    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    background:#141417;
     border:1px solid rgba(255,255,255,.05);
     border-radius:var(--radius); padding:10px 12px;
     font-size:12px; line-height:1.45; color:var(--text);
@@ -199,7 +185,7 @@
   .ptt-bar {
     position:absolute; bottom:0; left:0; right:0; z-index:60;
     padding:6px 10px; padding-bottom:max(6px, env(safe-area-inset-bottom));
-    background:rgba(14,14,17,.82); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    background:#111114;
     border-top:1px solid rgba(255,255,255,.04);
     display:flex; align-items:center; gap:6px; transition:all .3s;
   }
@@ -313,65 +299,24 @@
 <!-- SCROLLING OVERLAY — messages fade to transparent as they scroll up -->
 <div class="overlay-zone" id="overlayZone">
   <div class="msg-stack" id="calmMessages">
-    <!-- SARA -->
-    <div class="msg-card done">
-      <div class="voice-icon"><span class="material-symbols-outlined">graphic_eq</span></div>
-      <div class="voice-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-      <span class="voice-dur">0:02</span>
-      <span class="msg-text">Drone is airborne. Beginning search pattern.</span>
-    </div>
-
-    <!-- USER -->
-    <div class="msg-card user done">
-      <div class="voice-icon"><span class="material-symbols-outlined">mic</span></div>
-      <div class="voice-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-      <span class="voice-dur">0:03</span>
-      <span class="msg-text">Copy that. What's the wind looking like?</span>
-    </div>
-
-    <!-- SARA -->
-    <div class="msg-card done">
-      <div class="voice-icon"><span class="material-symbols-outlined">graphic_eq</span></div>
-      <div class="voice-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-      <span class="voice-dur">0:03</span>
-      <span class="msg-text">Wind 5 mph NW. Conditions nominal.</span>
-    </div>
-
-    <!-- SARA -->
-    <div class="msg-card done">
-      <div class="voice-icon"><span class="material-symbols-outlined">graphic_eq</span></div>
-      <div class="voice-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-      <span class="voice-dur">0:04</span>
-      <span class="msg-text">Search progress: <strong>25%</strong>. No targets detected.</span>
-    </div>
-
-    <!-- USER -->
-    <div class="msg-card user done">
-      <div class="voice-icon"><span class="material-symbols-outlined">mic</span></div>
-      <div class="voice-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-      <span class="voice-dur">0:02</span>
-      <span class="msg-text">Expand to the east side of the park.</span>
-    </div>
-
-    <!-- SARA — currently speaking -->
-    <div class="msg-card" id="activeMsg">
-      <div class="voice-icon"><span class="material-symbols-outlined">graphic_eq</span></div>
-      <div class="voice-wave" id="activeWave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-      <span class="voice-dur" id="voiceDur">0:02</span>
-      <span class="msg-text">Adjusting pattern. Battery at <strong>87%</strong>, 32 min remaining.</span>
+    <div class="msg-card">Drone is airborne. Beginning search pattern.</div>
+    <div class="msg-card user">Copy that. What's the wind looking like?</div>
+    <div class="msg-card">Wind 5 mph NW. Conditions nominal.</div>
+    <div class="msg-card user">Head toward the east side of the park first.</div>
+    <div class="msg-card">Adjusting route. Heading east.</div>
+    <div class="msg-card">Search progress: <strong>25%</strong>. No targets detected.</div>
+    <div class="msg-card user">Expand the boundary if you need to.</div>
+    <div class="msg-card speaking" id="activeMsg">
+      <div class="speaking-bar"><span class="speaking-label">SARA</span><div class="speaking-wave"><span></span><span></span><span></span><span></span><span></span></div></div>
+      Battery at <strong>87%</strong>. Estimated 32 min remaining. Continuing east sweep.
     </div>
   </div>
 
   <!-- ALERT STATE -->
   <div class="alert-zone" id="alertZone">
-    <div class="alert-header" id="alertVoice">
+    <div class="alert-header">
       <div class="alert-label"><span class="material-symbols-outlined">warning</span> TARGET DETECTED</div>
-      <div style="display:flex;align-items:center;gap:8px;margin:6px 0">
-        <div class="voice-icon"><span class="material-symbols-outlined">graphic_eq</span></div>
-        <div class="voice-wave" style="width:60px"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-        <span class="voice-dur">0:06</span>
-      </div>
-      <div class="alert-text"><strong>Potential target spotted!</strong> Red SUV at 23.2817, 20.8772.</div>
+      <div class="alert-text"><strong>Potential target spotted!</strong> Red SUV matching description at 23.2817, 20.8772. Entering orbit.</div>
     </div>
     <div class="alert-body">
       Drone is orbiting for closer look. <strong>Is this your target?</strong>
@@ -395,23 +340,16 @@
 <button class="sim-btn" id="simBtn" onclick="triggerAlert()">simulate target →</button>
 
 <script>
-  // Auto-scroll to bottom of message zone
+  // Auto-scroll to bottom
   const zone = document.getElementById('overlayZone');
   zone.scrollTop = zone.scrollHeight;
 
-  // Simulate active voice finishing after 4s
+  // Simulate speaking finishing after 4s
   setTimeout(() => {
-    document.getElementById('activeMsg').classList.add('done');
+    const msg = document.getElementById('activeMsg');
+    msg.classList.remove('speaking');
+    msg.querySelector('.speaking-bar').style.display = 'none';
   }, 4000);
-
-  // Voice duration counter
-  let dur = 2;
-  const durEl = document.getElementById('voiceDur');
-  const durInterval = setInterval(() => {
-    dur++;
-    durEl.textContent = '0:0' + dur;
-    if (dur >= 5) { clearInterval(durInterval); durEl.textContent = '0:05'; }
-  }, 1000);
 
   function triggerAlert() {
     document.body.classList.add('alert-mode');
@@ -425,10 +363,6 @@
     document.body.style.background = '#1a0808';
     setTimeout(() => { document.body.style.background = '#000'; }, 150);
 
-    // Alert voice finishes after 5s
-    setTimeout(() => { document.getElementById('alertVoice').classList.add('done'); }, 5000);
-
-    // Scroll to bottom
     zone.scrollTop = zone.scrollHeight;
   }
 
@@ -438,13 +372,11 @@
     const msgs = document.getElementById('calmMessages');
     msgs.style.display = 'flex';
 
-    const w = '<div class="voice-icon"><span class="material-symbols-outlined">graphic_eq</span></div><div class="voice-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><span class="voice-dur">0:03</span>';
-
     if (confirmed) {
-      msgs.innerHTML = '<div class="msg-card done">' + w + '<span class="msg-text"><strong>Target confirmed.</strong> Maintaining orbit.</span></div>';
+      msgs.innerHTML = '<div class="msg-card"><strong>Target confirmed.</strong> Maintaining orbit. You\'ll be updated on any changes.</div>';
       document.getElementById('stateDot').style.background = 'var(--green)';
     } else {
-      msgs.innerHTML = '<div class="msg-card done">' + w + '<span class="msg-text">Continuing search. I\'ll alert you if I spot anything.</span></div>';
+      msgs.innerHTML = '<div class="msg-card">Continuing search. I\'ll alert you if I spot anything.</div>';
       document.getElementById('stateDot').style.background = 'var(--green)';
       document.getElementById('simBtn').style.display = 'block';
     }
