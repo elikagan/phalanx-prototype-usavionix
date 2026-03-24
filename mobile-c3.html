@@ -53,7 +53,7 @@ body{height:100%;overflow:hidden;position:fixed;inset:0;font-family:var(--sans);
 /* ═══════ RESIDUAL MESSAGES ═══════ */
 .residual{position:fixed;bottom:max(20px,env(safe-area-inset-bottom));left:0;right:90px;z-index:15;padding:0 14px}
 .r-msg{padding:7px 0;border-top:1px solid rgba(255,255,255,.06);font-size:13px;line-height:1.4;display:flex;align-items:flex-start;gap:5px;max-width:80%}
-.r-msg:first-child{border-top:none;padding-top:0}
+.r-msg:first-child{border-top:none;padding-top:4px}
 .r-msg.sara-r{color:rgba(255,255,255,.92)}
 .r-msg.user-r{flex-direction:row-reverse;margin-left:auto;text-align:right;color:rgba(255,255,255,.4)}
 .r-msg.op100.sara-r{color:rgba(255,255,255,.92)}
@@ -383,8 +383,6 @@ function startRec(){
   fabIcon.textContent='mic';
 
   if(!open) openDrawer(true);
-  // Hide chat history during active recording — TX area is the only content
-  document.getElementById('chatHistory').style.display='none';
 
   const ex=exchanges[demoIdx];
   const uW=ex.user;
@@ -436,7 +434,6 @@ function stopRec(){
   }
 
   document.getElementById('waveform').classList.add('off');
-  msgs.push({r:'user',t:uW.join(' ')});
 
   // Scan
   setTimeout(()=>{document.getElementById('scan').classList.add('on')},400);
@@ -457,13 +454,23 @@ function stopRec(){
         s.textContent=(si>0?' ':'')+sW[si];st.appendChild(s);si++;
       } else {
         clearInterval(timer);
+        // NOW push both messages to history — SARA is done talking
+        msgs.push({r:'user',t:uW.join(' ')});
         msgs.push({r:'sara',t:sW.join(' ')});
+        // Migrate: render into chat history, clear TX area
+        renderChat();
+        document.getElementById('txArea').classList.remove('on');
+        document.getElementById('txText').innerHTML='';
+        document.getElementById('srText').innerHTML='';
+        document.getElementById('sr').classList.remove('on');
+        document.getElementById('scan').classList.remove('on');
+        document.getElementById('waveform').classList.remove('off');
+        // Map action
         if(typeof execMapAction==='function') execMapAction(exchanges[demoIdx].mapAction);
         demoIdx++;
         processing=false;
-        // FAB back to mic before drawer closes
         fabIcon.textContent='mic';
-        setTimeout(closeDrawer,1200);
+        // Drawer stays open — user closes it manually
       }
     },120);
   },1800);
