@@ -3,274 +3,150 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>C3 — Context-Aware Density</title>
+<title>Phalanx — Mobile</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
-  * { margin:0; padding:0; box-sizing:border-box; -webkit-text-size-adjust:100%; }
-  :root {
-    --text: #b4b4bc; --text-dim: #4e4e56; --text-secondary: #6e6e78;
-    --text-ghost: #3a3a42; --text-bright: #d0d0d6;
-    --green: #4a9a65; --amber: #a89540; --red: #b85454; --accent: #5f8fad;
-    --mono: 'SF Mono','Fira Code','Consolas','JetBrains Mono',monospace;
-    --sans: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-    --radius: 6px; --radius-sm: 4px;
-  }
-  body {
-    font-family:var(--sans); background:#000; color:var(--text);
-    height:100vh; height:100dvh; overflow:hidden;
-    -webkit-font-smoothing:antialiased;
-  }
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-text-size-adjust:100%}
+:root{
+  --text:#b4b4bc;--text-dim:#4e4e56;--text-secondary:#6e6e78;--text-bright:#d0d0d6;
+  --green:#4a9a65;--amber:#a89540;--red:#b85454;--accent:#5f8fad;
+  --mono:'SF Mono','Fira Code','Consolas','JetBrains Mono',monospace;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --radius:6px;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--sans);background:#000;color:#fff;-webkit-font-smoothing:antialiased}
 
-  /* ---- VIDEO FEED ---- */
-  .video-full { position:absolute; inset:0; background:#0a0a0a url('aerial.jpg') center/cover no-repeat; }
-  .video-static { position:absolute; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 4px); pointer-events:none; }
-  .crosshair { position:absolute; top:38%; left:50%; transform:translate(-50%,-50%); width:30px; height:30px; pointer-events:none; }
-  .crosshair::before,.crosshair::after { content:''; position:absolute; background:rgba(255,255,255,.1); }
-  .crosshair::before { width:1px; height:100%; left:50%; }
-  .crosshair::after { height:1px; width:100%; top:50%; }
+/* ═══════ MAP ═══════ */
+.map{position:absolute;inset:0;background:#0a0a0a url('aerial.jpg') center/cover no-repeat;touch-action:manipulation}
+.map-scanlines{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.06) 2px,rgba(0,0,0,.06) 4px);pointer-events:none}
 
-  /* ---- TOPBAR ---- */
-  .topbar {
-    position:absolute; top:0; left:0; right:0; z-index:100;
-    height:36px; display:flex; align-items:center; padding:0 12px; gap:6px;
-    background:linear-gradient(to bottom, rgba(0,0,0,.6) 0%, rgba(0,0,0,0) 100%);
-  }
-  .topbar .logo { font-weight:700; font-size:13px; color:#fff; letter-spacing:-0.02em; flex-shrink:0; }
-  .topbar .dot { display:inline-block; width:5px; height:5px; border-radius:50%; flex-shrink:0; }
-  .topbar .telem {
-    font-family:var(--mono); font-size:8px; color:rgba(255,255,255,.4); letter-spacing:.3px;
-    display:flex; gap:8px; overflow:hidden; white-space:nowrap;
-  }
-  .topbar .telem .tv { color:rgba(255,255,255,.65); font-weight:500; }
-  .topbar .telem .tg { color:var(--green); font-weight:500; }
-  .topbar .pill {
-    margin-left:auto; flex-shrink:0;
-    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08);
-    border-radius:var(--radius-sm); padding:2px 7px;
-    font-family:var(--mono); font-size:8px; color:rgba(255,255,255,.5);
-    display:flex; align-items:center; gap:3px;
-  }
-  .pill-dot { width:4px; height:4px; border-radius:50%; }
+/* ═══════ TOP GRADIENT + TOPBAR ═══════ */
+.top-grad{position:absolute;top:0;left:0;right:0;height:80px;background:linear-gradient(to bottom,rgba(0,0,0,.65) 0%,rgba(0,0,0,.3) 50%,transparent 100%);pointer-events:none;z-index:10}
+.topbar{position:absolute;top:0;left:0;right:0;z-index:20;height:36px;display:flex;align-items:center;padding:0 14px;gap:6px}
+.topbar .logo{font-weight:700;font-size:13px;color:#fff;letter-spacing:-.02em;flex-shrink:0}
+.topbar .dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.topbar .telem{font-family:var(--mono);font-size:8px;color:rgba(255,255,255,.35);letter-spacing:.3px;display:flex;gap:8px;white-space:nowrap}
+.topbar .tv{color:rgba(255,255,255,.6);font-weight:500}
+.topbar .tg{color:var(--green);font-weight:500}
+.topbar .pill{margin-left:auto;flex-shrink:0;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06);border-radius:4px;padding:2px 7px;font-family:var(--mono);font-size:8px;color:rgba(255,255,255,.45);display:flex;align-items:center;gap:3px}
+.pill-dot{width:4px;height:4px;border-radius:50%}
 
-  /* Exec button */
-  .exec-actions { position:absolute; top:42px; right:12px; z-index:30; }
-  .exec-btn {
-    padding:4px 8px; border-radius:var(--radius-sm);
-    font-family:var(--mono); font-size:9px; font-weight:500;
-    border:1px solid rgba(184,84,84,.25); background:rgba(0,0,0,.4);
-    color:var(--red);
-    display:flex; align-items:center; gap:3px; cursor:pointer;
-  }
+/* Pause button */
+.pause-btn{position:absolute;top:42px;right:14px;z-index:20;padding:4px 8px;border-radius:4px;font-family:var(--mono);font-size:9px;font-weight:500;border:1px solid rgba(184,84,84,.25);background:rgba(0,0,0,.4);color:var(--red);display:flex;align-items:center;gap:3px;cursor:pointer}
+.pause-btn .material-symbols-outlined{font-size:12px}
 
-  /* ---- BLACK GRADIENT — bottom 50% of screen ---- */
-  .chat-gradient {
-    position:absolute; bottom:0; left:0; right:0;
-    height:55%; z-index:40;
-    background:linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,.95) 20%, rgba(0,0,0,.7) 50%, rgba(0,0,0,0) 100%);
-    pointer-events:none;
-  }
+/* ═══════ BOTTOM GRADIENT ═══════ */
+.bottom-grad{position:absolute;bottom:0;left:0;right:0;height:45%;background:linear-gradient(to top,#000 0%,rgba(0,0,0,.97) 25%,rgba(0,0,0,.6) 60%,transparent 100%);pointer-events:none;z-index:10}
 
-  /* ---- CHAT ZONE — scrollable, sits inside the gradient area ---- */
-  .chat-zone {
-    position:absolute;
-    bottom:62px; left:0; right:0;
-    height:45%;
-    z-index:50;
-    overflow-y:auto;
-    overflow-x:hidden;
-    display:flex;
-    flex-direction:column;
-    justify-content:flex-end;
-  }
-  .chat-zone::-webkit-scrollbar { display:none; }
+/* ═══════ RESIDUAL MESSAGES ═══════ */
+.residual{position:absolute;bottom:58px;left:0;right:0;z-index:15;padding:0 14px;cursor:pointer}
+.residual .r-msg{padding:8px 0;border-top:1px solid rgba(255,255,255,.06);font-size:13px;line-height:1.45}
+.residual .r-msg:first-child{border-top:none}
+.residual .r-msg.op100{color:rgba(255,255,255,.95)}
+.residual .r-msg.op50{color:rgba(255,255,255,.50)}
+.residual .r-msg.op20{color:rgba(255,255,255,.20);max-height:22px;overflow:hidden}
+.residual .r-msg .speaker{display:inline;margin-right:2px}
+.residual .r-msg .speaker .material-symbols-outlined{font-size:12px;vertical-align:-1px;opacity:.5}
+.residual .r-msg .mic-icon{display:inline;margin-right:2px}
+.residual .r-msg .mic-icon .material-symbols-outlined{font-size:12px;vertical-align:-1px;opacity:.4}
+.residual .r-bottom-line{border-top:1px solid rgba(255,255,255,.08);margin-top:0}
 
-  .msg-stack {
-    display:flex; flex-direction:column; gap:6px;
-    padding:60px 14px 6px 14px;
-  }
+/* ═══════ PTT BAR ═══════ */
+.ptt-bar{position:absolute;bottom:0;left:0;right:0;z-index:100;padding:6px 12px;padding-bottom:max(6px,env(safe-area-inset-bottom));background:#000;display:flex;align-items:center;gap:6px}
+.ptt-button{flex:1;height:44px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;font-weight:500;color:rgba(255,255,255,.3);cursor:pointer;transition:all .2s;user-select:none;-webkit-user-select:none;touch-action:none}
+.ptt-button .material-symbols-outlined{font-size:20px;color:rgba(255,255,255,.2);transition:color .15s}
+.ptt-button.active{background:rgba(184,84,84,.12);border-color:rgba(184,84,84,.3);color:#fff}
+.ptt-button.active .material-symbols-outlined{color:var(--red)}
+.text-toggle{width:44px;height:44px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.text-toggle .material-symbols-outlined{font-size:20px;color:rgba(255,255,255,.2)}
 
-  /* ---- MESSAGES ---- */
-  /* No card backgrounds — the gradient is the background */
-  .msg {
-    font-size:13px; line-height:1.5;
-    animation:fadeUp .3s ease;
-    flex-shrink:0;
-  }
+/* ═══════ DRAWER ═══════ */
+.drawer-overlay{position:absolute;inset:0;z-index:80;background:rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .3s}
+.drawer-overlay.visible{opacity:1;pointer-events:auto}
 
-  /* SARA */
-  .msg.sara {
-    color:rgba(255,255,255,.8);
-    padding-right:40px;
-  }
-  .msg.sara .speaker {
-    display:inline-flex; align-items:center; gap:3px;
-    margin-right:4px; vertical-align:baseline;
-  }
-  .msg.sara .speaker .material-symbols-outlined {
-    font-size:14px; color:var(--accent); vertical-align:-2px;
-  }
+.drawer{position:absolute;bottom:0;left:0;right:0;z-index:90;height:65vh;background:#0a0a0a;border-top-left-radius:12px;border-top-right-radius:12px;transform:translateY(100%);transition:transform .4s cubic-bezier(.32,.72,0,1);display:flex;flex-direction:column;touch-action:none}
+.drawer.open{transform:translateY(0)}
 
-  /* USER */
-  .msg.user {
-    align-self:flex-end;
-    text-align:right;
-    color:rgba(255,255,255,.95);
-    padding-left:40px;
-  }
+.drawer-handle{width:36px;height:4px;background:rgba(255,255,255,.15);border-radius:2px;margin:8px auto 4px;flex-shrink:0}
 
-  /* Speaking state — active message */
-  .msg.speaking {
-    color:#fff;
-  }
-  .msg.speaking .speaking-wave {
-    display:inline-flex; align-items:center; gap:1px; height:12px;
-    vertical-align:-2px; margin-left:4px;
-  }
-  .speaking-wave { display:none; }
-  .speaking-wave span {
-    width:2px; background:var(--accent); border-radius:1px;
-    animation:voiceWave 1s ease-in-out infinite;
-  }
-  .speaking-wave span:nth-child(1){animation-delay:0s}
-  .speaking-wave span:nth-child(2){animation-delay:.1s}
-  .speaking-wave span:nth-child(3){animation-delay:.05s}
-  .speaking-wave span:nth-child(4){animation-delay:.15s}
-  .speaking-wave span:nth-child(5){animation-delay:.08s}
-  @keyframes voiceWave { 0%,100% { height:2px; } 50% { height:10px; } }
-  @keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+/* Chat history inside drawer */
+.chat-history{flex:1;overflow-y:auto;padding:8px 16px 12px;-webkit-overflow-scrolling:touch}
+.chat-history::-webkit-scrollbar{display:none}
+.ch-msg{padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px;line-height:1.5}
+.ch-msg:last-child{border-bottom:none}
+.ch-msg.sara{color:rgba(255,255,255,.75)}
+.ch-msg.sara .speaker .material-symbols-outlined{font-size:12px;color:var(--accent);vertical-align:-1px;margin-right:3px}
+.ch-msg.user{color:rgba(255,255,255,.95);padding-left:20px}
+.ch-msg.user .mic-icon .material-symbols-outlined{font-size:12px;color:rgba(255,255,255,.3);vertical-align:-1px;margin-right:3px}
 
-  /* ---- ALERT STATE ---- */
-  .alert-zone {
-    display:none; flex-direction:column; gap:6px;
-    animation:alertExpand .5s cubic-bezier(.32,.72,0,1);
-    flex-shrink:0; padding:0 14px;
-  }
-  .alert-zone.active { display:flex; }
-  @keyframes alertExpand { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+/* Active transcription area in drawer */
+.transcription-area{flex-shrink:0;padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);min-height:80px;display:none}
+.transcription-area.active{display:block}
 
-  .alert-header {
-    background:rgba(184,84,84,.12);
-    border:1px solid rgba(184,84,84,.3);
-    border-radius:var(--radius); padding:12px 14px;
-    animation:alertPulse 2s ease infinite;
-  }
-  @keyframes alertPulse {
-    0%,100% { box-shadow:0 0 0 0 rgba(184,84,84,0); }
-    50% { box-shadow:0 0 20px 2px rgba(184,84,84,.1); }
-  }
-  .alert-label {
-    font-family:var(--mono); font-size:9px; font-weight:600;
-    color:var(--red); text-transform:uppercase; letter-spacing:.06em;
-    margin-bottom:6px; display:flex; align-items:center; gap:5px;
-  }
-  .alert-label .material-symbols-outlined { font-size:14px; }
-  .alert-text { font-size:14px; line-height:1.5; color:#fff; }
+.waveform{display:flex;align-items:center;justify-content:center;gap:2px;height:28px;margin-bottom:10px}
+.waveform span{width:3px;border-radius:1px;background:var(--red);animation:wave .7s ease-in-out infinite}
+@keyframes wave{0%,100%{height:4px}50%{height:24px}}
+.waveform span:nth-child(1){animation-delay:0s}
+.waveform span:nth-child(2){animation-delay:.08s}
+.waveform span:nth-child(3){animation-delay:.16s}
+.waveform span:nth-child(4){animation-delay:.04s}
+.waveform span:nth-child(5){animation-delay:.12s}
+.waveform span:nth-child(6){animation-delay:.2s}
+.waveform span:nth-child(7){animation-delay:.06s}
+.waveform span:nth-child(8){animation-delay:.14s}
+.waveform span:nth-child(9){animation-delay:.1s}
+.waveform span:nth-child(10){animation-delay:.18s}
+.waveform span:nth-child(11){animation-delay:.02s}
+.waveform span:nth-child(12){animation-delay:.15s}
+.waveform span:nth-child(13){animation-delay:.07s}
+.waveform span:nth-child(14){animation-delay:.13s}
+.waveform span:nth-child(15){animation-delay:.09s}
+.waveform span:nth-child(16){animation-delay:.17s}
+.waveform span:nth-child(17){animation-delay:.03s}
+.waveform span:nth-child(18){animation-delay:.11s}
+.waveform span:nth-child(19){animation-delay:.05s}
+.waveform span:nth-child(20){animation-delay:.19s}
+.waveform.stopped span{animation:none;height:3px;background:rgba(255,255,255,.1);transition:all .3s}
 
-  .alert-body {
-    font-size:13px; line-height:1.5; color:rgba(255,255,255,.85);
-    padding:0 2px;
-  }
-  .alert-choices { display:flex; gap:8px; }
-  .alert-choice {
-    flex:1; padding:14px 12px; border-radius:var(--radius);
-    font-family:var(--sans); font-size:14px; font-weight:500;
-    text-align:center; cursor:pointer; border:none; transition:all .15s;
-  }
-  .alert-choice.confirm { background:#3d6b85; color:#d4e0e8; }
-  .alert-choice.confirm:active { background:#4a7a96; }
-  .alert-choice.reject { background:rgba(184,84,84,.1); border:1px solid rgba(184,84,84,.25); color:var(--red); }
-  .alert-choice.reject:active { background:rgba(184,84,84,.18); }
+.transcript-text{font-size:15px;line-height:1.5;color:#fff;min-height:24px}
+.transcript-text .word{display:inline;animation:wordIn .2s ease}
+@keyframes wordIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
-  /* ---- PTT BAR ---- */
-  .ptt-bar {
-    position:absolute; bottom:0; left:0; right:0; z-index:60;
-    padding:6px 12px; padding-bottom:max(6px, env(safe-area-inset-bottom));
-    background:#000;
-    display:flex; align-items:center; gap:6px;
-  }
-  body.alert-mode .ptt-bar { border-top:1px solid rgba(184,84,84,.15); }
-  .ptt-button {
-    flex:1; height:44px; border-radius:8px;
-    background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
-    display:flex; align-items:center; justify-content:center; gap:8px;
-    font-family:var(--sans); font-size:13px; font-weight:500;
-    color:rgba(255,255,255,.35); cursor:pointer;
-    transition:all .15s; user-select:none; -webkit-user-select:none;
-  }
-  body.alert-mode .ptt-button { animation:pttBreath 3s ease infinite; border-color:rgba(184,84,84,.15); }
-  @keyframes pttBreath {
-    0%,100% { box-shadow:0 0 0 0 rgba(184,84,84,0); }
-    50% { box-shadow:0 0 10px 1px rgba(184,84,84,.06); }
-  }
-  .ptt-button:active,.ptt-button.live {
-    background:rgba(184,84,84,.12); border-color:rgba(184,84,84,.35);
-    color:#fff; animation:none;
-  }
-  .ptt-button .material-symbols-outlined { font-size:20px; color:rgba(255,255,255,.25); transition:color .15s; }
-  .ptt-button:active .material-symbols-outlined,.ptt-button.live .material-symbols-outlined { color:var(--red); }
-  .ptt-button.live .ptt-label { display:none; }
-  .ptt-button.live .ptt-waveform { display:flex; }
-  .ptt-waveform { display:none; align-items:center; gap:2px; height:22px; }
-  .ptt-waveform span { width:3px; background:var(--red); border-radius:1px; animation:wave .8s ease-in-out infinite; }
-  .ptt-waveform span:nth-child(1){height:8px;animation-delay:0s}
-  .ptt-waveform span:nth-child(2){height:16px;animation-delay:.1s}
-  .ptt-waveform span:nth-child(3){height:10px;animation-delay:.2s}
-  .ptt-waveform span:nth-child(4){height:20px;animation-delay:.15s}
-  .ptt-waveform span:nth-child(5){height:8px;animation-delay:.25s}
-  .ptt-waveform span:nth-child(6){height:14px;animation-delay:.05s}
-  .ptt-waveform span:nth-child(7){height:8px;animation-delay:.2s}
-  @keyframes wave { 0%,100%{transform:scaleY(.3)} 50%{transform:scaleY(1)} }
-  .text-toggle {
-    width:44px; height:44px; border-radius:8px;
-    background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
-    display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;
-  }
-  .text-toggle .material-symbols-outlined { font-size:20px; color:rgba(255,255,255,.25); }
+/* Scanning line */
+.scan-line{height:2px;margin:10px 0;overflow:hidden;opacity:0}
+.scan-line.active{opacity:1}
+.scan-line .line{height:100%;width:60px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scan 1.2s ease-out forwards}
+@keyframes scan{from{transform:translateX(-60px)}to{transform:translateX(calc(100vw + 60px))}}
 
-  .sim-btn {
-    position:absolute; bottom:66px; right:12px; z-index:200;
-    font-family:var(--mono); font-size:8px; color:rgba(255,255,255,.2);
-    text-decoration:underline; cursor:pointer; background:none; border:none;
-  }
+/* SARA response in drawer */
+.sara-response{padding:8px 0;opacity:0;transition:opacity .3s}
+.sara-response.visible{opacity:1}
+.sara-response .sr-label{font-family:var(--mono);font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;display:flex;align-items:center;gap:4px}
+.sara-response .sr-label .material-symbols-outlined{font-size:12px}
+.sara-response .sr-text{font-size:14px;line-height:1.5;color:rgba(255,255,255,.85)}
+.sara-response .sr-text .word{display:inline;animation:wordIn .15s ease}
 
-  /* Target bbox */
-  .target-bbox {
-    display:none; position:absolute; top:30%; left:42%;
-    width:80px; height:56px; border:2px solid rgba(255,255,255,.7); z-index:15;
-  }
-  .target-bbox .bbox-label {
-    position:absolute; top:-20px; left:0;
-    font-family:var(--mono); font-size:8px; font-weight:600;
-    background:rgba(0,0,0,.7); color:#fff;
-    padding:2px 5px; border-radius:3px; text-transform:uppercase;
-  }
-  .bbox-corner { position:absolute; width:10px; height:10px; border-color:#fff; border-style:solid; }
-  .bbox-tl { top:-2px;left:-2px; border-width:3px 0 0 3px; }
-  .bbox-tr { top:-2px;right:-2px; border-width:3px 3px 0 0; }
-  .bbox-bl { bottom:-2px;left:-2px; border-width:0 0 3px 3px; }
-  .bbox-br { bottom:-2px;right:-2px; border-width:0 3px 3px 0; }
-  body.alert-mode .target-bbox { display:block; }
-  body.alert-mode .crosshair { display:none; }
+/* User's transcribed text — dimmed after processing */
+.transcript-text.dimmed{font-size:13px;color:rgba(255,255,255,.4);transition:all .4s}
+
+/* Drawer PTT — inside drawer at bottom */
+.drawer-ptt{flex-shrink:0;padding:6px 12px;padding-bottom:max(6px,env(safe-area-inset-bottom));background:#0a0a0a;border-top:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:6px}
 </style>
 </head>
 <body>
 
-<!-- VIDEO -->
-<div class="video-full">
-  <div class="video-static"></div>
-  <div class="crosshair"></div>
-  <div class="target-bbox">
-    <div class="bbox-label">Potential Target</div>
-    <div class="bbox-corner bbox-tl"></div><div class="bbox-corner bbox-tr"></div>
-    <div class="bbox-corner bbox-bl"></div><div class="bbox-corner bbox-br"></div>
-  </div>
+<!-- MAP -->
+<div class="map" id="map">
+  <div class="map-scanlines"></div>
 </div>
 
-<!-- TOPBAR -->
+<!-- TOP GRADIENT + TOPBAR -->
+<div class="top-grad"></div>
 <div class="topbar">
   <span class="logo">Phalanx</span>
-  <span class="dot" id="stateDot" style="background:var(--green)"></span>
+  <span class="dot" style="background:var(--green)"></span>
   <span class="telem">
     <span>ALT <span class="tv">120m</span></span>
     <span>SPD <span class="tv">45</span></span>
@@ -279,93 +155,269 @@
   </span>
   <div class="pill"><span class="pill-dot" style="background:var(--green)"></span>DSA-128</div>
 </div>
+<button class="pause-btn"><span class="material-symbols-outlined">pause_circle</span> Pause</button>
 
-<div class="exec-actions"><button class="exec-btn"><span class="material-symbols-outlined" style="font-size:12px">pause_circle</span> Pause</button></div>
+<!-- BOTTOM GRADIENT -->
+<div class="bottom-grad"></div>
 
-<!-- BLACK GRADIENT — bottom half of screen, chat lives on top of this -->
-<div class="chat-gradient"></div>
-
-<!-- CHAT -->
-<div class="chat-zone" id="chatZone">
-  <div class="msg-stack" id="calmMessages">
-    <div class="msg sara"><span class="speaker"><span class="material-symbols-outlined">volume_up</span></span>Drone is airborne. Beginning search pattern.</div>
-    <div class="msg user">Copy that. What's the wind looking like?</div>
-    <div class="msg sara"><span class="speaker"><span class="material-symbols-outlined">volume_up</span></span>Wind 5 mph NW. Conditions nominal.</div>
-    <div class="msg user">Head toward the east side of the park first.</div>
-    <div class="msg sara"><span class="speaker"><span class="material-symbols-outlined">volume_up</span></span>Adjusting route. Heading east.</div>
-    <div class="msg sara"><span class="speaker"><span class="material-symbols-outlined">volume_up</span></span>Search progress: <strong>25%</strong>. No targets detected.</div>
-    <div class="msg user">Expand the boundary if you need to.</div>
-    <div class="msg sara speaking" id="activeMsg"><span class="speaker"><span class="material-symbols-outlined">volume_up</span></span>Battery at <strong>87%</strong>. Estimated 32 min remaining.<div class="speaking-wave"><span></span><span></span><span></span><span></span><span></span></div></div>
-  </div>
-
-  <!-- ALERT -->
-  <div class="alert-zone" id="alertZone">
-    <div class="alert-header">
-      <div class="alert-label"><span class="material-symbols-outlined">warning</span> TARGET DETECTED</div>
-      <div class="alert-text"><strong>Potential target spotted!</strong> Red SUV matching description at 23.2817, 20.8772. Entering orbit.</div>
-    </div>
-    <div class="alert-body">Drone is orbiting for closer look. <strong>Is this your target?</strong></div>
-    <div class="alert-choices">
-      <button class="alert-choice confirm" onclick="resolveAlert(true)">Yes, Confirm</button>
-      <button class="alert-choice reject" onclick="resolveAlert(false)">No, Continue</button>
-    </div>
-  </div>
+<!-- RESIDUAL MESSAGES (visible when drawer closed) -->
+<div class="residual" id="residual">
+  <div class="r-msg op20"><span class="speaker"><span class="material-symbols-outlined">volume_up</span></span>Adjusting route. Heading east toward the park boundary.</div>
+  <div class="r-msg op50"><span class="speaker"><span class="material-symbols-outlined">volume_up</span></span>Search progress: <strong>25%</strong>. No targets detected yet.</div>
+  <div class="r-msg op100"><span class="speaker"><span class="material-symbols-outlined">volume_up</span></span>Battery at <strong>87%</strong>. Estimated 32 min remaining.</div>
+  <div class="r-bottom-line"></div>
 </div>
 
-<!-- PTT -->
-<div class="ptt-bar">
+<!-- PTT BAR -->
+<div class="ptt-bar" id="pttBar">
   <div class="ptt-button" id="pttBtn">
     <span class="material-symbols-outlined">mic</span>
     <span class="ptt-label">Hold to talk</span>
-    <div class="ptt-waveform"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
   </div>
   <div class="text-toggle"><span class="material-symbols-outlined">keyboard</span></div>
 </div>
 
-<button class="sim-btn" id="simBtn" onclick="triggerAlert()">simulate target →</button>
+<!-- DRAWER OVERLAY -->
+<div class="drawer-overlay" id="drawerOverlay"></div>
+
+<!-- DRAWER -->
+<div class="drawer" id="drawer">
+  <div class="drawer-handle" id="drawerHandle"></div>
+
+  <div class="chat-history" id="chatHistory"></div>
+
+  <div class="transcription-area" id="transcriptionArea">
+    <div class="waveform" id="waveform">
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div class="transcript-text" id="transcriptText"></div>
+    <div class="scan-line" id="scanLine"><div class="line"></div></div>
+    <div class="sara-response" id="saraResponse">
+      <div class="sr-label"><span class="material-symbols-outlined">volume_up</span> SARA</div>
+      <div class="sr-text" id="saraText"></div>
+    </div>
+  </div>
+
+  <div class="drawer-ptt">
+    <div class="ptt-button" id="drawerPttBtn">
+      <span class="material-symbols-outlined">mic</span>
+      <span class="ptt-label">Hold to talk</span>
+    </div>
+    <div class="text-toggle"><span class="material-symbols-outlined">keyboard</span></div>
+  </div>
+</div>
 
 <script>
-  const chatZone = document.getElementById('chatZone');
-  chatZone.scrollTop = chatZone.scrollHeight;
+// ═══════ STATE ═══════
+let drawerOpen = false;
+let isRecording = false;
+let hasPlayedDemo = false;
+let wordTimer = null;
 
-  // Speaking indicator finishes after 4s
-  setTimeout(() => {
-    const msg = document.getElementById('activeMsg');
-    if (msg) msg.classList.remove('speaking');
-  }, 4000);
+const chatMessages = [
+  { role:'sara', text:'Drone is airborne. Beginning search pattern.' },
+  { role:'user', text:'Copy that. What\'s the wind looking like?' },
+  { role:'sara', text:'Wind 5 mph NW. Conditions nominal.' },
+  { role:'user', text:'Head toward the east side of the park first.' },
+  { role:'sara', text:'Adjusting route. Heading east toward the park boundary.' },
+  { role:'sara', text:'Search progress: 25%. No targets detected yet.' },
+  { role:'sara', text:'Battery at 87%. Estimated 32 min remaining.' },
+];
 
-  function triggerAlert() {
-    document.body.classList.add('alert-mode');
-    document.getElementById('calmMessages').style.display = 'none';
-    document.getElementById('alertZone').classList.add('active');
-    document.getElementById('stateDot').style.background = 'var(--red)';
-    document.getElementById('simBtn').style.display = 'none';
-    chatZone.scrollTop = chatZone.scrollHeight;
-  }
+const userWords = ["Please","focus","on","the","intersection","of","Washington","and","Dupont.","I","think","the","car","might","be","there."];
+const saraWords = ["Confirmed.","Rerouting","to","Washington","and","Dupont","for","observation."];
 
-  function resolveAlert(confirmed) {
-    document.getElementById('alertZone').classList.remove('active');
-    document.body.classList.remove('alert-mode');
-    const msgs = document.getElementById('calmMessages');
-    msgs.style.display = 'flex';
-    if (confirmed) {
-      msgs.innerHTML = '<div class="msg sara"><span class="speaker"><span class="material-symbols-outlined">volume_up</span></span><strong>Target confirmed.</strong> Maintaining orbit.</div>';
-      document.getElementById('stateDot').style.background = 'var(--green)';
+// ═══════ RENDER CHAT HISTORY ═══════
+function renderChat() {
+  const el = document.getElementById('chatHistory');
+  el.innerHTML = chatMessages.map(m => {
+    if (m.role === 'sara') {
+      return `<div class="ch-msg sara"><span class="speaker"><span class="material-symbols-outlined">volume_up</span></span>${m.text}</div>`;
     } else {
-      msgs.innerHTML = '<div class="msg sara"><span class="speaker"><span class="material-symbols-outlined">volume_up</span></span>Continuing search. I\'ll alert you if I spot anything.</div>';
-      document.getElementById('stateDot').style.background = 'var(--green)';
-      document.getElementById('simBtn').style.display = 'block';
+      return `<div class="ch-msg user"><span class="mic-icon"><span class="material-symbols-outlined">mic</span></span>${m.text}</div>`;
     }
-    chatZone.scrollTop = chatZone.scrollHeight;
+  }).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+// ═══════ DRAWER ═══════
+function openDrawer() {
+  if (drawerOpen) return;
+  drawerOpen = true;
+  renderChat();
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('visible');
+  document.getElementById('pttBar').style.display = 'none';
+  document.getElementById('residual').style.display = 'none';
+  // Scroll to bottom of chat
+  const ch = document.getElementById('chatHistory');
+  setTimeout(() => { ch.scrollTop = ch.scrollHeight; }, 50);
+}
+
+function closeDrawer() {
+  if (!drawerOpen) return;
+  drawerOpen = false;
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('visible');
+  document.getElementById('transcriptionArea').classList.remove('active');
+  document.getElementById('pttBar').style.display = 'flex';
+  document.getElementById('residual').style.display = 'block';
+  updateResidual();
+}
+
+// Tap overlay to close
+document.getElementById('drawerOverlay').addEventListener('click', closeDrawer);
+
+// Tap residual to open
+document.getElementById('residual').addEventListener('click', openDrawer);
+
+// Swipe down on drawer handle to close
+let touchStartY = 0;
+const drawerHandle = document.getElementById('drawerHandle');
+drawerHandle.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; });
+drawerHandle.addEventListener('touchmove', e => {
+  const dy = e.touches[0].clientY - touchStartY;
+  if (dy > 60) closeDrawer();
+});
+
+// ═══════ UPDATE RESIDUAL MESSAGES ═══════
+function updateResidual() {
+  const el = document.getElementById('residual');
+  const last3 = chatMessages.slice(-3);
+  const opacities = ['op20', 'op50', 'op100'];
+  el.innerHTML = last3.map((m, i) => {
+    const op = opacities[i];
+    const icon = m.role === 'sara'
+      ? '<span class="speaker"><span class="material-symbols-outlined">volume_up</span></span>'
+      : '<span class="mic-icon"><span class="material-symbols-outlined">mic</span></span>';
+    return `<div class="r-msg ${op}">${icon}${m.text}</div>`;
+  }).join('') + '<div class="r-bottom-line"></div>';
+}
+
+// ═══════ PTT INTERACTION ═══════
+function startRecording(fromDrawerBtn) {
+  if (isRecording || hasPlayedDemo) return;
+  isRecording = true;
+
+  // Open drawer if not already
+  if (!drawerOpen) openDrawer();
+
+  // Show transcription area
+  const area = document.getElementById('transcriptionArea');
+  area.classList.add('active');
+  area.style.display = 'block';
+
+  // Reset
+  document.getElementById('transcriptText').innerHTML = '';
+  document.getElementById('transcriptText').classList.remove('dimmed');
+  document.getElementById('scanLine').classList.remove('active');
+  document.getElementById('saraResponse').classList.remove('visible');
+  document.getElementById('saraText').innerHTML = '';
+  document.getElementById('waveform').classList.remove('stopped');
+
+  // Activate PTT buttons
+  document.getElementById('pttBtn').classList.add('active');
+  document.getElementById('drawerPttBtn').classList.add('active');
+
+  // Start word-by-word transcription
+  let wordIdx = 0;
+  const tt = document.getElementById('transcriptText');
+  wordTimer = setInterval(() => {
+    if (wordIdx < userWords.length) {
+      const span = document.createElement('span');
+      span.className = 'word';
+      span.textContent = (wordIdx > 0 ? ' ' : '') + userWords[wordIdx];
+      tt.appendChild(span);
+      wordIdx++;
+      // Scroll chat to bottom
+      document.getElementById('chatHistory').scrollTop = document.getElementById('chatHistory').scrollHeight;
+    } else {
+      clearInterval(wordTimer);
+      wordTimer = null;
+    }
+  }, 200);
+}
+
+function stopRecording() {
+  if (!isRecording) return;
+  isRecording = false;
+  hasPlayedDemo = true;
+
+  // Stop word timer
+  if (wordTimer) { clearInterval(wordTimer); wordTimer = null; }
+
+  // Deactivate PTT buttons
+  document.getElementById('pttBtn').classList.remove('active');
+  document.getElementById('drawerPttBtn').classList.remove('active');
+
+  // Fill remaining words instantly
+  const tt = document.getElementById('transcriptText');
+  const currentWords = tt.querySelectorAll('.word').length;
+  for (let i = currentWords; i < userWords.length; i++) {
+    const span = document.createElement('span');
+    span.className = 'word';
+    span.textContent = (i > 0 ? ' ' : '') + userWords[i];
+    tt.appendChild(span);
   }
 
-  // PTT
-  const ptt = document.getElementById('pttBtn');
-  ptt.addEventListener('touchstart', (e) => { e.preventDefault(); ptt.classList.add('live'); });
-  ptt.addEventListener('touchend', () => ptt.classList.remove('live'));
-  ptt.addEventListener('mousedown', () => ptt.classList.add('live'));
-  ptt.addEventListener('mouseup', () => ptt.classList.remove('live'));
-  ptt.addEventListener('mouseleave', () => ptt.classList.remove('live'));
+  // Stop waveform
+  document.getElementById('waveform').classList.add('stopped');
+
+  // Add user message to chat
+  chatMessages.push({ role:'user', text: userWords.join(' ') });
+  renderChat();
+
+  // Scanning line
+  setTimeout(() => {
+    document.getElementById('scanLine').classList.add('active');
+  }, 300);
+
+  // Dim user text
+  setTimeout(() => {
+    tt.classList.add('dimmed');
+  }, 600);
+
+  // SARA response
+  setTimeout(() => {
+    const sr = document.getElementById('saraResponse');
+    sr.classList.add('visible');
+    const st = document.getElementById('saraText');
+    let si = 0;
+    const saraTimer = setInterval(() => {
+      if (si < saraWords.length) {
+        const span = document.createElement('span');
+        span.className = 'word';
+        span.textContent = (si > 0 ? ' ' : '') + saraWords[si];
+        st.appendChild(span);
+        si++;
+      } else {
+        clearInterval(saraTimer);
+        // Add SARA message to chat
+        chatMessages.push({ role:'sara', text: saraWords.join(' ') });
+        renderChat();
+
+        // Close drawer after pause
+        setTimeout(() => {
+          closeDrawer();
+        }, 1200);
+      }
+    }, 120);
+  }, 1800);
+}
+
+// PTT event listeners — both main and drawer buttons
+[document.getElementById('pttBtn'), document.getElementById('drawerPttBtn')].forEach(btn => {
+  btn.addEventListener('touchstart', e => { e.preventDefault(); startRecording(); });
+  btn.addEventListener('touchend', e => { e.preventDefault(); stopRecording(); });
+  btn.addEventListener('mousedown', e => { e.preventDefault(); startRecording(); });
+  btn.addEventListener('mouseup', e => { e.preventDefault(); stopRecording(); });
+});
+
+// ═══════ INIT ═══════
+updateResidual();
 </script>
 </body>
 </html>
