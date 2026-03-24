@@ -67,76 +67,83 @@
     display:flex; align-items:center; gap:3px; cursor:pointer;
   }
 
-  /* SCROLLING MESSAGE ZONE with fade-to-transparent at top */
+  /* SCROLLING MESSAGE ZONE — fades to fully transparent at top */
   .overlay-zone {
     position:absolute;
-    top:42px; bottom:76px; left:10px; right:10px;
+    top:42px; bottom:66px; left:10px; right:10px;
     z-index:50;
     display:flex; flex-direction:column;
     justify-content:flex-end;
     overflow-y:auto;
     overflow-x:hidden;
     pointer-events:none;
-    /* Fade mask: transparent at top → visible at bottom */
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.3) 15%, rgba(0,0,0,1) 35%);
-    mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.3) 15%, rgba(0,0,0,1) 35%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, transparent 8%, rgba(0,0,0,1) 30%);
+    mask-image: linear-gradient(to bottom, transparent 0%, transparent 8%, rgba(0,0,0,1) 30%);
   }
   .overlay-zone::-webkit-scrollbar { display:none; }
   .msg-stack {
-    display:flex; flex-direction:column; gap:4px;
-    padding-top:60px; /* extra space so top messages can scroll into fade zone */
+    display:flex; flex-direction:column; gap:3px;
+    padding-top:80px; /* space for messages to scroll into fade zone */
   }
 
-  /* MESSAGE CARDS — compact */
+  /* MESSAGE CARDS — single-line voice, compact */
   .msg-card {
     background:rgba(14,14,17,.72);
     backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
     border:1px solid rgba(255,255,255,.04);
     border-radius:var(--radius);
-    padding:8px 12px;
-    font-size:12px; line-height:1.45; color:var(--text);
+    padding:7px 10px;
+    font-size:12px; line-height:1.4; color:var(--text);
     pointer-events:auto;
-    animation:fadeUp .4s ease;
+    animation:fadeUp .3s ease;
     flex-shrink:0;
+    /* HORIZONTAL layout: icon + waveform + text all in one row */
+    display:flex; align-items:center; gap:8px;
   }
-  .msg-card .msg-label {
-    font-family:var(--mono); font-size:8px; font-weight:500;
-    color:var(--text-dim); text-transform:uppercase; letter-spacing:.06em;
-    margin-bottom:3px; display:flex; align-items:center; gap:5px;
+  /* User messages — right-aligned, different bg */
+  .msg-card.user {
+    align-self:flex-end;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.08);
+    max-width:80%;
   }
+  .msg-card.user .voice-icon {
+    background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.12);
+  }
+  .msg-card.user .voice-icon .material-symbols-outlined { color:var(--text-secondary); }
+  .msg-card.user .voice-wave span { background:rgba(255,255,255,.25); }
+  .msg-card.user .voice-dur { color:var(--text-dim); }
+  .msg-card.user .msg-text { color:var(--text-bright); }
 
-  /* VOICE PLAYBACK — compact waveform */
-  .msg-voice {
-    display:flex; align-items:center; gap:6px;
-    margin-bottom:4px; padding:4px 0;
+  .msg-text { flex:1; min-width:0; }
+
+  /* VOICE — inline, same row as text */
+  .voice-icon {
+    width:20px; height:20px; border-radius:50%; flex-shrink:0;
+    background:rgba(95,143,173,.1); border:1px solid rgba(95,143,173,.16);
+    display:flex; align-items:center; justify-content:center;
   }
-  .msg-voice .voice-icon {
-    width:22px; height:22px; border-radius:50%;
-    background:rgba(95,143,173,.1); border:1px solid rgba(95,143,173,.18);
-    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  .voice-icon .material-symbols-outlined { font-size:12px; color:#5f8fad; }
+  .voice-wave {
+    display:flex; align-items:center; gap:1px; height:16px;
+    width:40px; flex-shrink:0;
   }
-  .msg-voice .voice-icon .material-symbols-outlined { font-size:13px; color:#5f8fad; }
-  .msg-voice .voice-wave { flex:1; display:flex; align-items:center; gap:1px; height:16px; }
-  .msg-voice .voice-wave span {
-    flex:1; max-width:3px; background:rgba(95,143,173,.45); border-radius:1px;
+  .voice-wave span {
+    flex:1; background:rgba(95,143,173,.4); border-radius:1px;
     animation:voiceWave 1.2s ease-in-out infinite;
   }
-  .msg-voice.done .voice-wave span { animation:none; background:rgba(95,143,173,.15); }
-  .msg-voice.done .voice-icon { background:rgba(95,143,173,.05); border-color:rgba(95,143,173,.08); }
-  .msg-voice.done .voice-icon .material-symbols-outlined { color:rgba(95,143,173,.3); }
-  .msg-voice .voice-dur { font-family:var(--mono); font-size:8px; color:var(--text-dim); flex-shrink:0; }
-  .msg-voice .voice-wave span:nth-child(1){animation-delay:0s}
-  .msg-voice .voice-wave span:nth-child(2){animation-delay:.07s}
-  .msg-voice .voice-wave span:nth-child(3){animation-delay:.14s}
-  .msg-voice .voice-wave span:nth-child(4){animation-delay:.05s}
-  .msg-voice .voice-wave span:nth-child(5){animation-delay:.12s}
-  .msg-voice .voice-wave span:nth-child(6){animation-delay:.03s}
-  .msg-voice .voice-wave span:nth-child(7){animation-delay:.1s}
-  .msg-voice .voice-wave span:nth-child(8){animation-delay:.08s}
-  .msg-voice .voice-wave span:nth-child(9){animation-delay:.15s}
-  .msg-voice .voice-wave span:nth-child(10){animation-delay:.02s}
-  .msg-voice .voice-wave span:nth-child(11){animation-delay:.11s}
-  .msg-voice .voice-wave span:nth-child(12){animation-delay:.06s}
+  .done .voice-wave span { animation:none; background:rgba(95,143,173,.12); }
+  .done .voice-icon { background:rgba(95,143,173,.04); border-color:rgba(95,143,173,.08); }
+  .done .voice-icon .material-symbols-outlined { color:rgba(95,143,173,.25); }
+  .voice-dur { font-family:var(--mono); font-size:8px; color:var(--text-dim); flex-shrink:0; }
+  .voice-wave span:nth-child(1){animation-delay:0s}
+  .voice-wave span:nth-child(2){animation-delay:.07s}
+  .voice-wave span:nth-child(3){animation-delay:.14s}
+  .voice-wave span:nth-child(4){animation-delay:.05s}
+  .voice-wave span:nth-child(5){animation-delay:.12s}
+  .voice-wave span:nth-child(6){animation-delay:.03s}
+  .voice-wave span:nth-child(7){animation-delay:.1s}
+  .voice-wave span:nth-child(8){animation-delay:.08s}
   @keyframes voiceWave { 0%,100% { height:3px; } 50% { height:14px; } }
 
   /* ALERT STATE */
@@ -164,9 +171,10 @@
     margin-bottom:3px; display:flex; align-items:center; gap:5px;
   }
   .alert-header .alert-label .material-symbols-outlined { font-size:14px; }
-  .alert-header .msg-voice .voice-icon { background:rgba(184,84,84,.1); border-color:rgba(184,84,84,.22); }
-  .alert-header .msg-voice .voice-icon .material-symbols-outlined { color:var(--red); }
-  .alert-header .msg-voice .voice-wave span { background:rgba(184,84,84,.45); }
+  .alert-header .voice-icon { background:rgba(184,84,84,.1); border-color:rgba(184,84,84,.22); }
+  .alert-header .voice-icon .material-symbols-outlined { color:var(--red); }
+  .alert-header .voice-wave span { background:rgba(184,84,84,.45); }
+  .alert-header .done .voice-wave span { background:rgba(184,84,84,.15); }
   .alert-header .alert-text { font-size:13px; line-height:1.45; color:var(--text-bright); }
 
   .alert-body {
@@ -197,7 +205,7 @@
   }
   body.alert-mode .ptt-bar { border-top-color:rgba(184,84,84,.12); }
   .ptt-button {
-    flex:1; height:48px; border-radius:8px;
+    flex:1; height:44px; border-radius:8px;
     background:rgba(33,33,38,.5); border:1px solid var(--border);
     display:flex; align-items:center; justify-content:center; gap:8px;
     font-family:var(--sans); font-size:13px; font-weight:500;
@@ -230,7 +238,7 @@
   .ptt-waveform span:nth-child(9){height:12px;animation-delay:.08s}
   @keyframes wave { 0%,100%{transform:scaleY(.3)} 50%{transform:scaleY(1)} }
   .text-toggle {
-    width:48px; height:48px; border-radius:8px;
+    width:44px; height:44px; border-radius:8px;
     background:rgba(33,33,38,.5); border:1px solid var(--border);
     display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;
   }
@@ -305,54 +313,65 @@
 <!-- SCROLLING OVERLAY — messages fade to transparent as they scroll up -->
 <div class="overlay-zone" id="overlayZone">
   <div class="msg-stack" id="calmMessages">
-    <!-- Oldest messages — will fade as they scroll up -->
-    <div class="msg-card">
-      <div class="msg-label"><span class="material-symbols-outlined" style="font-size:11px">volume_up</span> SARA</div>
-      Drone is airborne. Beginning search pattern.
+    <!-- SARA -->
+    <div class="msg-card done">
+      <div class="voice-icon"><span class="material-symbols-outlined">graphic_eq</span></div>
+      <div class="voice-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      <span class="voice-dur">0:02</span>
+      <span class="msg-text">Drone is airborne. Beginning search pattern.</span>
     </div>
 
-    <div class="msg-card">
-      <div class="msg-label"><span class="material-symbols-outlined" style="font-size:11px">volume_up</span> SARA</div>
-      <div class="msg-voice done">
-        <div class="voice-icon"><span class="material-symbols-outlined">graphic_eq</span></div>
-        <div class="voice-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-        <span class="voice-dur">0:03</span>
-      </div>
-      Altitude stable at 120m. Wind conditions nominal.
+    <!-- USER -->
+    <div class="msg-card user done">
+      <div class="voice-icon"><span class="material-symbols-outlined">mic</span></div>
+      <div class="voice-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      <span class="voice-dur">0:03</span>
+      <span class="msg-text">Copy that. What's the wind looking like?</span>
     </div>
 
-    <div class="msg-card">
-      <div class="msg-label"><span class="material-symbols-outlined" style="font-size:11px">volume_up</span> SARA</div>
-      <div class="msg-voice done">
-        <div class="voice-icon"><span class="material-symbols-outlined">graphic_eq</span></div>
-        <div class="voice-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-        <span class="voice-dur">0:04</span>
-      </div>
-      Search progress: <strong>25% complete</strong>. No targets detected yet.
+    <!-- SARA -->
+    <div class="msg-card done">
+      <div class="voice-icon"><span class="material-symbols-outlined">graphic_eq</span></div>
+      <div class="voice-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      <span class="voice-dur">0:03</span>
+      <span class="msg-text">Wind 5 mph NW. Conditions nominal.</span>
     </div>
 
-    <!-- Latest message — SARA currently speaking -->
-    <div class="msg-card" id="msg3">
-      <div class="msg-label"><span class="material-symbols-outlined" style="font-size:11px">volume_up</span> <span id="speakingLabel">SARA · Speaking</span></div>
-      <div class="msg-voice" id="activeVoice">
-        <div class="voice-icon"><span class="material-symbols-outlined">graphic_eq</span></div>
-        <div class="voice-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-        <span class="voice-dur" id="voiceDur">0:02</span>
-      </div>
-      Battery at <strong>87%</strong>. Estimated remaining flight time: 32 minutes.
+    <!-- SARA -->
+    <div class="msg-card done">
+      <div class="voice-icon"><span class="material-symbols-outlined">graphic_eq</span></div>
+      <div class="voice-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      <span class="voice-dur">0:04</span>
+      <span class="msg-text">Search progress: <strong>25%</strong>. No targets detected.</span>
+    </div>
+
+    <!-- USER -->
+    <div class="msg-card user done">
+      <div class="voice-icon"><span class="material-symbols-outlined">mic</span></div>
+      <div class="voice-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      <span class="voice-dur">0:02</span>
+      <span class="msg-text">Expand to the east side of the park.</span>
+    </div>
+
+    <!-- SARA — currently speaking -->
+    <div class="msg-card" id="activeMsg">
+      <div class="voice-icon"><span class="material-symbols-outlined">graphic_eq</span></div>
+      <div class="voice-wave" id="activeWave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      <span class="voice-dur" id="voiceDur">0:02</span>
+      <span class="msg-text">Adjusting pattern. Battery at <strong>87%</strong>, 32 min remaining.</span>
     </div>
   </div>
 
   <!-- ALERT STATE -->
   <div class="alert-zone" id="alertZone">
-    <div class="alert-header">
+    <div class="alert-header" id="alertVoice">
       <div class="alert-label"><span class="material-symbols-outlined">warning</span> TARGET DETECTED</div>
-      <div class="msg-voice" id="alertVoice">
+      <div style="display:flex;align-items:center;gap:8px;margin:6px 0">
         <div class="voice-icon"><span class="material-symbols-outlined">graphic_eq</span></div>
-        <div class="voice-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="voice-wave" style="width:60px"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
         <span class="voice-dur">0:06</span>
       </div>
-      <div class="alert-text"><strong>Potential target spotted!</strong> Red SUV matching description at 23.2817, 20.8772.</div>
+      <div class="alert-text"><strong>Potential target spotted!</strong> Red SUV at 23.2817, 20.8772.</div>
     </div>
     <div class="alert-body">
       Drone is orbiting for closer look. <strong>Is this your target?</strong>
@@ -382,8 +401,7 @@
 
   // Simulate active voice finishing after 4s
   setTimeout(() => {
-    document.getElementById('activeVoice').classList.add('done');
-    document.getElementById('speakingLabel').textContent = 'SARA';
+    document.getElementById('activeMsg').classList.add('done');
   }, 4000);
 
   // Voice duration counter
@@ -420,13 +438,13 @@
     const msgs = document.getElementById('calmMessages');
     msgs.style.display = 'flex';
 
-    const waveHtml = '<div class="msg-voice done"><div class="voice-icon"><span class="material-symbols-outlined">graphic_eq</span></div><div class="voice-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><span class="voice-dur">0:03</span></div>';
+    const w = '<div class="voice-icon"><span class="material-symbols-outlined">graphic_eq</span></div><div class="voice-wave"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><span class="voice-dur">0:03</span>';
 
     if (confirmed) {
-      msgs.innerHTML = '<div class="msg-card"><div class="msg-label"><span class="material-symbols-outlined" style="font-size:11px">volume_up</span> SARA</div>' + waveHtml + '<strong>Target confirmed.</strong> Maintaining orbit.</div>';
+      msgs.innerHTML = '<div class="msg-card done">' + w + '<span class="msg-text"><strong>Target confirmed.</strong> Maintaining orbit.</span></div>';
       document.getElementById('stateDot').style.background = 'var(--green)';
     } else {
-      msgs.innerHTML = '<div class="msg-card"><div class="msg-label"><span class="material-symbols-outlined" style="font-size:11px">volume_up</span> SARA</div>' + waveHtml + 'Continuing search. I\'ll alert you if I spot anything else.</div>';
+      msgs.innerHTML = '<div class="msg-card done">' + w + '<span class="msg-text">Continuing search. I\'ll alert you if I spot anything.</span></div>';
       document.getElementById('stateDot').style.background = 'var(--green)';
       document.getElementById('simBtn').style.display = 'block';
     }
