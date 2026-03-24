@@ -68,24 +68,23 @@
   }
 
   /* SCROLLING MESSAGE ZONE
-     - No backdrop-filter on children so CSS mask actually works on mobile Safari
-     - Solid opaque backgrounds on all messages for legibility over satellite imagery */
+     - Per-card opacity based on distance from bottom (JS-driven)
+     - Top cards fully transparent, bottom cards fully opaque
+     - On scroll, JS recalculates opacity for each visible card */
   .overlay-zone {
     position:absolute;
     top:42px; bottom:62px; left:0; right:0;
     z-index:50;
-    display:flex; flex-direction:column;
-    justify-content:flex-end;
     overflow-y:auto;
     overflow-x:hidden;
     pointer-events:none;
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, transparent 5%, black 25%);
-    mask-image: linear-gradient(to bottom, transparent 0%, transparent 5%, black 25%);
   }
   .overlay-zone::-webkit-scrollbar { display:none; }
   .msg-stack {
     display:flex; flex-direction:column; gap:2px;
-    padding:80px 10px 4px 10px;
+    padding:4px 10px;
+    min-height:100%;
+    justify-content:flex-end;
     pointer-events:auto;
   }
 
@@ -340,15 +339,46 @@
 <button class="sim-btn" id="simBtn" onclick="triggerAlert()">simulate target →</button>
 
 <script>
-  // Auto-scroll to bottom
   const zone = document.getElementById('overlayZone');
+
+  // Per-card opacity: bottom = 1, fades to 0 toward top
+  function updateOpacities() {
+    const cards = document.querySelectorAll('#calmMessages .msg-card');
+    const zoneRect = zone.getBoundingClientRect();
+    const zoneTop = zoneRect.top;
+    const zoneHeight = zoneRect.height;
+    // Fade zone: top 60% is the fade region, bottom 40% is fully opaque
+    const fadeEnd = zoneTop + zoneHeight * 0.55;
+
+    cards.forEach(card => {
+      const cardRect = card.getBoundingClientRect();
+      const cardCenter = cardRect.top + cardRect.height / 2;
+
+      if (cardCenter <= zoneTop) {
+        card.style.opacity = '0';
+      } else if (cardCenter >= fadeEnd) {
+        card.style.opacity = '1';
+      } else {
+        const progress = (cardCenter - zoneTop) / (fadeEnd - zoneTop);
+        card.style.opacity = Math.max(0, Math.min(1, progress)).toFixed(2);
+      }
+    });
+  }
+
+  zone.addEventListener('scroll', updateOpacities, { passive: true });
   zone.scrollTop = zone.scrollHeight;
+  // Run after layout settles
+  requestAnimationFrame(() => {
+    zone.scrollTop = zone.scrollHeight;
+    updateOpacities();
+  });
 
   // Simulate speaking finishing after 4s
   setTimeout(() => {
     const msg = document.getElementById('activeMsg');
     msg.classList.remove('speaking');
     msg.querySelector('.speaking-bar').style.display = 'none';
+    updateOpacities();
   }, 4000);
 
   function triggerAlert() {
@@ -381,6 +411,7 @@
       document.getElementById('simBtn').style.display = 'block';
     }
     zone.scrollTop = zone.scrollHeight;
+    requestAnimationFrame(updateOpacities);
   }
 
   // PTT
