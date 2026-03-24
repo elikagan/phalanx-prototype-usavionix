@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Phalanx — Mobile</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;Phalanx&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;%23000&quot;,&quot;theme_color&quot;:&quot;%23000&quot;}">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap">
 <style>
@@ -46,9 +51,9 @@ body{height:100%;overflow:hidden;position:fixed;inset:0;font-family:var(--sans);
 .bottom-grad{position:fixed;bottom:0;left:0;right:0;height:42%;background:linear-gradient(to top,#000 0%,rgba(0,0,0,.95) 25%,rgba(0,0,0,.55) 60%,transparent 100%);pointer-events:none;z-index:10}
 
 /* ═══════ RESIDUAL MESSAGES ═══════ */
-.residual{position:fixed;bottom:58px;left:0;right:0;z-index:15;padding:0 14px}
+.residual{position:fixed;bottom:68px;left:0;right:0;z-index:15;padding:0 14px}
 .r-msg{padding:7px 0;border-top:1px solid rgba(255,255,255,.06);font-size:13px;line-height:1.4;display:flex;align-items:flex-start;gap:5px;max-width:80%}
-.r-msg:first-child{border-top:none}
+.r-msg:first-child{border-top:none;padding-top:0}
 .r-msg.sara-r{color:rgba(255,255,255,.92)}
 .r-msg.user-r{flex-direction:row-reverse;margin-left:auto;text-align:right;color:rgba(255,255,255,.4)}
 .r-msg.op100.sara-r{color:rgba(255,255,255,.92)}
@@ -62,15 +67,15 @@ body{height:100%;overflow:hidden;position:fixed;inset:0;font-family:var(--sans);
 .r-msg .ico.sara-ico{color:rgba(95,143,173,.5)}
 .r-msg .ico.user-ico{color:rgba(255,255,255,.15)}
 .r-msg .r-text{flex:1;min-width:0}
-.r-bottom{border-top:1px solid rgba(255,255,255,.08)}
+.r-bottom{border-top:1px solid rgba(255,255,255,.08);margin-top:2px;padding-bottom:4px}
 
 /* ═══════ PTT BAR ═══════ */
-.ptt-bar{position:fixed;bottom:0;left:0;right:0;z-index:100;padding:6px 12px;padding-bottom:max(6px,env(safe-area-inset-bottom));background:#000;display:flex;align-items:center;gap:6px}
-.ptt-btn{flex:1;height:46px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:500;color:rgba(255,255,255,.28);cursor:pointer;transition:all .2s;user-select:none;-webkit-user-select:none;touch-action:none}
-.ptt-btn .material-symbols-outlined{font-size:20px;color:rgba(255,255,255,.18);transition:color .15s}
-.ptt-btn.active{background:rgba(184,84,84,.1);border-color:rgba(184,84,84,.25);color:rgba(255,255,255,.9)}
+.ptt-bar{position:fixed;bottom:0;left:0;right:0;z-index:100;padding:8px 14px;padding-bottom:max(14px,env(safe-area-inset-bottom));background:#000;display:flex;align-items:center;gap:6px}
+.ptt-btn{flex:1;height:54px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;gap:10px;font-size:15px;font-weight:600;color:rgba(255,255,255,.4);cursor:pointer;transition:all .2s;user-select:none;-webkit-user-select:none;touch-action:none;letter-spacing:.02em}
+.ptt-btn .material-symbols-outlined{font-size:22px;color:rgba(255,255,255,.3);transition:color .15s}
+.ptt-btn.active{background:rgba(184,84,84,.15);border-color:rgba(184,84,84,.35);color:#fff;box-shadow:0 0 30px rgba(184,84,84,.15),inset 0 0 20px rgba(184,84,84,.05)}
 .ptt-btn.active .material-symbols-outlined{color:var(--red)}
-.kb-btn{width:46px;height:46px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.kb-btn{width:54px;height:54px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .kb-btn .material-symbols-outlined{font-size:20px;color:rgba(255,255,255,.18)}
 
 /* ═══════ DRAWER ═══════ */
@@ -152,7 +157,7 @@ body{height:100%;overflow:hidden;position:fixed;inset:0;font-family:var(--sans);
 .sr-text .w{display:inline;animation:wordIn .15s ease both}
 
 /* Drawer PTT */
-.drawer-ptt{flex-shrink:0;padding:6px 12px;padding-bottom:max(6px,env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:6px;background:#0c0c0e}
+.drawer-ptt{flex-shrink:0;padding:8px 14px;padding-bottom:max(14px,env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:6px;background:#0c0c0e}
 </style>
 </head>
 <body>
@@ -223,29 +228,29 @@ const DRONE_START = [34.1478, -118.1445];
 
 const exchanges=[
   {
-    user:["What's","the","wind","looking","like?"],
-    sara:["Wind","5","mph","NW.","Conditions","nominal."],
-    mapAction: null // no map change
+    user:["How","much","of","the","search","area","have","we","covered?"],
+    sara:["We've","covered","about","25%","of","the","zone.","Northeastern","quadrant","still","unscanned."],
+    mapAction: null
   },
   {
-    user:["Head","toward","the","east","side","of","the","park","first."],
-    sara:["Adjusting","route.","Heading","east","toward","the","park","boundary."],
-    mapAction: 'panEast' // pan map east
-  },
-  {
-    user:["Please","focus","on","the","intersection","of","Washington","and","Dupont.","I","think","the","car","might","be","there."],
+    user:["Focus","on","the","intersection","of","Washington","and","Dupont.","I","think","the","car","might","be","there."],
     sara:["Confirmed.","Rerouting","to","Washington","and","Dupont","for","observation."],
-    mapAction: 'flyToIntersection' // fly to Washington & Dupont
+    mapAction: 'flyToIntersection'
   },
   {
-    user:["Can","you","drop","altitude","and","get","a","closer","look?"],
-    sara:["Descending","to","60","meters.","Switching","to","high-resolution","camera."],
-    mapAction: 'zoomIn' // zoom in closer
+    user:["I","see","something.","Can","you","get","closer","to","that","red","vehicle?"],
+    sara:["Moving","in.","Descending","to","60","meters","for","closer","visual."],
+    mapAction: 'zoomIn'
   },
   {
-    user:["I","think","I","see","it.","Circle","that","red","vehicle."],
-    sara:["Target","acquired.","Entering","orbit","mode","around","red","SUV","at","Washington","and","Dupont."],
-    mapAction: 'targetAcquired' // add target marker + orbit circle
+    user:["That's","it.","That's","the","target.","Lock","on","and","orbit."],
+    sara:["Target","acquired.","Entering","orbit","mode.","Maintaining","visual","contact","with","red","SUV."],
+    mapAction: 'targetAcquired'
+  },
+  {
+    user:["The","vehicle","is","moving.","Follow","it","and","maintain","orbit."],
+    sara:["Tracking.","Vehicle","heading","southbound","on","Dupont.","Matching","speed","and","maintaining","safe","distance."],
+    mapAction: 'followVehicle'
   },
 ];
 
@@ -289,6 +294,11 @@ function closeDrawer(){
   document.getElementById('drawer').classList.remove('open');
   document.getElementById('scrim').classList.remove('on');
   document.getElementById('txArea').classList.remove('on');
+  document.getElementById('txText').innerHTML='';
+  document.getElementById('srText').innerHTML='';
+  document.getElementById('sr').classList.remove('on');
+  document.getElementById('scan').classList.remove('on');
+  document.getElementById('waveform').classList.remove('off');
   document.getElementById('pttBar').style.display='flex';
   document.getElementById('residual').style.pointerEvents='auto';
   updateResidual();
@@ -569,17 +579,6 @@ function execMapAction(action) {
   if (!action) return;
 
   switch(action) {
-    case 'panEast': {
-      // Drone heads east
-      rotateDrone(90);
-      const c = map.getCenter();
-      const newPos = [c.lat, c.lng + 0.003];
-      map.flyTo(newPos, map.getZoom(), {duration:1.5});
-      droneMarker.setLatLng(newPos);
-      extendTrail(newPos);
-      break;
-    }
-
     case 'flyToIntersection': {
       // Fly to Washington & Dupont
       // Calculate heading from current position to target
@@ -637,6 +636,39 @@ function execMapAction(action) {
 
       // Update telem
       updateTelem('PROG', 'ORBIT');
+      break;
+    }
+
+    case 'followVehicle': {
+      // Vehicle moves south, drone follows
+      const curr = droneMarker.getLatLng();
+      const tCurr = targetMarker ? targetMarker.getLatLng() : curr;
+      // Move target south
+      const newTPos = [tCurr.lat - 0.0004, tCurr.lng + 0.0001];
+      if (targetMarker) targetMarker.setLatLng(newTPos);
+      if (orbitCircle) orbitCircle.setLatLng(newTPos);
+      if (targetLabel) targetLabel.setLatLng(newTPos);
+      // Drone follows
+      const newDPos = [newTPos[0] + 0.0001, newTPos[1] + 0.00012];
+      droneMarker.setLatLng(newDPos);
+      extendTrail(newDPos);
+      // Pan map to follow
+      map.flyTo(newTPos, map.getZoom(), {duration:2});
+      // Rotate drone to face south (direction of travel)
+      rotateDrone(180);
+      // Update target label
+      if (targetLabel) {
+        map.removeLayer(targetLabel);
+        const tl = L.divIcon({
+          className: '',
+          html: '<div style="font-family:var(--mono);font-size:8px;font-weight:600;color:rgba(184,84,84,.8);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,.8);background:rgba(0,0,0,.5);padding:2px 5px;border-radius:2px">TARGET — MOVING S</div>',
+          iconSize: [110, 14],
+          iconAnchor: [55, -14],
+        });
+        targetLabel = L.marker(newTPos, { icon: tl, interactive: false }).addTo(map);
+      }
+      // Update telemetry
+      updateTelem('PROG', 'TRACKING');
       break;
     }
   }
