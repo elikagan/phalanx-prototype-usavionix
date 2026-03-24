@@ -422,78 +422,223 @@ L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/
   maxZoom: 19,
 }).addTo(map);
 
-// Drone marker
-const droneIcon = L.divIcon({
-  className: '',
-  html: '<div style="width:32px;height:32px;background:rgba(255,255,255,.9);border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(0,0,0,.5)"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:#111"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg></div>',
-  iconSize: [32, 32],
-  iconAnchor: [16, 16],
-});
-const droneMarker = L.marker(DRONE_START, { icon: droneIcon }).addTo(map);
+// ═══════ DRONE — rotatable icon ═══════
+let droneHeading = 315; // initial heading: NW (search pattern direction)
+function makeDroneIcon(heading) {
+  return L.divIcon({
+    className: '',
+    html: `<div style="width:36px;height:36px;position:relative">
+      <div style="position:absolute;inset:0;border-radius:50%;background:rgba(255,255,255,.12);animation:dronePulse 2s ease infinite"></div>
+      <div style="width:36px;height:36px;background:rgba(255,255,255,.92);border:2px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,.5),0 0 24px rgba(0,0,0,.2);position:relative;z-index:2">
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:#111;transform:rotate(${heading}deg)"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>
+      </div>
+    </div>`,
+    iconSize: [36, 36],
+    iconAnchor: [18, 18],
+  });
+}
 
-// Mission circle
-const missionCircle = L.circle(DRONE_START, {
+// Inject drone pulse animation
+const pulseStyle = document.createElement('style');
+pulseStyle.textContent = '@keyframes dronePulse{0%,100%{transform:scale(1);opacity:.12}50%{transform:scale(1.6);opacity:0}}';
+document.head.appendChild(pulseStyle);
+
+const droneMarker = L.marker(DRONE_START, { icon: makeDroneIcon(droneHeading), zIndexOffset: 1000 }).addTo(map);
+
+function rotateDrone(heading) {
+  droneHeading = heading;
+  droneMarker.setIcon(makeDroneIcon(heading));
+}
+
+// ═══════ SEARCH ZONE — the authorized search boundary ═══════
+const searchZone = L.circle(DRONE_START, {
   radius: 200,
-  color: 'rgba(255,255,255,.6)',
-  weight: 2,
+  color: 'rgba(255,255,255,.5)',
+  weight: 1.5,
   dashArray: '8,6',
-  fillColor: 'rgba(0,0,0,.15)',
+  fillColor: 'rgba(0,0,0,.1)',
   fillOpacity: 1,
 }).addTo(map);
 
-// Target marker (hidden initially)
-const targetIcon = L.divIcon({
+// Search zone label
+const szLabel = L.divIcon({
   className: '',
-  html: '<div style="width:16px;height:16px;background:rgba(184,84,84,.9);border:2px solid #fff;border-radius:50%;box-shadow:0 0 12px rgba(184,84,84,.6),0 0 30px rgba(184,84,84,.3)"></div>',
-  iconSize: [16,16],
-  iconAnchor: [8,8],
+  html: '<div style="font-family:var(--mono);font-size:9px;font-weight:600;color:rgba(255,255,255,.35);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,.8)">SEARCH ZONE</div>',
+  iconSize: [80, 14],
+  iconAnchor: [40, -6],
 });
+const szLabelMarker = L.marker([DRONE_START[0] + 0.0018, DRONE_START[1]], { icon: szLabel, interactive: false }).addTo(map);
+
+// ═══════ FLIGHT PATH TRAIL ═══════
+const flightPath = [DRONE_START];
+const trailLine = L.polyline(flightPath, {
+  color: 'rgba(255,255,255,.25)',
+  weight: 1.5,
+  dashArray: '4,4',
+}).addTo(map);
+
+function extendTrail(newPos) {
+  flightPath.push(newPos);
+  trailLine.setLatLngs(flightPath);
+}
+
+// ═══════ WAYPOINT MARKER ═══════
+let waypointMarker = null;
+let waypointLabel = null;
+
+function addWaypoint(latlng, label) {
+  // Crosshair waypoint icon
+  const wpIcon = L.divIcon({
+    className: '',
+    html: `<div style="width:20px;height:20px;position:relative">
+      <div style="position:absolute;top:0;left:9px;width:2px;height:20px;background:rgba(255,255,255,.5)"></div>
+      <div style="position:absolute;top:9px;left:0;width:20px;height:2px;background:rgba(255,255,255,.5)"></div>
+      <div style="position:absolute;top:6px;left:6px;width:8px;height:8px;border:1.5px solid rgba(255,255,255,.6);border-radius:50%"></div>
+    </div>`,
+    iconSize: [20, 20],
+    iconAnchor: [10, 10],
+  });
+  waypointMarker = L.marker(latlng, { icon: wpIcon, interactive: false }).addTo(map);
+
+  const wpLabel = L.divIcon({
+    className: '',
+    html: `<div style="font-family:var(--mono);font-size:8px;font-weight:600;color:rgba(255,255,255,.5);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,.8);background:rgba(0,0,0,.4);padding:2px 5px;border-radius:2px">${label}</div>`,
+    iconSize: [120, 14],
+    iconAnchor: [60, -14],
+  });
+  waypointLabel = L.marker(latlng, { icon: wpLabel, interactive: false }).addTo(map);
+}
+
+// ═══════ TARGET MARKER + ORBIT ═══════
 let targetMarker = null;
 let orbitCircle = null;
+let targetLabel = null;
+
+function addTarget(latlng, label) {
+  // Pulsing red target dot
+  const tIcon = L.divIcon({
+    className: '',
+    html: `<div style="width:20px;height:20px;position:relative">
+      <div style="position:absolute;inset:2px;border-radius:50%;background:rgba(184,84,84,.2);animation:targetPulse 1.5s ease infinite"></div>
+      <div style="width:16px;height:16px;margin:2px;background:rgba(184,84,84,.9);border:2px solid #fff;border-radius:50%;box-shadow:0 0 12px rgba(184,84,84,.5);position:relative;z-index:2"></div>
+    </div>`,
+    iconSize: [20, 20],
+    iconAnchor: [10, 10],
+  });
+  targetMarker = L.marker(latlng, { icon: tIcon, interactive: false, zIndexOffset: 900 }).addTo(map);
+
+  // Orbit circle
+  orbitCircle = L.circle(latlng, {
+    radius: 20,
+    color: 'rgba(184,84,84,.6)',
+    weight: 1.5,
+    dashArray: '4,4',
+    fillColor: 'rgba(184,84,84,.05)',
+    fillOpacity: 1,
+  }).addTo(map);
+
+  // Target label
+  const tLabel = L.divIcon({
+    className: '',
+    html: `<div style="font-family:var(--mono);font-size:8px;font-weight:600;color:rgba(184,84,84,.8);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;text-shadow:0 1px 4px rgba(0,0,0,.8);background:rgba(0,0,0,.5);padding:2px 5px;border-radius:2px">${label}</div>`,
+    iconSize: [100, 14],
+    iconAnchor: [50, -14],
+  });
+  targetLabel = L.marker(latlng, { icon: tLabel, interactive: false }).addTo(map);
+}
+
+// Target pulse animation
+const targetStyle = document.createElement('style');
+targetStyle.textContent = '@keyframes targetPulse{0%,100%{transform:scale(1);opacity:.2}50%{transform:scale(2.2);opacity:0}}';
+document.head.appendChild(targetStyle);
+
+// ═══════ TELEMETRY UPDATE ═══════
+function updateTelem(key, value) {
+  // Find the telem span by content
+  const spans = document.querySelectorAll('.topbar .telem span');
+  spans.forEach(s => {
+    if (s.textContent.includes(key)) {
+      const tv = s.querySelector('.tv');
+      if (tv) tv.textContent = value;
+    }
+  });
+}
 
 // ═══════ MAP ACTIONS — called after each SARA response ═══════
 function execMapAction(action) {
   if (!action) return;
 
   switch(action) {
-    case 'panEast':
-      // Pan east — shift center to the right
+    case 'panEast': {
+      // Drone heads east
+      rotateDrone(90);
       const c = map.getCenter();
-      map.flyTo([c.lat, c.lng + 0.003], map.getZoom(), {duration:1.5});
-      droneMarker.setLatLng([c.lat, c.lng + 0.003]);
+      const newPos = [c.lat, c.lng + 0.003];
+      map.flyTo(newPos, map.getZoom(), {duration:1.5});
+      droneMarker.setLatLng(newPos);
+      extendTrail(newPos);
       break;
+    }
 
-    case 'flyToIntersection':
-      // Fly to Washington & Dupont intersection
-      map.flyTo(WASHINGTON_DUPONT, 18, {duration:2});
+    case 'flyToIntersection': {
+      // Fly to Washington & Dupont
+      // Calculate heading from current position to target
+      const from = droneMarker.getLatLng();
+      const angle = Math.atan2(
+        WASHINGTON_DUPONT[1] - from.lng,
+        WASHINGTON_DUPONT[0] - from.lat
+      ) * 180 / Math.PI;
+      rotateDrone(90 - angle); // convert math angle to compass
+
+      map.flyTo(WASHINGTON_DUPONT, 18, {duration:2.5});
       droneMarker.setLatLng(WASHINGTON_DUPONT);
-      // Move mission circle
-      missionCircle.setLatLng(WASHINGTON_DUPONT);
-      missionCircle.setRadius(100);
-      break;
+      extendTrail(WASHINGTON_DUPONT);
 
-    case 'zoomIn':
-      // Zoom in tighter
+      // Add waypoint
+      addWaypoint(WASHINGTON_DUPONT, 'WASHINGTON & DUPONT');
+
+      // Remove search zone label (no longer doing sweep)
+      map.removeLayer(szLabelMarker);
+      // Fade search zone
+      searchZone.setStyle({ opacity: 0.2, fillOpacity: 0.3 });
+      break;
+    }
+
+    case 'zoomIn': {
+      // Descending — zoom in, update telemetry
       map.flyTo(map.getCenter(), 19, {duration:1.5});
+      updateTelem('ALT', '60m');
+      // Drone hovers, slight rotation to survey
+      rotateDrone(45);
       break;
+    }
 
-    case 'targetAcquired':
-      // Add target marker + red orbit circle
-      const pos = map.getCenter();
-      // Offset target slightly from drone
-      const tPos = [pos.lat + 0.0002, pos.lng - 0.0001];
-      targetMarker = L.marker(tPos, {icon: targetIcon}).addTo(map);
-      orbitCircle = L.circle(tPos, {
-        radius: 25,
-        color: 'rgba(184,84,84,.7)',
-        weight: 2,
-        dashArray: '4,4',
-        fillColor: 'rgba(184,84,84,.08)',
-        fillOpacity: 1,
-      }).addTo(map);
-      // Move drone to orbit position
-      droneMarker.setLatLng([tPos[0] + 0.00015, tPos[1] + 0.00015]);
+    case 'targetAcquired': {
+      // Target found — place target slightly offset from drone
+      const pos = droneMarker.getLatLng();
+      const tPos = [pos.lat + 0.00015, pos.lng - 0.00008];
+
+      // Remove waypoint, replace with target
+      if (waypointMarker) { map.removeLayer(waypointMarker); map.removeLayer(waypointLabel); }
+
+      addTarget(tPos, 'TARGET — RED SUV');
+
+      // Move drone to orbit position (NE of target)
+      const orbitPos = [tPos[0] + 0.0001, tPos[1] + 0.00012];
+      droneMarker.setLatLng(orbitPos);
+      extendTrail(orbitPos);
+
+      // Point drone toward target
+      const a = Math.atan2(tPos[1] - orbitPos[1], tPos[0] - orbitPos[0]) * 180 / Math.PI;
+      rotateDrone(90 - a);
+
+      // Remove search zone entirely
+      map.removeLayer(searchZone);
+
+      // Update telem
+      updateTelem('PROG', 'ORBIT');
       break;
+    }
   }
 }
 </script>
