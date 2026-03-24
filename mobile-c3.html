@@ -347,6 +347,7 @@ function closeDrawer(){
   document.getElementById('scan').classList.remove('on');
   document.getElementById('waveform').classList.remove('off');
   document.getElementById('residual').style.pointerEvents='auto';
+  document.getElementById('chatHistory').style.display='';
   // Reset FAB
   fab.classList.remove('close-mode','active','processing');
   fabIcon.textContent='mic';
@@ -382,6 +383,8 @@ function startRec(){
   fabIcon.textContent='mic';
 
   if(!open) openDrawer(true);
+  // Hide chat history during active recording — TX area is the only content
+  document.getElementById('chatHistory').style.display='none';
 
   const ex=exchanges[demoIdx];
   const uW=ex.user;
@@ -434,7 +437,6 @@ function stopRec(){
 
   document.getElementById('waveform').classList.add('off');
   msgs.push({r:'user',t:uW.join(' ')});
-  renderChat();
 
   // Scan
   setTimeout(()=>{document.getElementById('scan').classList.add('on')},400);
@@ -456,7 +458,6 @@ function stopRec(){
       } else {
         clearInterval(timer);
         msgs.push({r:'sara',t:sW.join(' ')});
-        renderChat();
         if(typeof execMapAction==='function') execMapAction(exchanges[demoIdx].mapAction);
         demoIdx++;
         processing=false;
