@@ -9,140 +9,150 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;-webkit-text-size-adjust:100%}
 :root{
-  --text:#b4b4bc;--text-dim:#4e4e56;--text-secondary:#6e6e78;--text-bright:#d0d0d6;
-  --green:#4a9a65;--amber:#a89540;--red:#b85454;--accent:#5f8fad;
+  --accent:#5f8fad;--green:#4a9a65;--amber:#a89540;--red:#b85454;
   --mono:'SF Mono','Fira Code','Consolas','JetBrains Mono',monospace;
   --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-  --radius:6px;
 }
-html,body{height:100%;overflow:hidden}
-body{font-family:var(--sans);background:#000;color:#fff;-webkit-font-smoothing:antialiased}
+html{height:100%;overflow:hidden;position:fixed;inset:0}
+body{height:100%;overflow:hidden;position:fixed;inset:0;font-family:var(--sans);background:#000;color:#fff;-webkit-font-smoothing:antialiased;touch-action:none}
 
-/* ═══════ MAP ═══════ */
-.map{position:absolute;inset:0;background:#0a0a0a url('aerial.jpg') center/cover no-repeat;touch-action:manipulation}
-.map-scanlines{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.06) 2px,rgba(0,0,0,.06) 4px);pointer-events:none}
+/* ═══════ MAP — full screen, accepts gestures ═══════ */
+.map{position:fixed;inset:0;background:#0a0a0a url('aerial.jpg') center/cover no-repeat;touch-action:manipulation;z-index:1}
+.map-scan{position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.06) 2px,rgba(0,0,0,.06) 4px);pointer-events:none;z-index:2}
 
-/* ═══════ TOP GRADIENT + TOPBAR ═══════ */
-.top-grad{position:absolute;top:0;left:0;right:0;height:80px;background:linear-gradient(to bottom,rgba(0,0,0,.65) 0%,rgba(0,0,0,.3) 50%,transparent 100%);pointer-events:none;z-index:10}
-.topbar{position:absolute;top:0;left:0;right:0;z-index:20;height:36px;display:flex;align-items:center;padding:0 14px;gap:6px}
-.topbar .logo{font-weight:700;font-size:13px;color:#fff;letter-spacing:-.02em;flex-shrink:0}
-.topbar .dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+/* Crosshair */
+.crosshair{position:fixed;top:38%;left:50%;transform:translate(-50%,-50%);width:28px;height:28px;pointer-events:none;z-index:3}
+.crosshair::before,.crosshair::after{content:'';position:absolute;background:rgba(255,255,255,.08)}
+.crosshair::before{width:1px;height:100%;left:50%}
+.crosshair::after{height:1px;width:100%;top:50%}
+
+/* ═══════ TOP GRADIENT ═══════ */
+.top-grad{position:fixed;top:0;left:0;right:0;height:80px;background:linear-gradient(to bottom,rgba(0,0,0,.7) 0%,rgba(0,0,0,.25) 60%,transparent 100%);pointer-events:none;z-index:10}
+.topbar{position:fixed;top:0;left:0;right:0;z-index:20;height:36px;display:flex;align-items:center;padding:0 14px;gap:6px;pointer-events:none}
+.topbar .logo{font-weight:700;font-size:13px;color:#fff;letter-spacing:-.02em}
+.topbar .dot{width:5px;height:5px;border-radius:50%}
 .topbar .telem{font-family:var(--mono);font-size:8px;color:rgba(255,255,255,.35);letter-spacing:.3px;display:flex;gap:8px;white-space:nowrap}
 .topbar .tv{color:rgba(255,255,255,.6);font-weight:500}
-.topbar .tg{color:var(--green);font-weight:500}
-.topbar .pill{margin-left:auto;flex-shrink:0;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06);border-radius:4px;padding:2px 7px;font-family:var(--mono);font-size:8px;color:rgba(255,255,255,.45);display:flex;align-items:center;gap:3px}
+.topbar .tg{color:var(--green)}
+.topbar .pill{margin-left:auto;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06);border-radius:4px;padding:2px 7px;font-family:var(--mono);font-size:8px;color:rgba(255,255,255,.45);display:flex;align-items:center;gap:3px}
 .pill-dot{width:4px;height:4px;border-radius:50%}
-
-/* Pause button */
-.pause-btn{position:absolute;top:42px;right:14px;z-index:20;padding:4px 8px;border-radius:4px;font-family:var(--mono);font-size:9px;font-weight:500;border:1px solid rgba(184,84,84,.25);background:rgba(0,0,0,.4);color:var(--red);display:flex;align-items:center;gap:3px;cursor:pointer}
+.pause-btn{position:fixed;top:42px;right:14px;z-index:20;padding:4px 8px;border-radius:4px;font-family:var(--mono);font-size:9px;font-weight:500;border:1px solid rgba(184,84,84,.25);background:rgba(0,0,0,.5);color:var(--red);display:flex;align-items:center;gap:3px;pointer-events:auto}
 .pause-btn .material-symbols-outlined{font-size:12px}
 
 /* ═══════ BOTTOM GRADIENT ═══════ */
-.bottom-grad{position:absolute;bottom:0;left:0;right:0;height:45%;background:linear-gradient(to top,#000 0%,rgba(0,0,0,.97) 25%,rgba(0,0,0,.6) 60%,transparent 100%);pointer-events:none;z-index:10}
+.bottom-grad{position:fixed;bottom:0;left:0;right:0;height:42%;background:linear-gradient(to top,#000 0%,rgba(0,0,0,.95) 25%,rgba(0,0,0,.55) 60%,transparent 100%);pointer-events:none;z-index:10}
 
 /* ═══════ RESIDUAL MESSAGES ═══════ */
-.residual{position:absolute;bottom:58px;left:0;right:0;z-index:15;padding:0 14px;cursor:pointer}
-.residual .r-msg{padding:8px 0;border-top:1px solid rgba(255,255,255,.06);font-size:13px;line-height:1.45}
-.residual .r-msg:first-child{border-top:none}
-.residual .r-msg.op100{color:rgba(255,255,255,.95)}
-.residual .r-msg.op50{color:rgba(255,255,255,.50)}
-.residual .r-msg.op20{color:rgba(255,255,255,.20);max-height:22px;overflow:hidden}
-.residual .r-msg .speaker{display:inline;margin-right:2px}
-.residual .r-msg .speaker .material-symbols-outlined{font-size:12px;vertical-align:-1px;opacity:.5}
-.residual .r-msg .mic-icon{display:inline;margin-right:2px}
-.residual .r-msg .mic-icon .material-symbols-outlined{font-size:12px;vertical-align:-1px;opacity:.4}
-.residual .r-bottom-line{border-top:1px solid rgba(255,255,255,.08);margin-top:0}
+.residual{position:fixed;bottom:58px;left:0;right:0;z-index:15;padding:0 14px}
+.r-msg{padding:7px 0;border-top:1px solid rgba(255,255,255,.06);font-size:13px;line-height:1.4}
+.r-msg:first-child{border-top:none}
+.r-msg.op100{color:rgba(255,255,255,.92)}
+.r-msg.op50{color:rgba(255,255,255,.45)}
+.r-msg.op20{color:rgba(255,255,255,.18);max-height:20px;overflow:hidden}
+.r-msg .ico{font-size:11px;vertical-align:-1px;margin-right:3px}
+.r-msg .ico.sara-ico{color:rgba(95,143,173,.5)}
+.r-msg .ico.user-ico{color:rgba(255,255,255,.25)}
+.r-bottom{border-top:1px solid rgba(255,255,255,.08)}
 
 /* ═══════ PTT BAR ═══════ */
-.ptt-bar{position:absolute;bottom:0;left:0;right:0;z-index:100;padding:6px 12px;padding-bottom:max(6px,env(safe-area-inset-bottom));background:#000;display:flex;align-items:center;gap:6px}
-.ptt-button{flex:1;height:44px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;font-weight:500;color:rgba(255,255,255,.3);cursor:pointer;transition:all .2s;user-select:none;-webkit-user-select:none;touch-action:none}
-.ptt-button .material-symbols-outlined{font-size:20px;color:rgba(255,255,255,.2);transition:color .15s}
-.ptt-button.active{background:rgba(184,84,84,.12);border-color:rgba(184,84,84,.3);color:#fff}
-.ptt-button.active .material-symbols-outlined{color:var(--red)}
-.text-toggle{width:44px;height:44px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
-.text-toggle .material-symbols-outlined{font-size:20px;color:rgba(255,255,255,.2)}
+.ptt-bar{position:fixed;bottom:0;left:0;right:0;z-index:100;padding:6px 12px;padding-bottom:max(6px,env(safe-area-inset-bottom));background:#000;display:flex;align-items:center;gap:6px}
+.ptt-btn{flex:1;height:46px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:500;color:rgba(255,255,255,.28);cursor:pointer;transition:all .2s;user-select:none;-webkit-user-select:none;touch-action:none}
+.ptt-btn .material-symbols-outlined{font-size:20px;color:rgba(255,255,255,.18);transition:color .15s}
+.ptt-btn.active{background:rgba(184,84,84,.1);border-color:rgba(184,84,84,.25);color:rgba(255,255,255,.9)}
+.ptt-btn.active .material-symbols-outlined{color:var(--red)}
+.kb-btn{width:46px;height:46px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.kb-btn .material-symbols-outlined{font-size:20px;color:rgba(255,255,255,.18)}
 
 /* ═══════ DRAWER ═══════ */
-.drawer-overlay{position:absolute;inset:0;z-index:80;background:rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .3s}
-.drawer-overlay.visible{opacity:1;pointer-events:auto}
+.drawer-scrim{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .35s}
+.drawer-scrim.on{opacity:1;pointer-events:auto}
 
-.drawer{position:absolute;bottom:0;left:0;right:0;z-index:90;height:65vh;background:#0a0a0a;border-top-left-radius:12px;border-top-right-radius:12px;transform:translateY(100%);transition:transform .4s cubic-bezier(.32,.72,0,1);display:flex;flex-direction:column;touch-action:none}
+.drawer{
+  position:fixed;bottom:0;left:0;right:0;z-index:90;
+  height:62vh;
+  background:#0c0c0e;
+  border-top-left-radius:14px;border-top-right-radius:14px;
+  transform:translateY(100%);
+  transition:transform .4s cubic-bezier(.32,.72,0,1);
+  display:flex;flex-direction:column;
+  touch-action:none;
+  /* DEPTH */
+  box-shadow:0 -4px 30px rgba(0,0,0,.7),0 -1px 0 rgba(255,255,255,.04);
+}
 .drawer.open{transform:translateY(0)}
 
-.drawer-handle{width:36px;height:4px;background:rgba(255,255,255,.15);border-radius:2px;margin:8px auto 4px;flex-shrink:0}
+/* Handle */
+.drawer-handle-area{padding:10px 0 6px;flex-shrink:0;display:flex;justify-content:center;cursor:grab}
+.drawer-handle{width:32px;height:3px;background:rgba(255,255,255,.18);border-radius:2px}
 
-/* Chat history inside drawer */
-.chat-history{flex:1;overflow-y:auto;padding:8px 16px 12px;-webkit-overflow-scrolling:touch}
+/* ═══════ CHAT HISTORY ═══════ */
+.chat-history{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 16px 8px;overscroll-behavior:contain}
 .chat-history::-webkit-scrollbar{display:none}
-.ch-msg{padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px;line-height:1.5}
-.ch-msg:last-child{border-bottom:none}
-.ch-msg.sara{color:rgba(255,255,255,.75)}
-.ch-msg.sara .speaker .material-symbols-outlined{font-size:12px;color:var(--accent);vertical-align:-1px;margin-right:3px}
-.ch-msg.user{color:rgba(255,255,255,.95);padding-left:20px}
-.ch-msg.user .mic-icon .material-symbols-outlined{font-size:12px;color:rgba(255,255,255,.3);vertical-align:-1px;margin-right:3px}
 
-/* Active transcription area in drawer */
-.transcription-area{flex-shrink:0;padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);min-height:80px;display:none}
-.transcription-area.active{display:block}
+/* Message bubbles with hierarchy */
+.ch-msg{margin-bottom:2px;padding:10px 0;position:relative}
+.ch-msg+.ch-msg{border-top:1px solid rgba(255,255,255,.03)}
+
+/* SARA — left, accent indicator */
+.ch-msg.sara{padding-left:10px;border-left:2px solid rgba(95,143,173,.25)}
+.ch-msg.sara .ch-role{font-family:var(--mono);font-size:9px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;display:flex;align-items:center;gap:4px}
+.ch-msg.sara .ch-role .material-symbols-outlined{font-size:11px}
+.ch-msg.sara .ch-text{font-size:13px;line-height:1.5;color:rgba(255,255,255,.75)}
+
+/* USER — right-aligned, distinct */
+.ch-msg.user{text-align:right;padding-right:10px;border-right:2px solid rgba(255,255,255,.12);border-left:none}
+.ch-msg.user .ch-role{font-family:var(--mono);font-size:9px;font-weight:600;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:4px}
+.ch-msg.user .ch-role .material-symbols-outlined{font-size:11px}
+.ch-msg.user .ch-text{font-size:13px;line-height:1.5;color:rgba(255,255,255,.9)}
+
+/* ═══════ TRANSCRIPTION AREA ═══════ */
+.tx-area{flex-shrink:0;padding:14px 16px;border-top:1px solid rgba(255,255,255,.06);display:none;background:rgba(255,255,255,.02)}
+.tx-area.on{display:block}
 
 .waveform{display:flex;align-items:center;justify-content:center;gap:2px;height:28px;margin-bottom:10px}
 .waveform span{width:3px;border-radius:1px;background:var(--red);animation:wave .7s ease-in-out infinite}
-@keyframes wave{0%,100%{height:4px}50%{height:24px}}
-.waveform span:nth-child(1){animation-delay:0s}
-.waveform span:nth-child(2){animation-delay:.08s}
-.waveform span:nth-child(3){animation-delay:.16s}
-.waveform span:nth-child(4){animation-delay:.04s}
-.waveform span:nth-child(5){animation-delay:.12s}
-.waveform span:nth-child(6){animation-delay:.2s}
-.waveform span:nth-child(7){animation-delay:.06s}
-.waveform span:nth-child(8){animation-delay:.14s}
-.waveform span:nth-child(9){animation-delay:.1s}
-.waveform span:nth-child(10){animation-delay:.18s}
-.waveform span:nth-child(11){animation-delay:.02s}
-.waveform span:nth-child(12){animation-delay:.15s}
-.waveform span:nth-child(13){animation-delay:.07s}
-.waveform span:nth-child(14){animation-delay:.13s}
-.waveform span:nth-child(15){animation-delay:.09s}
-.waveform span:nth-child(16){animation-delay:.17s}
-.waveform span:nth-child(17){animation-delay:.03s}
-.waveform span:nth-child(18){animation-delay:.11s}
-.waveform span:nth-child(19){animation-delay:.05s}
-.waveform span:nth-child(20){animation-delay:.19s}
-.waveform.stopped span{animation:none;height:3px;background:rgba(255,255,255,.1);transition:all .3s}
+@keyframes wave{0%,100%{height:4px}50%{height:22px}}
+.waveform span:nth-child(1){animation-delay:0s}.waveform span:nth-child(2){animation-delay:.08s}
+.waveform span:nth-child(3){animation-delay:.16s}.waveform span:nth-child(4){animation-delay:.04s}
+.waveform span:nth-child(5){animation-delay:.12s}.waveform span:nth-child(6){animation-delay:.2s}
+.waveform span:nth-child(7){animation-delay:.06s}.waveform span:nth-child(8){animation-delay:.14s}
+.waveform span:nth-child(9){animation-delay:.1s}.waveform span:nth-child(10){animation-delay:.18s}
+.waveform span:nth-child(11){animation-delay:.02s}.waveform span:nth-child(12){animation-delay:.15s}
+.waveform span:nth-child(13){animation-delay:.07s}.waveform span:nth-child(14){animation-delay:.13s}
+.waveform span:nth-child(15){animation-delay:.09s}.waveform span:nth-child(16){animation-delay:.17s}
+.waveform.off span{animation:none;height:3px;background:rgba(255,255,255,.08);transition:all .3s}
 
-.transcript-text{font-size:15px;line-height:1.5;color:#fff;min-height:24px}
-.transcript-text .word{display:inline;animation:wordIn .2s ease}
-@keyframes wordIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.tx-text{font-size:15px;line-height:1.55;color:#fff;min-height:20px}
+.tx-text .w{display:inline;animation:wordIn .2s ease both}
+@keyframes wordIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+.tx-text.dim{font-size:13px;color:rgba(255,255,255,.35);transition:all .4s}
 
-/* Scanning line */
-.scan-line{height:2px;margin:10px 0;overflow:hidden;opacity:0}
-.scan-line.active{opacity:1}
-.scan-line .line{height:100%;width:60px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scan 1.2s ease-out forwards}
-@keyframes scan{from{transform:translateX(-60px)}to{transform:translateX(calc(100vw + 60px))}}
+/* Scan line */
+.scan{height:2px;margin:12px 0;overflow:hidden;opacity:0}
+.scan.on{opacity:1}
+.scan .bar{height:100%;width:50px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scanMove 1.2s ease-out forwards}
+@keyframes scanMove{from{transform:translateX(-50px)}to{transform:translateX(calc(100vw + 50px))}}
 
-/* SARA response in drawer */
-.sara-response{padding:8px 0;opacity:0;transition:opacity .3s}
-.sara-response.visible{opacity:1}
-.sara-response .sr-label{font-family:var(--mono);font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;display:flex;align-items:center;gap:4px}
-.sara-response .sr-label .material-symbols-outlined{font-size:12px}
-.sara-response .sr-text{font-size:14px;line-height:1.5;color:rgba(255,255,255,.85)}
-.sara-response .sr-text .word{display:inline;animation:wordIn .15s ease}
+/* SARA response */
+.sr{padding-top:8px;opacity:0;transition:opacity .3s}
+.sr.on{opacity:1}
+.sr-label{font-family:var(--mono);font-size:9px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;display:flex;align-items:center;gap:4px}
+.sr-label .material-symbols-outlined{font-size:11px}
+.sr-text{font-size:14px;line-height:1.55;color:rgba(255,255,255,.85)}
+.sr-text .w{display:inline;animation:wordIn .15s ease both}
 
-/* User's transcribed text — dimmed after processing */
-.transcript-text.dimmed{font-size:13px;color:rgba(255,255,255,.4);transition:all .4s}
-
-/* Drawer PTT — inside drawer at bottom */
-.drawer-ptt{flex-shrink:0;padding:6px 12px;padding-bottom:max(6px,env(safe-area-inset-bottom));background:#0a0a0a;border-top:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:6px}
+/* Drawer PTT */
+.drawer-ptt{flex-shrink:0;padding:6px 12px;padding-bottom:max(6px,env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:6px;background:#0c0c0e}
 </style>
 </head>
 <body>
 
-<!-- MAP -->
-<div class="map" id="map">
-  <div class="map-scanlines"></div>
-</div>
+<!-- MAP — full screen, touch gestures work -->
+<div class="map" id="map"></div>
+<div class="map-scan"></div>
+<div class="crosshair"></div>
 
-<!-- TOP GRADIENT + TOPBAR -->
+<!-- TOP -->
 <div class="top-grad"></div>
 <div class="topbar">
   <span class="logo">Phalanx</span>
@@ -157,264 +167,229 @@ body{font-family:var(--sans);background:#000;color:#fff;-webkit-font-smoothing:a
 </div>
 <button class="pause-btn"><span class="material-symbols-outlined">pause_circle</span> Pause</button>
 
-<!-- BOTTOM GRADIENT -->
+<!-- BOTTOM -->
 <div class="bottom-grad"></div>
 
-<!-- RESIDUAL MESSAGES (visible when drawer closed) -->
-<div class="residual" id="residual">
-  <div class="r-msg op20"><span class="speaker"><span class="material-symbols-outlined">volume_up</span></span>Adjusting route. Heading east toward the park boundary.</div>
-  <div class="r-msg op50"><span class="speaker"><span class="material-symbols-outlined">volume_up</span></span>Search progress: <strong>25%</strong>. No targets detected yet.</div>
-  <div class="r-msg op100"><span class="speaker"><span class="material-symbols-outlined">volume_up</span></span>Battery at <strong>87%</strong>. Estimated 32 min remaining.</div>
-  <div class="r-bottom-line"></div>
-</div>
+<!-- RESIDUAL -->
+<div class="residual" id="residual"></div>
 
-<!-- PTT BAR -->
+<!-- PTT -->
 <div class="ptt-bar" id="pttBar">
-  <div class="ptt-button" id="pttBtn">
-    <span class="material-symbols-outlined">mic</span>
-    <span class="ptt-label">Hold to talk</span>
-  </div>
-  <div class="text-toggle"><span class="material-symbols-outlined">keyboard</span></div>
+  <div class="ptt-btn" id="pttBtn"><span class="material-symbols-outlined">mic</span><span>Hold to talk</span></div>
+  <div class="kb-btn"><span class="material-symbols-outlined">keyboard</span></div>
 </div>
-
-<!-- DRAWER OVERLAY -->
-<div class="drawer-overlay" id="drawerOverlay"></div>
 
 <!-- DRAWER -->
+<div class="drawer-scrim" id="scrim"></div>
 <div class="drawer" id="drawer">
-  <div class="drawer-handle" id="drawerHandle"></div>
-
+  <div class="drawer-handle-area" id="handleArea"><div class="drawer-handle"></div></div>
   <div class="chat-history" id="chatHistory"></div>
-
-  <div class="transcription-area" id="transcriptionArea">
-    <div class="waveform" id="waveform">
-      <span></span><span></span><span></span><span></span><span></span>
-      <span></span><span></span><span></span><span></span><span></span>
-      <span></span><span></span><span></span><span></span><span></span>
-      <span></span><span></span><span></span><span></span><span></span>
-    </div>
-    <div class="transcript-text" id="transcriptText"></div>
-    <div class="scan-line" id="scanLine"><div class="line"></div></div>
-    <div class="sara-response" id="saraResponse">
+  <div class="tx-area" id="txArea">
+    <div class="waveform" id="waveform"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="tx-text" id="txText"></div>
+    <div class="scan" id="scan"><div class="bar"></div></div>
+    <div class="sr" id="sr">
       <div class="sr-label"><span class="material-symbols-outlined">volume_up</span> SARA</div>
-      <div class="sr-text" id="saraText"></div>
+      <div class="sr-text" id="srText"></div>
     </div>
   </div>
-
   <div class="drawer-ptt">
-    <div class="ptt-button" id="drawerPttBtn">
-      <span class="material-symbols-outlined">mic</span>
-      <span class="ptt-label">Hold to talk</span>
-    </div>
-    <div class="text-toggle"><span class="material-symbols-outlined">keyboard</span></div>
+    <div class="ptt-btn" id="dPttBtn"><span class="material-symbols-outlined">mic</span><span>Hold to talk</span></div>
+    <div class="kb-btn"><span class="material-symbols-outlined">keyboard</span></div>
   </div>
 </div>
 
 <script>
 // ═══════ STATE ═══════
-let drawerOpen = false;
-let isRecording = false;
-let hasPlayedDemo = false;
-let wordTimer = null;
+let open=false, recording=false, wt=null, demoIdx=0;
 
-const chatMessages = [
-  { role:'sara', text:'Drone is airborne. Beginning search pattern.' },
-  { role:'user', text:'Copy that. What\'s the wind looking like?' },
-  { role:'sara', text:'Wind 5 mph NW. Conditions nominal.' },
-  { role:'user', text:'Head toward the east side of the park first.' },
-  { role:'sara', text:'Adjusting route. Heading east toward the park boundary.' },
-  { role:'sara', text:'Search progress: 25%. No targets detected yet.' },
-  { role:'sara', text:'Battery at 87%. Estimated 32 min remaining.' },
+// Start with empty chat — user builds it up through interactions
+const msgs=[];
+
+// Multiple scripted exchanges — each PTT press plays the next one
+const exchanges=[
+  {
+    user:["What's","the","wind","looking","like?"],
+    sara:["Wind","5","mph","NW.","Conditions","nominal."]
+  },
+  {
+    user:["Head","toward","the","east","side","of","the","park","first."],
+    sara:["Adjusting","route.","Heading","east","toward","the","park","boundary."]
+  },
+  {
+    user:["Please","focus","on","the","intersection","of","Washington","and","Dupont.","I","think","the","car","might","be","there."],
+    sara:["Confirmed.","Rerouting","to","Washington","and","Dupont","for","observation."]
+  },
+  {
+    user:["Can","you","drop","altitude","and","get","a","closer","look?"],
+    sara:["Descending","to","60","meters.","Switching","to","high-resolution","camera."]
+  },
+  {
+    user:["I","think","I","see","it.","Circle","that","red","vehicle."],
+    sara:["Target","acquired.","Entering","orbit","mode","around","red","SUV","at","Washington","and","Dupont."]
+  },
 ];
 
-const userWords = ["Please","focus","on","the","intersection","of","Washington","and","Dupont.","I","think","the","car","might","be","there."];
-const saraWords = ["Confirmed.","Rerouting","to","Washington","and","Dupont","for","observation."];
-
-// ═══════ RENDER CHAT HISTORY ═══════
-function renderChat() {
-  const el = document.getElementById('chatHistory');
-  el.innerHTML = chatMessages.map(m => {
-    if (m.role === 'sara') {
-      return `<div class="ch-msg sara"><span class="speaker"><span class="material-symbols-outlined">volume_up</span></span>${m.text}</div>`;
-    } else {
-      return `<div class="ch-msg user"><span class="mic-icon"><span class="material-symbols-outlined">mic</span></span>${m.text}</div>`;
-    }
+// ═══════ RENDER ═══════
+function renderChat(){
+  const el=document.getElementById('chatHistory');
+  el.innerHTML=msgs.map(m=>{
+    if(m.r==='sara') return `<div class="ch-msg sara"><div class="ch-role"><span class="material-symbols-outlined">volume_up</span>SARA</div><div class="ch-text">${m.t}</div></div>`;
+    return `<div class="ch-msg user"><div class="ch-role">YOU<span class="material-symbols-outlined">mic</span></div><div class="ch-text">${m.t}</div></div>`;
   }).join('');
-  el.scrollTop = el.scrollHeight;
+  el.scrollTop=el.scrollHeight;
+}
+
+function updateResidual(){
+  const el=document.getElementById('residual');
+  const last3=msgs.slice(-3);
+  const ops=['op20','op50','op100'];
+  el.innerHTML=last3.map((m,i)=>{
+    const ic=m.r==='sara'
+      ?'<span class="material-symbols-outlined ico sara-ico">volume_up</span>'
+      :'<span class="material-symbols-outlined ico user-ico">mic</span>';
+    return `<div class="r-msg ${ops[i]}">${ic}${m.t}</div>`;
+  }).join('')+'<div class="r-bottom"></div>';
 }
 
 // ═══════ DRAWER ═══════
-function openDrawer() {
-  if (drawerOpen) return;
-  drawerOpen = true;
+function openDrawer(){
+  if(open) return;
+  open=true;
   renderChat();
   document.getElementById('drawer').classList.add('open');
-  document.getElementById('drawerOverlay').classList.add('visible');
-  document.getElementById('pttBar').style.display = 'none';
-  document.getElementById('residual').style.display = 'none';
-  // Scroll to bottom of chat
-  const ch = document.getElementById('chatHistory');
-  setTimeout(() => { ch.scrollTop = ch.scrollHeight; }, 50);
+  document.getElementById('scrim').classList.add('on');
+  document.getElementById('pttBar').style.display='none';
+  document.getElementById('residual').style.pointerEvents='none';
+  setTimeout(()=>{document.getElementById('chatHistory').scrollTop=document.getElementById('chatHistory').scrollHeight},60);
 }
-
-function closeDrawer() {
-  if (!drawerOpen) return;
-  drawerOpen = false;
+function closeDrawer(){
+  if(!open) return;
+  open=false;
   document.getElementById('drawer').classList.remove('open');
-  document.getElementById('drawerOverlay').classList.remove('visible');
-  document.getElementById('transcriptionArea').classList.remove('active');
-  document.getElementById('pttBar').style.display = 'flex';
-  document.getElementById('residual').style.display = 'block';
+  document.getElementById('scrim').classList.remove('on');
+  document.getElementById('txArea').classList.remove('on');
+  document.getElementById('pttBar').style.display='flex';
+  document.getElementById('residual').style.pointerEvents='auto';
   updateResidual();
 }
 
-// Tap overlay to close
-document.getElementById('drawerOverlay').addEventListener('click', closeDrawer);
+// Scrim tap closes
+document.getElementById('scrim').addEventListener('click',closeDrawer);
+// Residual tap opens
+document.getElementById('residual').addEventListener('click',()=>{if(!open)openDrawer()});
 
-// Tap residual to open
-document.getElementById('residual').addEventListener('click', openDrawer);
+// Swipe down on handle
+let sy=0;
+const ha=document.getElementById('handleArea');
+ha.addEventListener('touchstart',e=>{sy=e.touches[0].clientY},{passive:true});
+ha.addEventListener('touchmove',e=>{if(e.touches[0].clientY-sy>50)closeDrawer()},{passive:true});
 
-// Swipe down on drawer handle to close
-let touchStartY = 0;
-const drawerHandle = document.getElementById('drawerHandle');
-drawerHandle.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; });
-drawerHandle.addEventListener('touchmove', e => {
-  const dy = e.touches[0].clientY - touchStartY;
-  if (dy > 60) closeDrawer();
-});
+// ═══════ PTT ═══════
+let processing=false; // block new recordings while SARA is responding
 
-// ═══════ UPDATE RESIDUAL MESSAGES ═══════
-function updateResidual() {
-  const el = document.getElementById('residual');
-  const last3 = chatMessages.slice(-3);
-  const opacities = ['op20', 'op50', 'op100'];
-  el.innerHTML = last3.map((m, i) => {
-    const op = opacities[i];
-    const icon = m.role === 'sara'
-      ? '<span class="speaker"><span class="material-symbols-outlined">volume_up</span></span>'
-      : '<span class="mic-icon"><span class="material-symbols-outlined">mic</span></span>';
-    return `<div class="r-msg ${op}">${icon}${m.text}</div>`;
-  }).join('') + '<div class="r-bottom-line"></div>';
-}
+function startRec(){
+  if(recording||processing||demoIdx>=exchanges.length) return;
+  recording=true;
+  if(!open) openDrawer();
 
-// ═══════ PTT INTERACTION ═══════
-function startRecording(fromDrawerBtn) {
-  if (isRecording || hasPlayedDemo) return;
-  isRecording = true;
+  const ex=exchanges[demoIdx];
+  const uW=ex.user;
 
-  // Open drawer if not already
-  if (!drawerOpen) openDrawer();
+  const a=document.getElementById('txArea');
+  a.classList.add('on');
+  document.getElementById('txText').innerHTML='';
+  document.getElementById('txText').classList.remove('dim');
+  document.getElementById('scan').classList.remove('on');
+  document.getElementById('scan').innerHTML='<div class="bar"></div>';
+  document.getElementById('sr').classList.remove('on');
+  document.getElementById('srText').innerHTML='';
+  document.getElementById('waveform').classList.remove('off');
 
-  // Show transcription area
-  const area = document.getElementById('transcriptionArea');
-  area.classList.add('active');
-  area.style.display = 'block';
-
-  // Reset
-  document.getElementById('transcriptText').innerHTML = '';
-  document.getElementById('transcriptText').classList.remove('dimmed');
-  document.getElementById('scanLine').classList.remove('active');
-  document.getElementById('saraResponse').classList.remove('visible');
-  document.getElementById('saraText').innerHTML = '';
-  document.getElementById('waveform').classList.remove('stopped');
-
-  // Activate PTT buttons
   document.getElementById('pttBtn').classList.add('active');
-  document.getElementById('drawerPttBtn').classList.add('active');
+  document.getElementById('dPttBtn').classList.add('active');
 
-  // Start word-by-word transcription
-  let wordIdx = 0;
-  const tt = document.getElementById('transcriptText');
-  wordTimer = setInterval(() => {
-    if (wordIdx < userWords.length) {
-      const span = document.createElement('span');
-      span.className = 'word';
-      span.textContent = (wordIdx > 0 ? ' ' : '') + userWords[wordIdx];
-      tt.appendChild(span);
-      wordIdx++;
-      // Scroll chat to bottom
-      document.getElementById('chatHistory').scrollTop = document.getElementById('chatHistory').scrollHeight;
-    } else {
-      clearInterval(wordTimer);
-      wordTimer = null;
-    }
-  }, 200);
+  let wi=0;
+  const tt=document.getElementById('txText');
+  wt=setInterval(()=>{
+    if(wi<uW.length){
+      const s=document.createElement('span');
+      s.className='w';
+      s.textContent=(wi>0?' ':'')+uW[wi];
+      tt.appendChild(s);
+      wi++;
+    } else {clearInterval(wt);wt=null}
+  },200);
 }
 
-function stopRecording() {
-  if (!isRecording) return;
-  isRecording = false;
-  hasPlayedDemo = true;
+function stopRec(){
+  if(!recording) return;
+  recording=false;
+  processing=true;
+  if(wt){clearInterval(wt);wt=null}
 
-  // Stop word timer
-  if (wordTimer) { clearInterval(wordTimer); wordTimer = null; }
+  const ex=exchanges[demoIdx];
+  const uW=ex.user;
+  const sW=ex.sara;
 
-  // Deactivate PTT buttons
   document.getElementById('pttBtn').classList.remove('active');
-  document.getElementById('drawerPttBtn').classList.remove('active');
+  document.getElementById('dPttBtn').classList.remove('active');
 
-  // Fill remaining words instantly
-  const tt = document.getElementById('transcriptText');
-  const currentWords = tt.querySelectorAll('.word').length;
-  for (let i = currentWords; i < userWords.length; i++) {
-    const span = document.createElement('span');
-    span.className = 'word';
-    span.textContent = (i > 0 ? ' ' : '') + userWords[i];
-    tt.appendChild(span);
+  // Fill remaining words
+  const tt=document.getElementById('txText');
+  const have=tt.querySelectorAll('.w').length;
+  for(let i=have;i<uW.length;i++){
+    const s=document.createElement('span');s.className='w';
+    s.textContent=(i>0?' ':'')+uW[i];tt.appendChild(s);
   }
 
-  // Stop waveform
-  document.getElementById('waveform').classList.add('stopped');
-
-  // Add user message to chat
-  chatMessages.push({ role:'user', text: userWords.join(' ') });
+  document.getElementById('waveform').classList.add('off');
+  msgs.push({r:'user',t:uW.join(' ')});
   renderChat();
 
-  // Scanning line
-  setTimeout(() => {
-    document.getElementById('scanLine').classList.add('active');
-  }, 300);
-
-  // Dim user text
-  setTimeout(() => {
-    tt.classList.add('dimmed');
-  }, 600);
-
-  // SARA response
-  setTimeout(() => {
-    const sr = document.getElementById('saraResponse');
-    sr.classList.add('visible');
-    const st = document.getElementById('saraText');
-    let si = 0;
-    const saraTimer = setInterval(() => {
-      if (si < saraWords.length) {
-        const span = document.createElement('span');
-        span.className = 'word';
-        span.textContent = (si > 0 ? ' ' : '') + saraWords[si];
-        st.appendChild(span);
-        si++;
+  // Scan
+  setTimeout(()=>{document.getElementById('scan').classList.add('on')},400);
+  // Dim
+  setTimeout(()=>{tt.classList.add('dim')},700);
+  // SARA
+  setTimeout(()=>{
+    document.getElementById('sr').classList.add('on');
+    const st=document.getElementById('srText');
+    let si=0;
+    const timer=setInterval(()=>{
+      if(si<sW.length){
+        const s=document.createElement('span');s.className='w';
+        s.textContent=(si>0?' ':'')+sW[si];st.appendChild(s);si++;
       } else {
-        clearInterval(saraTimer);
-        // Add SARA message to chat
-        chatMessages.push({ role:'sara', text: saraWords.join(' ') });
+        clearInterval(timer);
+        msgs.push({r:'sara',t:sW.join(' ')});
         renderChat();
-
-        // Close drawer after pause
-        setTimeout(() => {
-          closeDrawer();
-        }, 1200);
+        demoIdx++;
+        processing=false;
+        setTimeout(closeDrawer,1200);
       }
-    }, 120);
-  }, 1800);
+    },120);
+  },1800);
 }
 
-// PTT event listeners — both main and drawer buttons
-[document.getElementById('pttBtn'), document.getElementById('drawerPttBtn')].forEach(btn => {
-  btn.addEventListener('touchstart', e => { e.preventDefault(); startRecording(); });
-  btn.addEventListener('touchend', e => { e.preventDefault(); stopRecording(); });
-  btn.addEventListener('mousedown', e => { e.preventDefault(); startRecording(); });
-  btn.addEventListener('mouseup', e => { e.preventDefault(); stopRecording(); });
+// Bind both PTT buttons
+[document.getElementById('pttBtn'),document.getElementById('dPttBtn')].forEach(b=>{
+  b.addEventListener('touchstart',e=>{e.preventDefault();startRec()});
+  b.addEventListener('touchend',e=>{e.preventDefault();stopRec()});
+  b.addEventListener('mousedown',e=>{e.preventDefault();startRec()});
+  b.addEventListener('mouseup',e=>{e.preventDefault();stopRec()});
 });
+
+// ═══════ MAP GESTURES ═══════
+// Prevent body scroll but allow map pinch/zoom/pan
+document.addEventListener('touchmove',e=>{
+  // Allow scroll inside chat history
+  if(e.target.closest('.chat-history')) return;
+  // Allow on .map
+  if(e.target.closest('.map')) return;
+  // Block everything else from scrolling
+  e.preventDefault();
+},{passive:false});
 
 // ═══════ INIT ═══════
 updateResidual();
