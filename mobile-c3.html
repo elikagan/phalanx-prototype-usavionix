@@ -341,33 +341,35 @@
 <script>
   const zone = document.getElementById('overlayZone');
 
-  // Per-card opacity: bottom = 1, fades to 0 toward top
+  // Opacity by index from bottom of visible area.
+  // Bottom card = 1, going up: 1 → 0.75 → 0.5 → 0.25 → 0
   function updateOpacities() {
-    const cards = document.querySelectorAll('#calmMessages .msg-card');
+    const cards = [...document.querySelectorAll('#calmMessages .msg-card')];
+    if (!cards.length) return;
+
     const zoneRect = zone.getBoundingClientRect();
-    const zoneTop = zoneRect.top;
-    const zoneHeight = zoneRect.height;
-    // Fade zone: top 60% is the fade region, bottom 40% is fully opaque
-    const fadeEnd = zoneTop + zoneHeight * 0.55;
+    const zoneBottom = zoneRect.bottom;
 
-    cards.forEach(card => {
-      const cardRect = card.getBoundingClientRect();
-      const cardCenter = cardRect.top + cardRect.height / 2;
-
-      if (cardCenter <= zoneTop) {
-        card.style.opacity = '0';
-      } else if (cardCenter >= fadeEnd) {
-        card.style.opacity = '1';
-      } else {
-        const progress = (cardCenter - zoneTop) / (fadeEnd - zoneTop);
-        card.style.opacity = Math.max(0, Math.min(1, progress)).toFixed(2);
+    // Find which cards are in view, sorted bottom to top
+    const visible = [];
+    for (let i = cards.length - 1; i >= 0; i--) {
+      const r = cards[i].getBoundingClientRect();
+      // Card is at least partially in the zone
+      if (r.bottom > zoneRect.top && r.top < zoneBottom) {
+        visible.push(cards[i]);
       }
+    }
+
+    // Assign opacity: index 0 = bottommost = 1.0
+    const steps = [1, 0.8, 0.55, 0.3, 0.12, 0];
+    cards.forEach(c => c.style.opacity = '0'); // hide all first
+    visible.forEach((card, i) => {
+      card.style.opacity = i < steps.length ? steps[i] : '0';
     });
   }
 
   zone.addEventListener('scroll', updateOpacities, { passive: true });
   zone.scrollTop = zone.scrollHeight;
-  // Run after layout settles
   requestAnimationFrame(() => {
     zone.scrollTop = zone.scrollHeight;
     updateOpacities();
@@ -376,8 +378,11 @@
   // Simulate speaking finishing after 4s
   setTimeout(() => {
     const msg = document.getElementById('activeMsg');
-    msg.classList.remove('speaking');
-    msg.querySelector('.speaking-bar').style.display = 'none';
+    if (msg) {
+      msg.classList.remove('speaking');
+      const bar = msg.querySelector('.speaking-bar');
+      if (bar) bar.style.display = 'none';
+    }
     updateOpacities();
   }, 4000);
 
@@ -411,7 +416,7 @@
       document.getElementById('simBtn').style.display = 'block';
     }
     zone.scrollTop = zone.scrollHeight;
-    requestAnimationFrame(updateOpacities);
+    requestAnimationFrame(() => { zone.scrollTop = zone.scrollHeight; updateOpacities(); });
   }
 
   // PTT
