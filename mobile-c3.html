@@ -397,14 +397,14 @@ function startRec(){
   const a=document.getElementById('txArea');
   a.classList.add('on');
   document.getElementById('txText').innerHTML='';
-  document.getElementById('txText').classList.remove('dim');
+  document.getElementById('txText').classList.remove('to-chat');
   document.getElementById('scan').classList.remove('on');
   document.getElementById('scan').innerHTML='<div class="bar"></div>';
-  document.getElementById('sr').classList.remove('on');
-  document.getElementById('srText').innerHTML='';
+  document.getElementById('saraLive').classList.remove('on');
+  document.getElementById('saraLiveText').innerHTML='';
   document.getElementById('waveform').classList.remove('off');
 
-  // Delay word-by-word until drawer is visible (450ms transition)
+  // Brief delay for drawer to start opening, then begin transcription
   setTimeout(()=>{
     if(!recording) return; // user may have tapped again already
     let wi=0;
@@ -422,7 +422,7 @@ function startRec(){
         setTimeout(()=>{ if(recording) stopRec(); },600);
       }
     },220);
-  },500);
+  },300);
 }
 
 function stopRec(){
