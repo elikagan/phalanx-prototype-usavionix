@@ -440,8 +440,16 @@ function startRec(){
   document.getElementById('saraLiveText').innerHTML='';
   document.getElementById('waveform').classList.remove('off');
 
-  // Let drawer grow freely during recording — no max-height constraint
-  document.getElementById('drawer').style.maxHeight='45vh';
+  // Start drawer at just TX height — it'll grow as content accumulates
+  // Measure after TX is visible
+  requestAnimationFrame(()=>{
+    const drawer=document.getElementById('drawer');
+    const handle=document.querySelector('.drawer-handle-area');
+    const txA=document.getElementById('txArea');
+    const bottom=document.querySelector('.drawer-bottom');
+    const h=(handle?handle.offsetHeight:0)+(txA.scrollHeight)+(bottom?bottom.offsetHeight:0)+16;
+    drawer.style.maxHeight=Math.min(h,window.innerHeight*0.45)+'px';
+  });
 
   // Scroll chat history to bottom so last SARA message is visible above TX
   setTimeout(()=>{
@@ -505,8 +513,13 @@ function stopRec(){
     document.getElementById('scan').style.opacity='0';
   },1200);
 
-  // 4. SARA responds word-by-word below the user text (inside TX area)
+  // 4. SARA responds — pre-expand drawer to make room
   setTimeout(()=>{
+    // Grow drawer to accommodate SARA response (estimate ~120px more)
+    const drawer=document.getElementById('drawer');
+    const cur=drawer.offsetHeight;
+    drawer.style.maxHeight=Math.min(cur+120, window.innerHeight*0.45)+'px';
+
     fab.classList.remove('processing');
     fabIcon.textContent='volume_up';
 
