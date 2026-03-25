@@ -405,6 +405,12 @@ function startRec(){
   document.getElementById('saraLiveText').innerHTML='';
   document.getElementById('waveform').classList.remove('off');
 
+  // Scroll chat history to bottom so last SARA message is visible above TX
+  setTimeout(()=>{
+    const ch=document.getElementById('chatHistory');
+    ch.scrollTop=ch.scrollHeight;
+  },150);
+
   // Brief delay for drawer to start opening, then begin transcription
   setTimeout(()=>{
     if(!recording) return; // user may have tapped again already
