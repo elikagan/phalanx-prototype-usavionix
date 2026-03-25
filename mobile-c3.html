@@ -372,15 +372,19 @@ function openDrawer(forRecording){
   renderChat();
   document.body.classList.add('drawer-open');
   const drawer=document.getElementById('drawer');
+  if(forRecording){
+    // Set generous fixed height for the entire exchange — no resizing during
+    drawer.style.maxHeight='40vh';
+  }
   drawer.classList.add('open');
   document.getElementById('scrim').classList.add('on');
   document.getElementById('residual').style.pointerEvents='none';
   if(!forRecording){
     fab.classList.add('close-mode');
     fabIcon.textContent='close';
+    requestAnimationFrame(fitDrawer);
   }
   requestAnimationFrame(()=>{
-    fitDrawer();
     document.getElementById('chatHistory').scrollTop=document.getElementById('chatHistory').scrollHeight;
   });
 }
@@ -438,7 +442,6 @@ function startRec(){
 
   const a=document.getElementById('txArea');
   a.classList.add('on');
-  requestAnimationFrame(fitDrawer);
   document.getElementById('txText').innerHTML='';
   document.getElementById('txText').classList.remove('to-chat');
   document.getElementById('scan').classList.remove('on');
@@ -465,7 +468,6 @@ function startRec(){
         s.textContent=(wi>0?' ':'')+uW[wi];
         tt.appendChild(s);
         wi++;
-        if(wi%3===0) fitDrawer(); // resize every 3 words
       } else {
         clearInterval(wt);wt=null;
         // Auto-stop after all words transcribed (pause for effect first)
@@ -524,7 +526,6 @@ function stopRec(){
       if(si<sW.length){
         const s=document.createElement('span');s.className='w';
         s.textContent=(si>0?' ':'')+sW[si];saraText.appendChild(s);si++;
-        if(si%3===0) fitDrawer();
       } else {
         clearInterval(timer);
 
