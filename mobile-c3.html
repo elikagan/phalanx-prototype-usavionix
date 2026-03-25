@@ -48,7 +48,8 @@ body{height:100%;overflow:hidden;position:fixed;inset:0;font-family:var(--sans);
 .pause-btn .material-symbols-outlined{font-size:12px}
 
 /* ═══════ BOTTOM GRADIENT ═══════ */
-.bottom-grad{position:fixed;bottom:0;left:0;right:0;height:42%;background:linear-gradient(to top,#000 0%,rgba(0,0,0,.95) 25%,rgba(0,0,0,.55) 60%,transparent 100%);pointer-events:none;z-index:10}
+.bottom-grad{position:fixed;bottom:0;left:0;right:0;height:30%;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,rgba(0,0,0,.4) 50%,transparent 100%);pointer-events:none;z-index:10;transition:opacity .4s ease}
+body.drawer-open .bottom-grad{opacity:0}
 
 /* ═══════ RESIDUAL MESSAGES ═══════ */
 .residual{position:fixed;bottom:max(20px,env(safe-area-inset-bottom));left:0;right:90px;z-index:15;padding:0 14px}
@@ -163,8 +164,8 @@ body{height:100%;overflow:hidden;position:fixed;inset:0;font-family:var(--sans);
 .ch-msg.user .ch-text{font-size:13px;line-height:1.5;color:rgba(255,255,255,.45)}
 
 /* ═══════ TRANSCRIPTION AREA ═══════ */
-.tx-area{flex-shrink:0;padding:14px 16px;border-top:1px solid rgba(255,255,255,.06);display:none;background:rgba(255,255,255,.02)}
-.tx-area.on{display:block}
+.tx-area{flex-shrink:0;padding:14px 16px;border-top:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02);max-height:0;overflow:hidden;opacity:0;transition:max-height .4s ease,opacity .3s ease,padding .4s ease;padding-top:0;padding-bottom:0}
+.tx-area.on{max-height:300px;opacity:1;padding-top:14px;padding-bottom:14px}
 
 .waveform{display:flex;align-items:center;justify-content:center;gap:2px;height:28px;margin-bottom:10px}
 .waveform span{width:3px;border-radius:1px;background:var(--red);animation:wave .7s ease-in-out infinite}
@@ -325,6 +326,7 @@ function openDrawer(forRecording){
   if(open) return;
   open=true;
   renderChat();
+  document.body.classList.add('drawer-open');
   document.getElementById('drawer').classList.add('open');
   document.getElementById('scrim').classList.add('on');
   document.getElementById('residual').style.pointerEvents='none';
@@ -338,6 +340,7 @@ function openDrawer(forRecording){
 function closeDrawer(){
   if(!open) return;
   open=false;
+  document.body.classList.remove('drawer-open');
   document.getElementById('drawer').classList.remove('open');
   document.getElementById('scrim').classList.remove('on');
   document.getElementById('txArea').classList.remove('on');
@@ -464,22 +467,16 @@ function stopRec(){
         // Map action fires immediately (visual feedback)
         if(typeof execMapAction==='function') execMapAction(exchanges[demoIdx].mapAction);
 
-        // Smooth transition: fade out TX area, THEN commit to chat history
+        // Smooth transition: remove .on → CSS animates max-height/opacity to 0
         const txArea=document.getElementById('txArea');
-        txArea.style.transition='opacity .4s ease, transform .4s ease';
-        txArea.style.opacity='0';
-        txArea.style.transform='translateY(-10px)';
+        txArea.classList.remove('on');
 
+        // Wait for CSS transition to finish (400ms), then commit to history
         setTimeout(()=>{
-          // Now commit both messages to history
           msgs.push({r:'user',t:uW.join(' ')});
           msgs.push({r:'sara',t:sW.join(' ')});
           renderChat();
-          // Reset TX area (hidden, ready for next use)
-          txArea.classList.remove('on');
-          txArea.style.opacity='';
-          txArea.style.transform='';
-          txArea.style.transition='';
+          // Reset TX area contents for next use
           tt.innerHTML='';tt.classList.remove('dim');
           st.innerHTML='';
           document.getElementById('sr').classList.remove('on');
