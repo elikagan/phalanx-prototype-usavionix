@@ -185,7 +185,7 @@ body.drawer-open .bottom-grad{opacity:0}
 .tx-text{font-size:15px;line-height:1.55;color:#fff;min-height:20px;max-width:82%;margin-left:auto;text-align:right}
 .tx-text .w{display:inline;animation:wordIn .2s ease both}
 @keyframes wordIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
-.tx-text.dim{font-size:13px;color:rgba(255,255,255,.35);transition:all .4s}
+.tx-text.shrink{font-size:13px;color:rgba(255,255,255,.35);transition:font-size .5s ease,color .5s ease}
 
 /* Scan line */
 .scan{height:2px;margin:12px 0;overflow:hidden;opacity:0}
@@ -447,55 +447,68 @@ function stopRec(){
 
   document.getElementById('waveform').classList.add('off');
 
-  // Scan
+  // Scan line
   setTimeout(()=>{document.getElementById('scan').classList.add('on')},400);
-  // Dim
-  setTimeout(()=>{tt.classList.add('dim')},700);
-  // SARA responds
+
+  // After scan: shrink TX text + commit user msg to chat + slide TX closed
   setTimeout(()=>{
-    // FAB shows speaker icon while SARA talks
-    fab.classList.remove('processing');
-    fabIcon.textContent='volume_up';
+    // Shrink the TX text (magnified → chat size)
+    tt.classList.add('shrink');
 
-    document.getElementById('sr').classList.add('on');
-    const st=document.getElementById('srText');
-    let si=0;
-    const timer=setInterval(()=>{
-      if(si<sW.length){
-        const s=document.createElement('span');s.className='w';
-        s.textContent=(si>0?' ':'')+sW[si];st.appendChild(s);si++;
-      } else {
-        clearInterval(timer);
-        // Map action fires immediately (visual feedback)
-        if(typeof execMapAction==='function') execMapAction(exchanges[demoIdx].mapAction);
+    // Commit user message to chat history
+    msgs.push({r:'user',t:uW.join(' ')});
+    renderChat();
 
-        // Commit messages to chat history FIRST (so content is there)
-        msgs.push({r:'user',t:uW.join(' ')});
-        msgs.push({r:'sara',t:sW.join(' ')});
-        renderChat();
+    // Slide TX area closed
+    setTimeout(()=>{
+      const txArea=document.getElementById('txArea');
+      txArea.classList.remove('on');
 
-        // NOW collapse TX area — chat history already has the content
-        const txArea=document.getElementById('txArea');
-        txArea.classList.remove('on');
+      // Clean up TX internals after slide completes
+      setTimeout(()=>{
+        tt.innerHTML='';tt.classList.remove('shrink');
+        document.getElementById('scan').classList.remove('on');
+        document.getElementById('scan').innerHTML='<div class="bar"></div>';
+        document.getElementById('waveform').classList.remove('off');
+      },800);
+    },500);
 
-        // After transition, clean up TX area internals
-        setTimeout(()=>{
-          tt.innerHTML='';tt.classList.remove('dim');
-          st.innerHTML='';
-          document.getElementById('sr').classList.remove('on');
-          document.getElementById('scan').classList.remove('on');
-          document.getElementById('scan').innerHTML='<div class="bar"></div>';
-          document.getElementById('waveform').classList.remove('off');
+    // SARA responds word-by-word directly in chat history
+    setTimeout(()=>{
+      fab.classList.remove('processing');
+      fabIcon.textContent='volume_up';
 
+      // Create a live SARA message element in chat history
+      const ch=document.getElementById('chatHistory');
+      const saraEl=document.createElement('div');
+      saraEl.className='ch-msg sara';
+      saraEl.innerHTML='<div class="ch-role"><span class="material-symbols-outlined">volume_up</span>SARA</div><div class="ch-text" id="liveSaraText"></div>';
+      ch.appendChild(saraEl);
+
+      let si=0;
+      const timer=setInterval(()=>{
+        const target=document.getElementById('liveSaraText');
+        if(si<sW.length){
+          const s=document.createElement('span');s.className='w';
+          s.textContent=(si>0?' ':'')+sW[si];target.appendChild(s);si++;
+          ch.scrollTop=ch.scrollHeight;
+        } else {
+          clearInterval(timer);
+          // Finalize: update msgs array, re-render clean, map action
+          msgs.push({r:'sara',t:sW.join(' ')});
+          // Remove the live element and re-render cleanly
+          saraEl.remove();
+          renderChat();
+
+          if(typeof execMapAction==='function') execMapAction(exchanges[demoIdx].mapAction);
           demoIdx++;
           processing=false;
           fabIcon.textContent='mic';
           updateResidual();
-          // Drawer stays open — user closes it
-        },450);
-      }
-    },120);
-  },1800);
+        }
+      },120);
+    },800);
+  },1200);
 }
 
 // FAB — TAP toggles recording. No hold required.
