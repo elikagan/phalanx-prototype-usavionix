@@ -398,6 +398,7 @@ function startRec(){
 
   // Delay word-by-word until drawer is visible (450ms transition)
   setTimeout(()=>{
+    if(!recording) return; // user may have tapped again already
     let wi=0;
     const tt=document.getElementById('txText');
     wt=setInterval(()=>{
@@ -407,7 +408,11 @@ function startRec(){
         s.textContent=(wi>0?' ':'')+uW[wi];
         tt.appendChild(s);
         wi++;
-      } else {clearInterval(wt);wt=null}
+      } else {
+        clearInterval(wt);wt=null;
+        // Auto-stop after all words transcribed (pause for effect first)
+        setTimeout(()=>{ if(recording) stopRec(); },600);
+      }
     },220);
   },500);
 }
@@ -493,23 +498,28 @@ function stopRec(){
   },1800);
 }
 
-// FAB hold = record (touch + mouse)
-fab.addEventListener('touchstart',e=>{
-  if(fab.classList.contains('close-mode')) return;
-  e.preventDefault();startRec();
-},{passive:false});
+// FAB — TAP toggles recording. No hold required.
+// First tap: starts recording + word-by-word transcription auto-plays
+// Second tap (or auto-complete): stops recording, triggers SARA response
+fab.addEventListener('click',e=>{
+  if(fab.classList.contains('close-mode')){ closeDrawer(); return; }
+  e.preventDefault();
+  if(recording){
+    stopRec();
+  } else if(!processing){
+    startRec();
+  }
+});
+// Also support touch for faster response on mobile
 fab.addEventListener('touchend',e=>{
   if(fab.classList.contains('close-mode')) return;
-  e.preventDefault();stopRec();
+  e.preventDefault();
+  fab.click();
 },{passive:false});
-fab.addEventListener('mousedown',e=>{
-  if(fab.classList.contains('close-mode')) return;
-  e.preventDefault();startRec();
-});
-fab.addEventListener('mouseup',e=>{
-  if(fab.classList.contains('close-mode')) return;
-  e.preventDefault();stopRec();
-});
+// Prevent touchstart from doing anything else
+fab.addEventListener('touchstart',e=>{
+  if(!fab.classList.contains('close-mode')) e.preventDefault();
+},{passive:false});
 
 // ═══════ INIT ═══════
 updateResidual();
