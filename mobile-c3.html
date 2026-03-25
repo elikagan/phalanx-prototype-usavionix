@@ -51,7 +51,7 @@ body{height:100%;overflow:hidden;position:fixed;inset:0;font-family:var(--sans);
 .bottom-grad{position:fixed;bottom:0;left:0;right:0;height:42%;background:linear-gradient(to top,#000 0%,rgba(0,0,0,.95) 25%,rgba(0,0,0,.55) 60%,transparent 100%);pointer-events:none;z-index:10}
 
 /* ═══════ RESIDUAL MESSAGES ═══════ */
-.residual{position:fixed;bottom:max(20px,env(safe-area-inset-bottom));left:0;right:90px;z-index:15;padding:0 14px}
+.residual{position:fixed;bottom:max(100px,calc(env(safe-area-inset-bottom) + 76px));left:0;right:90px;z-index:15;padding:0 14px}
 .r-msg{padding:7px 0;border-top:1px solid rgba(255,255,255,.06);font-size:13px;line-height:1.4;display:flex;align-items:flex-start;gap:5px;max-width:80%}
 .r-msg:first-child{border-top:none;padding-top:4px}
 .r-msg.sara-r{color:rgba(255,255,255,.92)}
@@ -71,7 +71,7 @@ body{height:100%;overflow:hidden;position:fixed;inset:0;font-family:var(--sans);
 
 /* ═══════ FAB — Floating Action Button ═══════ */
 .fab{
-  position:fixed;bottom:max(24px,env(safe-area-inset-bottom));right:20px;z-index:110;
+  position:fixed;bottom:max(32px,calc(env(safe-area-inset-bottom) + 8px));right:20px;z-index:110;
   width:64px;height:64px;border-radius:50%;
   background:linear-gradient(135deg,#3d6b85 0%,#2d5a74 100%);
   border:none;
@@ -127,6 +127,7 @@ body{height:100%;overflow:hidden;position:fixed;inset:0;font-family:var(--sans);
 .drawer{
   position:fixed;bottom:0;left:0;right:0;z-index:90;
   max-height:70vh;
+  height:auto;
   background:#0c0c0e;
   border-top-left-radius:14px;border-top-right-radius:14px;
   transform:translateY(100%);
@@ -257,8 +258,12 @@ body{height:100%;overflow:hidden;position:fixed;inset:0;font-family:var(--sans);
 // ═══════ STATE ═══════
 let open=false, recording=false, wt=null, demoIdx=0;
 
-// Start with empty chat — user builds it up through interactions
-const msgs=[];
+// Pre-populated conversation — search is already in progress
+const msgs=[
+  {r:'sara',t:'Drone is airborne. Beginning search pattern over designated zone.'},
+  {r:'user',t:'Copy. Start with the northwest quadrant.'},
+  {r:'sara',t:'Acknowledged. Sweeping northwest quadrant. Altitude 120m, speed 45 km/h.'},
+];
 
 // Multiple scripted exchanges — each PTT press plays the next one
 // Intersection of Washington Blvd & Dupont St, Pasadena
