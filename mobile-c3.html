@@ -169,7 +169,7 @@ body.drawer-open .bottom-grad{opacity:0}
 .tx-area{flex-shrink:0;padding:0 16px;border-top:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02);max-height:0;overflow:hidden;transition:max-height .8s cubic-bezier(.32,.72,0,1),padding .8s cubic-bezier(.32,.72,0,1)}
 .tx-area.on{max-height:300px;padding:14px 16px}
 
-.waveform{display:flex;align-items:center;justify-content:center;gap:2px;height:28px;margin-bottom:10px}
+.waveform{display:flex;align-items:center;justify-content:center;gap:2px;height:28px;margin-bottom:10px;transition:opacity .3s,height .3s}
 .waveform span{width:3px;border-radius:1px;background:var(--red);animation:wave .7s ease-in-out infinite}
 @keyframes wave{0%,100%{height:4px}50%{height:22px}}
 .waveform span:nth-child(1){animation-delay:0s}.waveform span:nth-child(2){animation-delay:.08s}
@@ -180,26 +180,29 @@ body.drawer-open .bottom-grad{opacity:0}
 .waveform span:nth-child(11){animation-delay:.02s}.waveform span:nth-child(12){animation-delay:.15s}
 .waveform span:nth-child(13){animation-delay:.07s}.waveform span:nth-child(14){animation-delay:.13s}
 .waveform span:nth-child(15){animation-delay:.09s}.waveform span:nth-child(16){animation-delay:.17s}
-.waveform.off span{animation:none;height:3px;background:rgba(255,255,255,.08);transition:all .3s}
+.waveform.off{opacity:0;height:0;margin:0;overflow:hidden}
+.waveform.off span{animation:none}
 
-.tx-text{font-size:15px;line-height:1.55;color:#fff;min-height:20px;max-width:82%;margin-left:auto;text-align:right}
+.tx-text{font-size:15px;line-height:1.55;color:#fff;min-height:20px;max-width:82%;margin-left:auto;text-align:right;transition:font-size .6s ease,color .6s ease,max-width .6s ease,text-align .6s ease,margin .6s ease}
 .tx-text .w{display:inline;animation:wordIn .2s ease both}
 @keyframes wordIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
-.tx-text.shrink{font-size:13px;color:rgba(255,255,255,.35);transition:font-size .5s ease,color .5s ease}
+/* After transcription: text transitions to chat-size user message style */
+.tx-text.to-chat{font-size:13px;color:rgba(255,255,255,.45);text-align:right}
 
 /* Scan line */
-.scan{height:2px;margin:12px 0;overflow:hidden;opacity:0}
+.scan{height:2px;margin:8px 0;overflow:hidden;opacity:0;transition:opacity .3s}
 .scan.on{opacity:1}
 .scan .bar{height:100%;width:50px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scanMove 1.2s ease-out forwards}
 @keyframes scanMove{from{transform:translateX(-50px)}to{transform:translateX(calc(100vw + 50px))}}
 
-/* SARA response */
-.sr{padding-top:8px;opacity:0;transition:opacity .3s}
-.sr.on{opacity:1}
-.sr-label{font-family:var(--mono);font-size:9px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;display:flex;align-items:center;gap:4px}
-.sr-label .material-symbols-outlined{font-size:11px}
-.sr-text{font-size:14px;line-height:1.55;color:rgba(255,255,255,.85);max-width:82%}
-.sr-text .w{display:inline;animation:wordIn .15s ease both}
+/* SARA response — appears in TX area below user text */
+.sara-live{padding-top:10px;border-top:1px solid rgba(255,255,255,.03);margin-top:8px;opacity:0;transition:opacity .3s}
+.sara-live.on{opacity:1}
+.sara-live-label{font-family:var(--mono);font-size:9px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;display:flex;align-items:center;gap:4px}
+.sara-live-label .material-symbols-outlined{font-size:11px}
+.sara-live-text{font-size:14px;line-height:1.55;color:rgba(255,255,255,.92);max-width:82%;transition:font-size .6s ease,color .6s ease}
+.sara-live-text .w{display:inline;animation:wordIn .15s ease both}
+.sara-live-text.to-chat{font-size:13px;color:rgba(255,255,255,.92)}
 
 /* Drawer bottom bar — keyboard toggle + spacing for FAB */
 .drawer-bottom{flex-shrink:0;padding:8px 16px;padding-bottom:max(14px,env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,.04);display:flex;align-items:center;background:#0c0c0e}
@@ -247,9 +250,9 @@ body.drawer-open .bottom-grad{opacity:0}
     <div class="waveform" id="waveform"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
     <div class="tx-text" id="txText"></div>
     <div class="scan" id="scan"><div class="bar"></div></div>
-    <div class="sr" id="sr">
-      <div class="sr-label"><span class="material-symbols-outlined">volume_up</span> SARA</div>
-      <div class="sr-text" id="srText"></div>
+    <div class="sara-live" id="saraLive">
+      <div class="sara-live-label"><span class="material-symbols-outlined">volume_up</span> SARA</div>
+      <div class="sara-live-text" id="saraLiveText"></div>
     </div>
   </div>
   <div class="drawer-bottom">
@@ -445,67 +448,70 @@ function stopRec(){
     s.textContent=(i>0?' ':'')+uW[i];tt.appendChild(s);
   }
 
+  // 1. Waveform fades out
   document.getElementById('waveform').classList.add('off');
 
-  // Scan line
+  // 2. Scan line sweeps
   setTimeout(()=>{document.getElementById('scan').classList.add('on')},400);
 
-  // After scan: shrink TX text, then slide TX closed, then show in chat + SARA responds
+  // 3. After scan: user text shrinks to chat size (stays in place)
   setTimeout(()=>{
-    // Shrink the TX text (magnified → chat size visual cue)
-    tt.classList.add('shrink');
+    tt.classList.add('to-chat');
+    document.getElementById('scan').style.opacity='0';
+  },1200);
 
-    // After shrink animation: slide TX closed
-    setTimeout(()=>{
-      const txArea=document.getElementById('txArea');
-      txArea.classList.remove('on');
+  // 4. SARA responds word-by-word below the user text (inside TX area)
+  setTimeout(()=>{
+    fab.classList.remove('processing');
+    fabIcon.textContent='volume_up';
 
-      // After TX fully closed: commit to chat + SARA responds
-      setTimeout(()=>{
-        // Clean up TX internals
-        tt.innerHTML='';tt.classList.remove('shrink');
-        document.getElementById('scan').classList.remove('on');
-        document.getElementById('scan').innerHTML='<div class="bar"></div>';
-        document.getElementById('waveform').classList.remove('off');
+    const saraLive=document.getElementById('saraLive');
+    const saraText=document.getElementById('saraLiveText');
+    saraLive.classList.add('on');
 
-        // NOW add user message to chat history (TX is gone, no duplicate)
-        msgs.push({r:'user',t:uW.join(' ')});
-        renderChat();
+    let si=0;
+    const timer=setInterval(()=>{
+      if(si<sW.length){
+        const s=document.createElement('span');s.className='w';
+        s.textContent=(si>0?' ':'')+sW[si];saraText.appendChild(s);si++;
+      } else {
+        clearInterval(timer);
 
-        // SARA responds word-by-word in chat history
-        fab.classList.remove('processing');
-        fabIcon.textContent='volume_up';
+        // 5. Map action
+        if(typeof execMapAction==='function') execMapAction(exchanges[demoIdx].mapAction);
 
-        const ch=document.getElementById('chatHistory');
-        const saraEl=document.createElement('div');
-        saraEl.className='ch-msg sara';
-        saraEl.innerHTML='<div class="ch-role"><span class="material-symbols-outlined">volume_up</span>SARA</div><div class="ch-text" id="liveSaraText"></div>';
-        ch.appendChild(saraEl);
-        ch.scrollTop=ch.scrollHeight;
+        // 6. Brief pause, then commit everything to chat history and close TX
+        setTimeout(()=>{
+          // Commit both messages
+          msgs.push({r:'user',t:uW.join(' ')});
+          msgs.push({r:'sara',t:sW.join(' ')});
 
-        let si=0;
-        const timer=setInterval(()=>{
-          const target=document.getElementById('liveSaraText');
-          if(si<sW.length){
-            const s=document.createElement('span');s.className='w';
-            s.textContent=(si>0?' ':'')+sW[si];target.appendChild(s);si++;
-            ch.scrollTop=ch.scrollHeight;
-          } else {
-            clearInterval(timer);
-            msgs.push({r:'sara',t:sW.join(' ')});
-            saraEl.remove();
-            renderChat();
+          // Render chat history (behind TX area, not visible yet)
+          renderChat();
 
-            if(typeof execMapAction==='function') execMapAction(exchanges[demoIdx].mapAction);
+          // Slide TX closed — chat history is already populated underneath
+          const txArea=document.getElementById('txArea');
+          txArea.classList.remove('on');
+
+          // After slide completes, clean up TX internals
+          setTimeout(()=>{
+            tt.innerHTML='';tt.classList.remove('to-chat');
+            saraText.innerHTML='';
+            saraLive.classList.remove('on');
+            document.getElementById('scan').classList.remove('on');
+            document.getElementById('scan').style.opacity='';
+            document.getElementById('scan').innerHTML='<div class="bar"></div>';
+            document.getElementById('waveform').classList.remove('off');
+
             demoIdx++;
             processing=false;
             fabIcon.textContent='mic';
             updateResidual();
-          }
-        },120);
-      },900); // wait for TX slide-down (800ms transition + buffer)
-    },500); // wait for shrink animation
-  },1200); // wait for scan line
+          },900);
+        },800);
+      }
+    },120);
+  },1800);
 }
 
 // FAB — TAP toggles recording. No hold required.
