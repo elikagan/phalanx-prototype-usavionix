@@ -422,7 +422,7 @@ function startRec(){
         setTimeout(()=>{ if(recording) stopRec(); },600);
       }
     },220);
-  },300);
+  },100);
 }
 
 function stopRec(){
@@ -514,28 +514,33 @@ function stopRec(){
   },1800);
 }
 
-// FAB — TAP toggles recording. No hold required.
-// First tap: starts recording + word-by-word transcription auto-plays
-// Second tap (or auto-complete): stops recording, triggers SARA response
+// FAB — PRESS AND HOLD (walkie-talkie)
+// touchstart/mousedown = start recording
+// touchend/mouseup = stop recording
+// click = close drawer if in close-mode
 fab.addEventListener('click',e=>{
-  if(fab.classList.contains('close-mode')){ closeDrawer(); return; }
-  e.preventDefault();
-  if(recording){
-    stopRec();
-  } else if(!processing){
-    startRec();
-  }
+  if(fab.classList.contains('close-mode')) closeDrawer();
 });
-// Also support touch for faster response on mobile
+fab.addEventListener('touchstart',e=>{
+  if(fab.classList.contains('close-mode')) return;
+  e.preventDefault();
+  startRec();
+},{passive:false});
 fab.addEventListener('touchend',e=>{
   if(fab.classList.contains('close-mode')) return;
   e.preventDefault();
-  fab.click();
+  stopRec();
 },{passive:false});
-// Prevent touchstart from doing anything else
-fab.addEventListener('touchstart',e=>{
-  if(!fab.classList.contains('close-mode')) e.preventDefault();
-},{passive:false});
+fab.addEventListener('mousedown',e=>{
+  if(fab.classList.contains('close-mode')) return;
+  e.preventDefault();
+  startRec();
+});
+fab.addEventListener('mouseup',e=>{
+  if(fab.classList.contains('close-mode')) return;
+  e.preventDefault();
+  stopRec();
+});
 
 // ═══════ INIT ═══════
 updateResidual();
