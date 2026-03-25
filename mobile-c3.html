@@ -450,65 +450,62 @@ function stopRec(){
   // Scan line
   setTimeout(()=>{document.getElementById('scan').classList.add('on')},400);
 
-  // After scan: shrink TX text + commit user msg to chat + slide TX closed
+  // After scan: shrink TX text, then slide TX closed, then show in chat + SARA responds
   setTimeout(()=>{
-    // Shrink the TX text (magnified → chat size)
+    // Shrink the TX text (magnified → chat size visual cue)
     tt.classList.add('shrink');
 
-    // Commit user message to chat history
-    msgs.push({r:'user',t:uW.join(' ')});
-    renderChat();
-
-    // Slide TX area closed
+    // After shrink animation: slide TX closed
     setTimeout(()=>{
       const txArea=document.getElementById('txArea');
       txArea.classList.remove('on');
 
-      // Clean up TX internals after slide completes
+      // After TX fully closed: commit to chat + SARA responds
       setTimeout(()=>{
+        // Clean up TX internals
         tt.innerHTML='';tt.classList.remove('shrink');
         document.getElementById('scan').classList.remove('on');
         document.getElementById('scan').innerHTML='<div class="bar"></div>';
         document.getElementById('waveform').classList.remove('off');
-      },800);
-    },500);
 
-    // SARA responds word-by-word directly in chat history
-    setTimeout(()=>{
-      fab.classList.remove('processing');
-      fabIcon.textContent='volume_up';
+        // NOW add user message to chat history (TX is gone, no duplicate)
+        msgs.push({r:'user',t:uW.join(' ')});
+        renderChat();
 
-      // Create a live SARA message element in chat history
-      const ch=document.getElementById('chatHistory');
-      const saraEl=document.createElement('div');
-      saraEl.className='ch-msg sara';
-      saraEl.innerHTML='<div class="ch-role"><span class="material-symbols-outlined">volume_up</span>SARA</div><div class="ch-text" id="liveSaraText"></div>';
-      ch.appendChild(saraEl);
+        // SARA responds word-by-word in chat history
+        fab.classList.remove('processing');
+        fabIcon.textContent='volume_up';
 
-      let si=0;
-      const timer=setInterval(()=>{
-        const target=document.getElementById('liveSaraText');
-        if(si<sW.length){
-          const s=document.createElement('span');s.className='w';
-          s.textContent=(si>0?' ':'')+sW[si];target.appendChild(s);si++;
-          ch.scrollTop=ch.scrollHeight;
-        } else {
-          clearInterval(timer);
-          // Finalize: update msgs array, re-render clean, map action
-          msgs.push({r:'sara',t:sW.join(' ')});
-          // Remove the live element and re-render cleanly
-          saraEl.remove();
-          renderChat();
+        const ch=document.getElementById('chatHistory');
+        const saraEl=document.createElement('div');
+        saraEl.className='ch-msg sara';
+        saraEl.innerHTML='<div class="ch-role"><span class="material-symbols-outlined">volume_up</span>SARA</div><div class="ch-text" id="liveSaraText"></div>';
+        ch.appendChild(saraEl);
+        ch.scrollTop=ch.scrollHeight;
 
-          if(typeof execMapAction==='function') execMapAction(exchanges[demoIdx].mapAction);
-          demoIdx++;
-          processing=false;
-          fabIcon.textContent='mic';
-          updateResidual();
-        }
-      },120);
-    },800);
-  },1200);
+        let si=0;
+        const timer=setInterval(()=>{
+          const target=document.getElementById('liveSaraText');
+          if(si<sW.length){
+            const s=document.createElement('span');s.className='w';
+            s.textContent=(si>0?' ':'')+sW[si];target.appendChild(s);si++;
+            ch.scrollTop=ch.scrollHeight;
+          } else {
+            clearInterval(timer);
+            msgs.push({r:'sara',t:sW.join(' ')});
+            saraEl.remove();
+            renderChat();
+
+            if(typeof execMapAction==='function') execMapAction(exchanges[demoIdx].mapAction);
+            demoIdx++;
+            processing=false;
+            fabIcon.textContent='mic';
+            updateResidual();
+          }
+        },120);
+      },900); // wait for TX slide-down (800ms transition + buffer)
+    },500); // wait for shrink animation
+  },1200); // wait for scan line
 }
 
 // FAB — TAP toggles recording. No hold required.
