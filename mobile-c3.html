@@ -127,15 +127,14 @@ body.drawer-open .bottom-grad{opacity:0}
 
 .drawer{
   position:fixed;bottom:0;left:0;right:0;z-index:90;
-  max-height:33vh;
   background:#0c0c0e;
   border-top-left-radius:14px;border-top-right-radius:14px;
   transform:translateY(100%);
-  transition:transform .4s cubic-bezier(.32,.72,0,1);
+  transition:transform .4s cubic-bezier(.32,.72,0,1), max-height .4s cubic-bezier(.32,.72,0,1);
   display:flex;flex-direction:column;
   touch-action:none;
-  /* DEPTH */
   box-shadow:none;
+  overflow:hidden;
 }
 /* Solid black backdrop behind rounded corners */
 .drawer::before{content:'';position:absolute;bottom:0;left:0;right:0;height:100%;background:#000;z-index:-1;border-radius:0}
@@ -324,6 +323,45 @@ function updateResidual(){
   }).join('')+'<div class="r-bottom"></div>';
 }
 
+// ═══════ DRAWER SIZING — auto-fit to latest 2 items ═══════
+function fitDrawer(){
+  const drawer=document.getElementById('drawer');
+  const handle=document.querySelector('.drawer-handle-area');
+  const chatEl=document.getElementById('chatHistory');
+  const txArea=document.getElementById('txArea');
+  const bottom=document.querySelector('.drawer-bottom');
+
+  const chromeH=(handle?handle.offsetHeight:0)+(bottom?bottom.offsetHeight:0);
+  const chatMsgs=[...chatEl.querySelectorAll('.ch-msg')];
+  const txOpen=txArea.classList.contains('on');
+  const isHistoryMode=fab.classList.contains('close-mode');
+
+  let contentH=0;
+
+  if(isHistoryMode){
+    // History mode — show all, scrollable, cap at 50vh
+    contentH=chatEl.scrollHeight;
+  } else if(txOpen){
+    // Recording/responding — TX area is the primary content
+    // Show TX + latest 1 chat message above it
+    contentH+=txArea.scrollHeight;
+    if(chatMsgs.length>0){
+      contentH+=chatMsgs[chatMsgs.length-1].offsetHeight+2;
+    }
+  } else {
+    // Just showing latest 2 chat messages
+    const show=chatMsgs.slice(-2);
+    show.forEach(m=>{contentH+=m.offsetHeight+2});
+  }
+
+  contentH+=16; // padding
+
+  const targetH=chromeH+contentH;
+  const cap=isHistoryMode?window.innerHeight*0.5:window.innerHeight*0.45;
+  const maxH=Math.min(targetH,cap);
+  drawer.style.maxHeight=maxH+'px';
+}
+
 // ═══════ FAB + DRAWER ═══════
 const fab=document.getElementById('fab');
 const fabIcon=document.getElementById('fabIcon');
@@ -333,15 +371,18 @@ function openDrawer(forRecording){
   open=true;
   renderChat();
   document.body.classList.add('drawer-open');
-  document.getElementById('drawer').classList.add('open');
+  const drawer=document.getElementById('drawer');
+  drawer.classList.add('open');
   document.getElementById('scrim').classList.add('on');
   document.getElementById('residual').style.pointerEvents='none';
   if(!forRecording){
-    // History mode — FAB becomes close button
     fab.classList.add('close-mode');
     fabIcon.textContent='close';
   }
-  setTimeout(()=>{document.getElementById('chatHistory').scrollTop=document.getElementById('chatHistory').scrollHeight},60);
+  requestAnimationFrame(()=>{
+    fitDrawer();
+    document.getElementById('chatHistory').scrollTop=document.getElementById('chatHistory').scrollHeight;
+  });
 }
 function closeDrawer(){
   if(!open) return;
@@ -397,6 +438,7 @@ function startRec(){
 
   const a=document.getElementById('txArea');
   a.classList.add('on');
+  requestAnimationFrame(fitDrawer);
   document.getElementById('txText').innerHTML='';
   document.getElementById('txText').classList.remove('to-chat');
   document.getElementById('scan').classList.remove('on');
@@ -423,6 +465,7 @@ function startRec(){
         s.textContent=(wi>0?' ':'')+uW[wi];
         tt.appendChild(s);
         wi++;
+        if(wi%3===0) fitDrawer(); // resize every 3 words
       } else {
         clearInterval(wt);wt=null;
         // Auto-stop after all words transcribed (pause for effect first)
@@ -481,6 +524,7 @@ function stopRec(){
       if(si<sW.length){
         const s=document.createElement('span');s.className='w';
         s.textContent=(si>0?' ':'')+sW[si];saraText.appendChild(s);si++;
+        if(si%3===0) fitDrawer();
       } else {
         clearInterval(timer);
 
@@ -515,6 +559,7 @@ function stopRec(){
             processing=false;
             fabIcon.textContent='mic';
             updateResidual();
+            fitDrawer();
           },700);
         },800);
       }
