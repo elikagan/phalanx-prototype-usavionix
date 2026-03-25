@@ -51,7 +51,7 @@ body{height:100%;overflow:hidden;position:fixed;inset:0;font-family:var(--sans);
 .bottom-grad{position:fixed;bottom:0;left:0;right:0;height:42%;background:linear-gradient(to top,#000 0%,rgba(0,0,0,.95) 25%,rgba(0,0,0,.55) 60%,transparent 100%);pointer-events:none;z-index:10}
 
 /* ═══════ RESIDUAL MESSAGES ═══════ */
-.residual{position:fixed;bottom:max(100px,calc(env(safe-area-inset-bottom) + 76px));left:0;right:90px;z-index:15;padding:0 14px}
+.residual{position:fixed;bottom:max(20px,env(safe-area-inset-bottom));left:0;right:90px;z-index:15;padding:0 14px}
 .r-msg{padding:7px 0;border-top:1px solid rgba(255,255,255,.06);font-size:13px;line-height:1.4;display:flex;align-items:flex-start;gap:5px;max-width:80%}
 .r-msg:first-child{border-top:none;padding-top:4px}
 .r-msg.sara-r{color:rgba(255,255,255,.92)}
