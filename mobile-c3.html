@@ -323,7 +323,7 @@ function updateResidual(){
   }).join('')+'<div class="r-bottom"></div>';
 }
 
-// ═══════ DRAWER SIZING — auto-fit to latest 2 items ═══════
+// ═══════ DRAWER SIZING — hug content, never crop ═══════
 function fitDrawer(){
   const drawer=document.getElementById('drawer');
   const handle=document.querySelector('.drawer-handle-area');
@@ -333,32 +333,25 @@ function fitDrawer(){
 
   const chromeH=(handle?handle.offsetHeight:0)+(bottom?bottom.offsetHeight:0);
   const chatMsgs=[...chatEl.querySelectorAll('.ch-msg')];
-  const txOpen=txArea.classList.contains('on');
   const isHistoryMode=fab.classList.contains('close-mode');
 
   let contentH=0;
 
   if(isHistoryMode){
-    // History mode — show all, scrollable, cap at 50vh
+    // History mode — show all messages, scrollable, capped
     contentH=chatEl.scrollHeight;
-  } else if(txOpen){
-    // Recording/responding — TX area is the primary content
-    // Show TX + latest 1 chat message above it
-    contentH+=txArea.scrollHeight;
-    if(chatMsgs.length>0){
-      contentH+=chatMsgs[chatMsgs.length-1].offsetHeight+2;
-    }
-  } else {
-    // Just showing latest 2 chat messages
-    const show=chatMsgs.slice(-2);
-    show.forEach(m=>{contentH+=m.offsetHeight+2});
+    const maxH=Math.min(chromeH+contentH+16, window.innerHeight*0.5);
+    drawer.style.maxHeight=maxH+'px';
+    return;
   }
 
-  contentH+=16; // padding
+  // Normal mode — show exactly the latest 2 complete messages
+  // Never crop. Hug the content.
+  const show=chatMsgs.slice(-2);
+  show.forEach(m=>{ contentH+=m.offsetHeight+2; });
 
-  const targetH=chromeH+contentH;
-  const cap=isHistoryMode?window.innerHeight*0.5:window.innerHeight*0.45;
-  const maxH=Math.min(targetH,cap);
+  contentH+=16; // padding
+  const maxH=chromeH+contentH;
   drawer.style.maxHeight=maxH+'px';
 }
 
@@ -372,19 +365,16 @@ function openDrawer(forRecording){
   renderChat();
   document.body.classList.add('drawer-open');
   const drawer=document.getElementById('drawer');
-  if(forRecording){
-    // Set generous fixed height for the entire exchange — no resizing during
-    drawer.style.maxHeight='40vh';
-  }
+  // Don't set a fixed height — let fitDrawer handle it
   drawer.classList.add('open');
   document.getElementById('scrim').classList.add('on');
   document.getElementById('residual').style.pointerEvents='none';
   if(!forRecording){
     fab.classList.add('close-mode');
     fabIcon.textContent='close';
-    requestAnimationFrame(fitDrawer);
   }
   requestAnimationFrame(()=>{
+    fitDrawer();
     document.getElementById('chatHistory').scrollTop=document.getElementById('chatHistory').scrollHeight;
   });
 }
@@ -449,6 +439,9 @@ function startRec(){
   document.getElementById('saraLive').classList.remove('on');
   document.getElementById('saraLiveText').innerHTML='';
   document.getElementById('waveform').classList.remove('off');
+
+  // Let drawer grow freely during recording — no max-height constraint
+  document.getElementById('drawer').style.maxHeight='45vh';
 
   // Scroll chat history to bottom so last SARA message is visible above TX
   setTimeout(()=>{
