@@ -166,8 +166,9 @@ body.drawer-open .bottom-grad{opacity:0}
 .ch-msg.user .ch-text{font-size:13px;line-height:1.5;color:rgba(255,255,255,.45)}
 
 /* ═══════ TRANSCRIPTION AREA ═══════ */
-.tx-area{flex-shrink:0;padding:0 16px;border-top:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02);max-height:0;overflow:hidden;transition:max-height .8s cubic-bezier(.32,.72,0,1),padding .8s cubic-bezier(.32,.72,0,1)}
-.tx-area.on{max-height:300px;padding:14px 16px}
+.tx-area{flex-shrink:0;padding:14px 16px;border-top:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02);transform:translateY(100%);opacity:0;height:0;overflow:hidden;transition:transform .6s cubic-bezier(.32,.72,0,1),opacity .3s ease,height .6s cubic-bezier(.32,.72,0,1)}
+.tx-area.on{transform:translateY(0);opacity:1;height:auto;overflow:visible}
+.tx-area.slide-up{transform:translateY(-100%);opacity:0;height:0;overflow:hidden}
 
 .waveform{display:flex;align-items:center;justify-content:center;gap:2px;height:28px;margin-bottom:10px;transition:opacity .3s,height .3s}
 .waveform span{width:3px;border-radius:1px;background:var(--red);animation:wave .7s ease-in-out infinite}
@@ -348,7 +349,7 @@ function closeDrawer(){
   document.body.classList.remove('drawer-open');
   document.getElementById('drawer').classList.remove('open');
   document.getElementById('scrim').classList.remove('on');
-  document.getElementById('txArea').classList.remove('on');
+  document.getElementById('txArea').classList.remove('on','slide-up');
   document.getElementById('txText').innerHTML='';
   document.getElementById('srText').innerHTML='';
   document.getElementById('sr').classList.remove('on');
@@ -489,12 +490,13 @@ function stopRec(){
           // Render chat history (behind TX area, not visible yet)
           renderChat();
 
-          // Slide TX closed — chat history is already populated underneath
+          // Slide TX upward into chat history
           const txArea=document.getElementById('txArea');
-          txArea.classList.remove('on');
+          txArea.classList.add('slide-up');
 
-          // After slide completes, clean up TX internals
+          // After slide completes, reset TX for next use
           setTimeout(()=>{
+            txArea.classList.remove('on','slide-up');
             tt.innerHTML='';tt.classList.remove('to-chat');
             saraText.innerHTML='';
             saraLive.classList.remove('on');
@@ -507,7 +509,7 @@ function stopRec(){
             processing=false;
             fabIcon.textContent='mic';
             updateResidual();
-          },900);
+          },700);
         },800);
       }
     },120);
