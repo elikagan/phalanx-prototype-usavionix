@@ -137,6 +137,8 @@ body.drawer-open .bottom-grad{opacity:0}
   /* DEPTH */
   box-shadow:0 -8px 40px rgba(0,0,0,.8),0 -1px 0 rgba(255,255,255,.05);
 }
+/* Solid black backdrop behind rounded corners */
+.drawer::before{content:'';position:absolute;bottom:0;left:0;right:0;height:100%;background:#000;z-index:-1;border-radius:0}
 .drawer.open{transform:translateY(0)}
 
 /* Handle */
