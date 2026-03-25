@@ -165,7 +165,6 @@ body{height:100%;overflow:hidden;position:fixed;inset:0;font-family:var(--sans);
 /* ═══════ TRANSCRIPTION AREA ═══════ */
 .tx-area{flex-shrink:0;padding:14px 16px;border-top:1px solid rgba(255,255,255,.06);display:none;background:rgba(255,255,255,.02)}
 .tx-area.on{display:block}
-.tx-area.migrating{transform:translateY(-12px);opacity:0;transition:all .4s cubic-bezier(.32,.72,0,1)}
 
 .waveform{display:flex;align-items:center;justify-content:center;gap:2px;height:28px;margin-bottom:10px}
 .waveform span{width:3px;border-radius:1px;background:var(--red);animation:wave .7s ease-in-out infinite}
@@ -456,32 +455,36 @@ function stopRec(){
         clearInterval(timer);
         // Map action fires immediately (visual feedback)
         if(typeof execMapAction==='function') execMapAction(exchanges[demoIdx].mapAction);
-        demoIdx++;
-        fabIcon.textContent='mic';
 
-        // Smooth migration: animate TX area up/fade, THEN commit to chat history
+        // Smooth transition: fade out TX area, THEN commit to chat history
+        const txArea=document.getElementById('txArea');
+        txArea.style.transition='opacity .4s ease, transform .4s ease';
+        txArea.style.opacity='0';
+        txArea.style.transform='translateY(-10px)';
+
         setTimeout(()=>{
-          const txEl=document.getElementById('txArea');
-          txEl.classList.add('migrating');
-          setTimeout(()=>{
-            // Now safe to update DOM — animation masks the change
-            msgs.push({r:'user',t:uW.join(' ')});
-            msgs.push({r:'sara',t:sW.join(' ')});
-            renderChat();
-            // Reset TX area (hidden, so no visual jump)
-            txEl.classList.remove('on','migrating');
-            txEl.style.transform='';txEl.style.opacity='';
-            document.getElementById('txText').innerHTML='';
-            document.getElementById('txText').classList.remove('dim');
-            document.getElementById('srText').innerHTML='';
-            document.getElementById('sr').classList.remove('on');
-            document.getElementById('scan').classList.remove('on');
-            document.getElementById('scan').innerHTML='<div class="bar"></div>';
-            document.getElementById('waveform').classList.remove('off');
-            processing=false;
-            // Drawer stays open — user closes it manually
-          },450); // matches CSS transition duration
-        },800); // brief pause after SARA finishes
+          // Now commit both messages to history
+          msgs.push({r:'user',t:uW.join(' ')});
+          msgs.push({r:'sara',t:sW.join(' ')});
+          renderChat();
+          // Reset TX area (hidden, ready for next use)
+          txArea.classList.remove('on');
+          txArea.style.opacity='';
+          txArea.style.transform='';
+          txArea.style.transition='';
+          tt.innerHTML='';tt.classList.remove('dim');
+          st.innerHTML='';
+          document.getElementById('sr').classList.remove('on');
+          document.getElementById('scan').classList.remove('on');
+          document.getElementById('scan').innerHTML='<div class="bar"></div>';
+          document.getElementById('waveform').classList.remove('off');
+
+          demoIdx++;
+          processing=false;
+          fabIcon.textContent='mic';
+          updateResidual();
+          // Drawer stays open — user closes it
+        },450);
       }
     },120);
   },1800);
