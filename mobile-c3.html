@@ -469,16 +469,17 @@ function stopRec(){
         // Map action fires immediately (visual feedback)
         if(typeof execMapAction==='function') execMapAction(exchanges[demoIdx].mapAction);
 
-        // Smooth transition: remove .on → CSS animates max-height/opacity to 0
+        // Commit messages to chat history FIRST (so content is there)
+        msgs.push({r:'user',t:uW.join(' ')});
+        msgs.push({r:'sara',t:sW.join(' ')});
+        renderChat();
+
+        // NOW collapse TX area — chat history already has the content
         const txArea=document.getElementById('txArea');
         txArea.classList.remove('on');
 
-        // Wait for CSS transition to finish (400ms), then commit to history
+        // After transition, clean up TX area internals
         setTimeout(()=>{
-          msgs.push({r:'user',t:uW.join(' ')});
-          msgs.push({r:'sara',t:sW.join(' ')});
-          renderChat();
-          // Reset TX area contents for next use
           tt.innerHTML='';tt.classList.remove('dim');
           st.innerHTML='';
           document.getElementById('sr').classList.remove('on');
