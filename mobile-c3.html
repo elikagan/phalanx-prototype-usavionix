@@ -396,17 +396,20 @@ function startRec(){
   document.getElementById('srText').innerHTML='';
   document.getElementById('waveform').classList.remove('off');
 
-  let wi=0;
-  const tt=document.getElementById('txText');
-  wt=setInterval(()=>{
-    if(wi<uW.length){
-      const s=document.createElement('span');
-      s.className='w';
-      s.textContent=(wi>0?' ':'')+uW[wi];
-      tt.appendChild(s);
-      wi++;
-    } else {clearInterval(wt);wt=null}
-  },200);
+  // Delay word-by-word until drawer is visible (450ms transition)
+  setTimeout(()=>{
+    let wi=0;
+    const tt=document.getElementById('txText');
+    wt=setInterval(()=>{
+      if(wi<uW.length){
+        const s=document.createElement('span');
+        s.className='w';
+        s.textContent=(wi>0?' ':'')+uW[wi];
+        tt.appendChild(s);
+        wi++;
+      } else {clearInterval(wt);wt=null}
+    },220);
+  },500);
 }
 
 function stopRec(){
