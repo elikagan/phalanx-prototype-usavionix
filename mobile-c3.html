@@ -164,45 +164,37 @@ body.drawer-open .bottom-grad{opacity:0}
 .ch-msg.user .ch-role .material-symbols-outlined{font-size:11px}
 .ch-msg.user .ch-text{font-size:13px;line-height:1.5;color:rgba(255,255,255,.45)}
 
-/* ═══════ TRANSCRIPTION AREA ═══════ */
-.tx-area{flex-shrink:0;padding:14px 16px;border-top:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02);transform:translateY(100%);opacity:0;height:0;overflow:hidden;transition:transform .6s cubic-bezier(.32,.72,0,1),opacity .3s ease,height .6s cubic-bezier(.32,.72,0,1)}
-.tx-area.on{transform:translateY(0);opacity:1;height:auto;overflow:visible}
-.tx-area.slide-up{transform:translateY(-100%);opacity:0;height:0;overflow:hidden}
+/* ═══════ LIVE ELEMENTS — inserted into chatHistory during recording ═══════ */
 
-.waveform{display:flex;align-items:center;justify-content:center;gap:2px;height:28px;margin-bottom:10px;transition:opacity .3s,height .3s}
-.waveform span{width:3px;border-radius:1px;background:var(--red);animation:wave .7s ease-in-out infinite}
+/* Slide-in animation for new messages */
+.ch-msg.slide-in{animation:slideIn .35s cubic-bezier(.32,.72,0,1) both}
+@keyframes slideIn{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* Live waveform */
+.live-waveform{display:flex;align-items:center;justify-content:center;gap:2px;height:28px;padding:8px 0;transition:opacity .3s,height .3s}
+.live-waveform span{width:3px;border-radius:1px;background:var(--red);animation:wave .7s ease-in-out infinite}
 @keyframes wave{0%,100%{height:4px}50%{height:22px}}
-.waveform span:nth-child(1){animation-delay:0s}.waveform span:nth-child(2){animation-delay:.08s}
-.waveform span:nth-child(3){animation-delay:.16s}.waveform span:nth-child(4){animation-delay:.04s}
-.waveform span:nth-child(5){animation-delay:.12s}.waveform span:nth-child(6){animation-delay:.2s}
-.waveform span:nth-child(7){animation-delay:.06s}.waveform span:nth-child(8){animation-delay:.14s}
-.waveform span:nth-child(9){animation-delay:.1s}.waveform span:nth-child(10){animation-delay:.18s}
-.waveform span:nth-child(11){animation-delay:.02s}.waveform span:nth-child(12){animation-delay:.15s}
-.waveform span:nth-child(13){animation-delay:.07s}.waveform span:nth-child(14){animation-delay:.13s}
-.waveform span:nth-child(15){animation-delay:.09s}.waveform span:nth-child(16){animation-delay:.17s}
-.waveform.off{opacity:0;height:0;margin:0;overflow:hidden}
-.waveform.off span{animation:none}
-
-.tx-text{font-size:14px;line-height:1.55;color:#fff;min-height:20px;max-width:82%;margin-left:auto;text-align:right;transition:color .4s ease}
-.tx-text .w{display:inline;animation:wordIn .2s ease both}
-@keyframes wordIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
-/* After transcription: text transitions to chat-size user message style */
-.tx-text.to-chat{color:rgba(255,255,255,.45)}
+.live-waveform span:nth-child(1){animation-delay:0s}.live-waveform span:nth-child(2){animation-delay:.08s}
+.live-waveform span:nth-child(3){animation-delay:.16s}.live-waveform span:nth-child(4){animation-delay:.04s}
+.live-waveform span:nth-child(5){animation-delay:.12s}.live-waveform span:nth-child(6){animation-delay:.2s}
+.live-waveform span:nth-child(7){animation-delay:.06s}.live-waveform span:nth-child(8){animation-delay:.14s}
+.live-waveform span:nth-child(9){animation-delay:.1s}.live-waveform span:nth-child(10){animation-delay:.18s}
+.live-waveform span:nth-child(11){animation-delay:.02s}.live-waveform span:nth-child(12){animation-delay:.15s}
+.live-waveform span:nth-child(13){animation-delay:.07s}.live-waveform span:nth-child(14){animation-delay:.13s}
+.live-waveform span:nth-child(15){animation-delay:.09s}.live-waveform span:nth-child(16){animation-delay:.17s}
+.live-waveform.off{opacity:0;height:0;padding:0;overflow:hidden}
 
 /* Scan line */
-.scan{height:2px;margin:8px 0;overflow:hidden;opacity:0;transition:opacity .3s}
-.scan.on{opacity:1}
-.scan .bar{height:100%;width:50px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scanMove 1.2s ease-out forwards}
+.live-scan{height:2px;margin:8px 0;overflow:hidden}
+.live-scan .bar{height:100%;width:50px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scanMove 1.2s ease-out forwards}
 @keyframes scanMove{from{transform:translateX(-50px)}to{transform:translateX(calc(100vw + 50px))}}
 
-/* SARA response — appears in TX area below user text */
-.sara-live{padding-top:10px;border-top:1px solid rgba(255,255,255,.03);margin-top:8px;opacity:0;transition:opacity .3s}
-.sara-live.on{opacity:1}
-.sara-live-label{font-family:var(--mono);font-size:9px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;display:flex;align-items:center;gap:4px}
-.sara-live-label .material-symbols-outlined{font-size:11px}
-.sara-live-text{font-size:14px;line-height:1.55;color:rgba(255,255,255,.92);max-width:82%;transition:font-size .6s ease,color .6s ease}
-.sara-live-text .w{display:inline;animation:wordIn .15s ease both}
-.sara-live-text.to-chat{font-size:13px;color:rgba(255,255,255,.92)}
+/* Word-by-word animation */
+.ch-msg .w{display:inline;animation:wordIn .2s ease both}
+@keyframes wordIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+
+/* Dimmed user text after transcription complete */
+.ch-msg.user.dimmed .ch-text{color:rgba(255,255,255,.35);transition:color .4s ease}
 
 /* Drawer bottom bar — keyboard toggle + spacing for FAB */
 .drawer-bottom{flex-shrink:0;padding:8px 16px;padding-bottom:max(14px,env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,.04);display:flex;align-items:center;background:#0c0c0e}
@@ -246,15 +238,6 @@ body.drawer-open .bottom-grad{opacity:0}
 <div class="drawer" id="drawer">
   <div class="drawer-handle-area" id="handleArea"><div class="drawer-handle"></div></div>
   <div class="chat-history" id="chatHistory"></div>
-  <div class="tx-area" id="txArea">
-    <div class="waveform" id="waveform"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-    <div class="tx-text" id="txText"></div>
-    <div class="scan" id="scan"><div class="bar"></div></div>
-    <div class="sara-live" id="saraLive">
-      <div class="sara-live-label"><span class="material-symbols-outlined">volume_up</span> SARA</div>
-      <div class="sara-live-text" id="saraLiveText"></div>
-    </div>
-  </div>
   <div class="drawer-bottom">
     <div class="kb-btn"><span class="material-symbols-outlined">keyboard</span></div>
   </div>
@@ -300,14 +283,34 @@ const exchanges=[
   },
 ];
 
-// ═══════ RENDER ═══════
-function renderChat(){
-  const el=document.getElementById('chatHistory');
-  el.innerHTML=msgs.map(m=>{
-    if(m.r==='sara') return `<div class="ch-msg sara"><div class="ch-role"><span class="material-symbols-outlined">volume_up</span>SARA</div><div class="ch-text">${m.t}</div></div>`;
-    return `<div class="ch-msg user"><div class="ch-role">YOU<span class="material-symbols-outlined">mic</span></div><div class="ch-text">${m.t}</div></div>`;
-  }).join('');
-  el.scrollTop=el.scrollHeight;
+// ═══════ HELPERS — append messages directly into chatHistory ═══════
+function appendUserMsg(){
+  const el=document.createElement('div');
+  el.className='ch-msg user slide-in';
+  el.innerHTML='<div class="ch-role">YOU<span class="material-symbols-outlined">mic</span></div><div class="ch-text"></div>';
+  document.getElementById('chatHistory').appendChild(el);
+  return el.querySelector('.ch-text');
+}
+function appendSaraMsg(){
+  const el=document.createElement('div');
+  el.className='ch-msg sara slide-in';
+  el.innerHTML='<div class="ch-role"><span class="material-symbols-outlined">volume_up</span>SARA</div><div class="ch-text"></div>';
+  document.getElementById('chatHistory').appendChild(el);
+  return el.querySelector('.ch-text');
+}
+function insertWaveform(){
+  const wf=document.createElement('div');
+  wf.className='live-waveform';wf.id='liveWaveform';
+  const delays=[0,.08,.16,.04,.12,.2,.06,.14,.1,.18,.02,.15,.07,.13,.09,.17];
+  for(let i=0;i<16;i++){const s=document.createElement('span');s.style.animationDelay=delays[i]+'s';wf.appendChild(s);}
+  document.getElementById('chatHistory').appendChild(wf);
+  return wf;
+}
+function insertScanLine(){
+  const sc=document.createElement('div');
+  sc.className='live-scan';sc.innerHTML='<div class="bar"></div>';
+  document.getElementById('chatHistory').appendChild(sc);
+  return sc;
 }
 
 function updateResidual(){
@@ -328,30 +331,35 @@ function fitDrawer(){
   const drawer=document.getElementById('drawer');
   const handle=document.querySelector('.drawer-handle-area');
   const chatEl=document.getElementById('chatHistory');
-  const txArea=document.getElementById('txArea');
   const bottom=document.querySelector('.drawer-bottom');
 
   const chromeH=(handle?handle.offsetHeight:0)+(bottom?bottom.offsetHeight:0);
-  const chatMsgs=[...chatEl.querySelectorAll('.ch-msg')];
   const isHistoryMode=fab.classList.contains('close-mode');
 
   let contentH=0;
 
   if(isHistoryMode){
-    // History mode — show all messages, scrollable, capped
     contentH=chatEl.scrollHeight;
     const maxH=Math.min(chromeH+contentH+16, window.innerHeight*0.5);
     drawer.style.maxHeight=maxH+'px';
     return;
   }
 
-  // Normal mode — show exactly the latest 2 complete messages
-  // Never crop. Hug the content.
-  const show=chatMsgs.slice(-2);
-  show.forEach(m=>{ contentH+=m.offsetHeight+2; });
+  // Normal mode — measure last 2 ch-msg elements + any live elements
+  const msgs_els=chatEl.querySelectorAll('.ch-msg');
+  const lastTwo=[...msgs_els].slice(-2);
 
-  contentH+=16; // padding
-  const maxH=chromeH+contentH;
+  if(lastTwo.length>0){
+    const firstEl=lastTwo[0];
+    const containerTop=chatEl.getBoundingClientRect().top;
+    const firstTop=firstEl.getBoundingClientRect().top;
+    contentH=chatEl.scrollHeight-(firstTop-containerTop+chatEl.scrollTop);
+    const wf=chatEl.querySelector('.live-waveform:not(.off)');
+    if(wf) contentH+=wf.offsetHeight;
+  }
+
+  contentH+=16;
+  const maxH=Math.min(chromeH+contentH, window.innerHeight*0.45);
   drawer.style.maxHeight=maxH+'px';
 }
 
@@ -362,10 +370,8 @@ const fabIcon=document.getElementById('fabIcon');
 function openDrawer(forRecording){
   if(open) return;
   open=true;
-  renderChat();
   document.body.classList.add('drawer-open');
   const drawer=document.getElementById('drawer');
-  // Don't set a fixed height — let fitDrawer handle it
   drawer.classList.add('open');
   document.getElementById('scrim').classList.add('on');
   document.getElementById('residual').style.pointerEvents='none';
@@ -384,12 +390,6 @@ function closeDrawer(){
   document.body.classList.remove('drawer-open');
   document.getElementById('drawer').classList.remove('open');
   document.getElementById('scrim').classList.remove('on');
-  document.getElementById('txArea').classList.remove('on','slide-up');
-  document.getElementById('txText').innerHTML='';
-  document.getElementById('srText').innerHTML='';
-  document.getElementById('sr').classList.remove('on');
-  document.getElementById('scan').classList.remove('on');
-  document.getElementById('waveform').classList.remove('off');
   document.getElementById('residual').style.pointerEvents='auto';
   // Reset FAB
   fab.classList.remove('close-mode','active','processing');
@@ -430,48 +430,32 @@ function startRec(){
   const ex=exchanges[demoIdx];
   const uW=ex.user;
 
-  const a=document.getElementById('txArea');
-  a.classList.add('on');
-  document.getElementById('txText').innerHTML='';
-  document.getElementById('txText').classList.remove('to-chat');
-  document.getElementById('scan').classList.remove('on');
-  document.getElementById('scan').innerHTML='<div class="bar"></div>';
-  document.getElementById('saraLive').classList.remove('on');
-  document.getElementById('saraLiveText').innerHTML='';
-  document.getElementById('waveform').classList.remove('off');
+  // Insert waveform + empty user message directly into chatHistory
+  const wf=insertWaveform();
+  const textEl=appendUserMsg();
 
-  // Start drawer at just TX height — it'll grow as content accumulates
-  // Measure after TX is visible
-  requestAnimationFrame(()=>{
-    const drawer=document.getElementById('drawer');
-    const handle=document.querySelector('.drawer-handle-area');
-    const txA=document.getElementById('txArea');
-    const bottom=document.querySelector('.drawer-bottom');
-    const h=(handle?handle.offsetHeight:0)+(txA.scrollHeight)+(bottom?bottom.offsetHeight:0)+16;
-    drawer.style.maxHeight=Math.min(h,window.innerHeight*0.45)+'px';
-  });
+  // Scroll to bottom
+  const ch=document.getElementById('chatHistory');
+  ch.scrollTop=ch.scrollHeight;
 
-  // Scroll chat history to bottom so last SARA message is visible above TX
+  // Size drawer to fit
+  requestAnimationFrame(fitDrawer);
+
+  // Start word-by-word transcription after brief delay for drawer to open
   setTimeout(()=>{
-    const ch=document.getElementById('chatHistory');
-    ch.scrollTop=ch.scrollHeight;
-  },150);
-
-  // Brief delay for drawer to start opening, then begin transcription
-  setTimeout(()=>{
-    if(!recording) return; // user may have tapped again already
+    if(!recording) return;
     let wi=0;
-    const tt=document.getElementById('txText');
     wt=setInterval(()=>{
       if(wi<uW.length){
         const s=document.createElement('span');
         s.className='w';
         s.textContent=(wi>0?' ':'')+uW[wi];
-        tt.appendChild(s);
+        textEl.appendChild(s);
         wi++;
+        ch.scrollTop=ch.scrollHeight;
       } else {
         clearInterval(wt);wt=null;
-        // Auto-stop after all words transcribed (pause for effect first)
+        // Auto-stop after all words transcribed
         setTimeout(()=>{ if(recording) stopRec(); },600);
       }
     },220);
@@ -487,88 +471,68 @@ function stopRec(){
   const ex=exchanges[demoIdx];
   const uW=ex.user;
   const sW=ex.sara;
+  const ch=document.getElementById('chatHistory');
 
-  // FAB goes to processing state
+  // FAB processing state
   fab.classList.remove('active');
   fab.classList.add('processing');
   fabIcon.textContent='pending';
 
-  // Fill remaining words
-  const tt=document.getElementById('txText');
-  const have=tt.querySelectorAll('.w').length;
+  // Fill remaining user words
+  const userMsgs=ch.querySelectorAll('.ch-msg.user');
+  const lastUserMsg=userMsgs[userMsgs.length-1];
+  const textEl=lastUserMsg.querySelector('.ch-text');
+  const have=textEl.querySelectorAll('.w').length;
   for(let i=have;i<uW.length;i++){
     const s=document.createElement('span');s.className='w';
-    s.textContent=(i>0?' ':'')+uW[i];tt.appendChild(s);
+    s.textContent=(i>0?' ':'')+uW[i];textEl.appendChild(s);
   }
 
-  // 1. Waveform fades out
-  document.getElementById('waveform').classList.add('off');
+  // 1. Fade out waveform
+  const wf=document.getElementById('liveWaveform');
+  if(wf){wf.classList.add('off');setTimeout(()=>wf.remove(),400);}
 
-  // 2. Scan line sweeps
-  setTimeout(()=>{document.getElementById('scan').classList.add('on')},400);
-
-  // 3. After scan: user text shrinks to chat size (stays in place)
+  // 2. Insert scan line
   setTimeout(()=>{
-    tt.classList.add('to-chat');
-    document.getElementById('scan').style.opacity='0';
-  },1200);
+    const scan=insertScanLine();
+    setTimeout(()=>{scan.style.opacity='0';scan.style.transition='opacity .3s';setTimeout(()=>scan.remove(),300);},1400);
+  },400);
 
-  // 4. SARA responds — pre-expand drawer to make room
+  // 3. Dim user text
+  setTimeout(()=>{lastUserMsg.classList.add('dimmed');},800);
+
+  // 4. SARA responds
   setTimeout(()=>{
-    // Grow drawer to accommodate SARA response (estimate ~120px more)
-    const drawer=document.getElementById('drawer');
-    const cur=drawer.offsetHeight;
-    drawer.style.maxHeight=Math.min(cur+120, window.innerHeight*0.45)+'px';
-
     fab.classList.remove('processing');
     fabIcon.textContent='volume_up';
 
-    const saraLive=document.getElementById('saraLive');
-    const saraText=document.getElementById('saraLiveText');
-    saraLive.classList.add('on');
+    const saraTextEl=appendSaraMsg();
+    fitDrawer();
+    ch.scrollTop=ch.scrollHeight;
 
     let si=0;
     const timer=setInterval(()=>{
       if(si<sW.length){
         const s=document.createElement('span');s.className='w';
-        s.textContent=(si>0?' ':'')+sW[si];saraText.appendChild(s);si++;
+        s.textContent=(si>0?' ':'')+sW[si];saraTextEl.appendChild(s);si++;
+        ch.scrollTop=ch.scrollHeight;
       } else {
         clearInterval(timer);
 
-        // 5. Map action
+        // Push to msgs for residual display
+        msgs.push({r:'user',t:uW.join(' ')});
+        msgs.push({r:'sara',t:sW.join(' ')});
+
+        // Map action
         if(typeof execMapAction==='function') execMapAction(exchanges[demoIdx].mapAction);
 
-        // 6. Brief pause, then commit everything to chat history and close TX
-        setTimeout(()=>{
-          // Commit both messages
-          msgs.push({r:'user',t:uW.join(' ')});
-          msgs.push({r:'sara',t:sW.join(' ')});
+        demoIdx++;
+        processing=false;
+        fabIcon.textContent='mic';
 
-          // Render chat history (behind TX area, not visible yet)
-          renderChat();
-
-          // Slide TX upward into chat history
-          const txArea=document.getElementById('txArea');
-          txArea.classList.add('slide-up');
-
-          // After slide completes, reset TX for next use
-          setTimeout(()=>{
-            txArea.classList.remove('on','slide-up');
-            tt.innerHTML='';tt.classList.remove('to-chat');
-            saraText.innerHTML='';
-            saraLive.classList.remove('on');
-            document.getElementById('scan').classList.remove('on');
-            document.getElementById('scan').style.opacity='';
-            document.getElementById('scan').innerHTML='<div class="bar"></div>';
-            document.getElementById('waveform').classList.remove('off');
-
-            demoIdx++;
-            processing=false;
-            fabIcon.textContent='mic';
-            updateResidual();
-            fitDrawer();
-          },700);
-        },800);
+        // Settle drawer to latest 2 messages
+        fitDrawer();
+        updateResidual();
       }
     },120);
   },1800);
@@ -577,10 +541,7 @@ function stopRec(){
 // FAB — PRESS AND HOLD (walkie-talkie)
 // touchstart/mousedown = start recording
 // touchend/mouseup = stop recording
-// click = close drawer if in close-mode
-fab.addEventListener('click',e=>{
-  if(fab.classList.contains('close-mode')) closeDrawer();
-});
+// click = close drawer if in close-mode (handled above)
 fab.addEventListener('touchstart',e=>{
   if(fab.classList.contains('close-mode')) return;
   e.preventDefault();
