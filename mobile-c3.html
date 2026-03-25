@@ -71,7 +71,7 @@ body{height:100%;overflow:hidden;position:fixed;inset:0;font-family:var(--sans);
 
 /* ═══════ FAB — Floating Action Button ═══════ */
 .fab{
-  position:fixed;bottom:max(32px,calc(env(safe-area-inset-bottom) + 8px));right:20px;z-index:110;
+  position:fixed;bottom:max(24px,env(safe-area-inset-bottom));right:20px;z-index:110;
   width:64px;height:64px;border-radius:50%;
   background:linear-gradient(135deg,#3d6b85 0%,#2d5a74 100%);
   border:none;
@@ -127,7 +127,6 @@ body{height:100%;overflow:hidden;position:fixed;inset:0;font-family:var(--sans);
 .drawer{
   position:fixed;bottom:0;left:0;right:0;z-index:90;
   max-height:70vh;
-  height:auto;
   background:#0c0c0e;
   border-top-left-radius:14px;border-top-right-radius:14px;
   transform:translateY(100%);
@@ -143,69 +142,62 @@ body{height:100%;overflow:hidden;position:fixed;inset:0;font-family:var(--sans);
 .drawer-handle-area{padding:10px 0 6px;flex-shrink:0;display:flex;justify-content:center;cursor:grab}
 .drawer-handle{width:32px;height:3px;background:rgba(255,255,255,.18);border-radius:2px}
 
-/* ═══════ UNIFIED CHAT STREAM ═══════ */
-/* One scrollable container for everything — history + live interaction */
-.chat-stream{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 16px 12px;overscroll-behavior:contain}
-.chat-stream::-webkit-scrollbar{display:none}
+/* ═══════ CHAT HISTORY ═══════ */
+.chat-history{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 16px 8px;overscroll-behavior:contain}
+.chat-history::-webkit-scrollbar{display:none}
 
-/* Message bubbles */
+/* Message bubbles with hierarchy */
 .ch-msg{margin-bottom:2px;padding:10px 0;position:relative}
 .ch-msg+.ch-msg{border-top:1px solid rgba(255,255,255,.03)}
 
-/* SARA — left, accent indicator */
+/* SARA — left, accent indicator, max-width so it doesn't stretch full */
 .ch-msg.sara{padding-left:10px;border-left:2px solid rgba(95,143,173,.25);max-width:82%}
 .ch-msg.sara .ch-role{font-family:var(--mono);font-size:9px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;display:flex;align-items:center;gap:4px}
 .ch-msg.sara .ch-role .material-symbols-outlined{font-size:11px}
 .ch-msg.sara .ch-text{font-size:13px;line-height:1.5;color:rgba(255,255,255,.92)}
 
-/* USER — right-aligned */
+/* USER — right-aligned, max-width, pushed to right */
 .ch-msg.user{text-align:right;padding-right:10px;border-right:2px solid rgba(255,255,255,.12);border-left:none;max-width:82%;margin-left:auto}
 .ch-msg.user .ch-role{font-family:var(--mono);font-size:9px;font-weight:600;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:4px}
 .ch-msg.user .ch-role .material-symbols-outlined{font-size:11px}
 .ch-msg.user .ch-text{font-size:13px;line-height:1.5;color:rgba(255,255,255,.45)}
 
-/* ═══════ LIVE ELEMENTS — appended into the stream ═══════ */
-/* Waveform — injected during recording */
-.live-waveform{display:flex;align-items:center;justify-content:center;gap:2px;height:28px;padding:8px 0;animation:fadeIn .2s ease}
-.live-waveform span{width:3px;border-radius:1px;background:var(--red);animation:wave .7s ease-in-out infinite}
+/* ═══════ TRANSCRIPTION AREA ═══════ */
+.tx-area{flex-shrink:0;padding:14px 16px;border-top:1px solid rgba(255,255,255,.06);display:none;background:rgba(255,255,255,.02)}
+.tx-area.on{display:block}
+.tx-area.migrating{transform:translateY(-12px);opacity:0;transition:all .4s cubic-bezier(.32,.72,0,1)}
+
+.waveform{display:flex;align-items:center;justify-content:center;gap:2px;height:28px;margin-bottom:10px}
+.waveform span{width:3px;border-radius:1px;background:var(--red);animation:wave .7s ease-in-out infinite}
 @keyframes wave{0%,100%{height:4px}50%{height:22px}}
-.live-waveform span:nth-child(1){animation-delay:0s}.live-waveform span:nth-child(2){animation-delay:.08s}
-.live-waveform span:nth-child(3){animation-delay:.16s}.live-waveform span:nth-child(4){animation-delay:.04s}
-.live-waveform span:nth-child(5){animation-delay:.12s}.live-waveform span:nth-child(6){animation-delay:.2s}
-.live-waveform span:nth-child(7){animation-delay:.06s}.live-waveform span:nth-child(8){animation-delay:.14s}
-.live-waveform span:nth-child(9){animation-delay:.1s}.live-waveform span:nth-child(10){animation-delay:.18s}
-.live-waveform span:nth-child(11){animation-delay:.02s}.live-waveform span:nth-child(12){animation-delay:.15s}
-.live-waveform span:nth-child(13){animation-delay:.07s}.live-waveform span:nth-child(14){animation-delay:.13s}
-.live-waveform span:nth-child(15){animation-delay:.09s}.live-waveform span:nth-child(16){animation-delay:.17s}
-/* Waveform fade out */
-.live-waveform.off{height:0;padding:0;overflow:hidden;opacity:0;transition:all .4s ease}
-.live-waveform.off span{animation:none;height:0}
+.waveform span:nth-child(1){animation-delay:0s}.waveform span:nth-child(2){animation-delay:.08s}
+.waveform span:nth-child(3){animation-delay:.16s}.waveform span:nth-child(4){animation-delay:.04s}
+.waveform span:nth-child(5){animation-delay:.12s}.waveform span:nth-child(6){animation-delay:.2s}
+.waveform span:nth-child(7){animation-delay:.06s}.waveform span:nth-child(8){animation-delay:.14s}
+.waveform span:nth-child(9){animation-delay:.1s}.waveform span:nth-child(10){animation-delay:.18s}
+.waveform span:nth-child(11){animation-delay:.02s}.waveform span:nth-child(12){animation-delay:.15s}
+.waveform span:nth-child(13){animation-delay:.07s}.waveform span:nth-child(14){animation-delay:.13s}
+.waveform span:nth-child(15){animation-delay:.09s}.waveform span:nth-child(16){animation-delay:.17s}
+.waveform.off span{animation:none;height:3px;background:rgba(255,255,255,.08);transition:all .3s}
 
-/* Live transcription text — appears word by word as user speaks */
-.live-user{padding:10px 0;padding-right:10px;border-right:2px solid rgba(255,255,255,.12);max-width:82%;margin-left:auto;text-align:right}
-.live-user .ch-role{font-family:var(--mono);font-size:9px;font-weight:600;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:4px}
-.live-user .ch-role .material-symbols-outlined{font-size:11px}
-.live-user .ch-text{font-size:13px;line-height:1.5;color:#fff}
-.live-user .ch-text .w{display:inline;animation:wordIn .2s ease both}
+.tx-text{font-size:15px;line-height:1.55;color:#fff;min-height:20px}
+.tx-text .w{display:inline;animation:wordIn .2s ease both}
 @keyframes wordIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
-/* After recording stops, user text dims to match settled state */
-.live-user.settled .ch-text{color:rgba(255,255,255,.45);transition:color .5s ease}
+.tx-text.dim{font-size:13px;color:rgba(255,255,255,.35);transition:all .4s}
 
-/* Scan line — sits between user msg and SARA response */
-.live-scan{height:2px;margin:8px 0;overflow:hidden;opacity:0;transition:opacity .3s}
-.live-scan.on{opacity:1}
-.live-scan .bar{height:100%;width:50px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scanMove 1.2s ease-out forwards}
+/* Scan line */
+.scan{height:2px;margin:12px 0;overflow:hidden;opacity:0}
+.scan.on{opacity:1}
+.scan .bar{height:100%;width:50px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scanMove 1.2s ease-out forwards}
 @keyframes scanMove{from{transform:translateX(-50px)}to{transform:translateX(calc(100vw + 50px))}}
 
-/* Live SARA response — appears word by word */
-.live-sara{padding:10px 0;padding-left:10px;border-left:2px solid rgba(95,143,173,.25);max-width:82%;opacity:0;transition:opacity .3s}
-.live-sara.on{opacity:1}
-.live-sara .ch-role{font-family:var(--mono);font-size:9px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;display:flex;align-items:center;gap:4px}
-.live-sara .ch-role .material-symbols-outlined{font-size:11px}
-.live-sara .ch-text{font-size:13px;line-height:1.5;color:rgba(255,255,255,.92)}
-.live-sara .ch-text .w{display:inline;animation:wordIn .15s ease both}
-
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+/* SARA response */
+.sr{padding-top:8px;opacity:0;transition:opacity .3s}
+.sr.on{opacity:1}
+.sr-label{font-family:var(--mono);font-size:9px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;display:flex;align-items:center;gap:4px}
+.sr-label .material-symbols-outlined{font-size:11px}
+.sr-text{font-size:14px;line-height:1.55;color:rgba(255,255,255,.85)}
+.sr-text .w{display:inline;animation:wordIn .15s ease both}
 
 /* Drawer bottom bar — keyboard toggle + spacing for FAB */
 .drawer-bottom{flex-shrink:0;padding:8px 16px;padding-bottom:max(14px,env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,.04);display:flex;align-items:center;background:#0c0c0e}
@@ -248,7 +240,16 @@ body{height:100%;overflow:hidden;position:fixed;inset:0;font-family:var(--sans);
 <div class="drawer-scrim" id="scrim"></div>
 <div class="drawer" id="drawer">
   <div class="drawer-handle-area" id="handleArea"><div class="drawer-handle"></div></div>
-  <div class="chat-stream" id="chatStream"></div>
+  <div class="chat-history" id="chatHistory"></div>
+  <div class="tx-area" id="txArea">
+    <div class="waveform" id="waveform"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="tx-text" id="txText"></div>
+    <div class="scan" id="scan"><div class="bar"></div></div>
+    <div class="sr" id="sr">
+      <div class="sr-label"><span class="material-symbols-outlined">volume_up</span> SARA</div>
+      <div class="sr-text" id="srText"></div>
+    </div>
+  </div>
   <div class="drawer-bottom">
     <div class="kb-btn"><span class="material-symbols-outlined">keyboard</span></div>
   </div>
@@ -258,12 +259,8 @@ body{height:100%;overflow:hidden;position:fixed;inset:0;font-family:var(--sans);
 // ═══════ STATE ═══════
 let open=false, recording=false, wt=null, demoIdx=0;
 
-// Pre-populated conversation — search is already in progress
-const msgs=[
-  {r:'sara',t:'Drone is airborne. Beginning search pattern over designated zone.'},
-  {r:'user',t:'Copy. Start with the northwest quadrant.'},
-  {r:'sara',t:'Acknowledged. Sweeping northwest quadrant. Altitude 120m, speed 45 km/h.'},
-];
+// Start with empty chat — user builds it up through interactions
+const msgs=[];
 
 // Multiple scripted exchanges — each PTT press plays the next one
 // Intersection of Washington Blvd & Dupont St, Pasadena
@@ -298,32 +295,14 @@ const exchanges=[
   },
 ];
 
-// ═══════ RENDER — append to unified stream ═══════
-const stream=document.getElementById('chatStream');
-
-function appendMsg(role, text){
-  msgs.push({r:role, t:text});
-  const div=document.createElement('div');
-  div.className='ch-msg '+role;
-  if(role==='sara'){
-    div.innerHTML=`<div class="ch-role"><span class="material-symbols-outlined">volume_up</span>SARA</div><div class="ch-text">${text}</div>`;
-  } else {
-    div.innerHTML=`<div class="ch-role">YOU<span class="material-symbols-outlined">mic</span></div><div class="ch-text">${text}</div>`;
-  }
-  stream.appendChild(div);
-  smoothScroll();
-}
-
-function renderAllMsgs(){
-  stream.innerHTML=msgs.map(m=>{
+// ═══════ RENDER ═══════
+function renderChat(){
+  const el=document.getElementById('chatHistory');
+  el.innerHTML=msgs.map(m=>{
     if(m.r==='sara') return `<div class="ch-msg sara"><div class="ch-role"><span class="material-symbols-outlined">volume_up</span>SARA</div><div class="ch-text">${m.t}</div></div>`;
     return `<div class="ch-msg user"><div class="ch-role">YOU<span class="material-symbols-outlined">mic</span></div><div class="ch-text">${m.t}</div></div>`;
   }).join('');
-  smoothScroll();
-}
-
-function smoothScroll(){
-  requestAnimationFrame(()=>{ stream.scrollTo({top:stream.scrollHeight, behavior:'smooth'}); });
+  el.scrollTop=el.scrollHeight;
 }
 
 function updateResidual(){
@@ -346,23 +325,29 @@ const fabIcon=document.getElementById('fabIcon');
 function openDrawer(forRecording){
   if(open) return;
   open=true;
+  renderChat();
   document.getElementById('drawer').classList.add('open');
   document.getElementById('scrim').classList.add('on');
   document.getElementById('residual').style.pointerEvents='none';
   if(!forRecording){
+    // History mode — FAB becomes close button
     fab.classList.add('close-mode');
     fabIcon.textContent='close';
   }
-  setTimeout(()=>smoothScroll(),60);
+  setTimeout(()=>{document.getElementById('chatHistory').scrollTop=document.getElementById('chatHistory').scrollHeight},60);
 }
 function closeDrawer(){
   if(!open) return;
   open=false;
   document.getElementById('drawer').classList.remove('open');
   document.getElementById('scrim').classList.remove('on');
+  document.getElementById('txArea').classList.remove('on');
+  document.getElementById('txText').innerHTML='';
+  document.getElementById('srText').innerHTML='';
+  document.getElementById('sr').classList.remove('on');
+  document.getElementById('scan').classList.remove('on');
+  document.getElementById('waveform').classList.remove('off');
   document.getElementById('residual').style.pointerEvents='auto';
-  // Clean up any live elements left in the stream
-  stream.querySelectorAll('.live-waveform,.live-scan').forEach(el=>el.remove());
   // Reset FAB
   fab.classList.remove('close-mode','active','processing');
   fabIcon.textContent='mic';
@@ -371,13 +356,8 @@ function closeDrawer(){
 
 // Scrim tap closes
 document.getElementById('scrim').addEventListener('click',closeDrawer);
-// Residual tap opens history — make sure stream has all messages rendered
-document.getElementById('residual').addEventListener('click',()=>{
-  if(!open){
-    renderAllMsgs();
-    openDrawer(false);
-  }
-});
+// Residual tap opens history
+document.getElementById('residual').addEventListener('click',()=>{if(!open)openDrawer(false)});
 
 // Swipe down on handle
 let sy=0;
@@ -393,13 +373,11 @@ fab.addEventListener('click',()=>{
 // ═══════ PTT via FAB ═══════
 let processing=false;
 
-// References to live elements (created during recording, live in the stream)
-let liveWaveform=null, liveUser=null, liveUserText=null, liveScan=null, liveSara=null, liveSaraText=null;
-
 function startRec(){
   if(recording||processing||demoIdx>=exchanges.length) return;
   recording=true;
 
+  // FAB goes active (red)
   fab.classList.remove('close-mode');
   fab.classList.add('active');
   fabIcon.textContent='mic';
@@ -409,32 +387,25 @@ function startRec(){
   const ex=exchanges[demoIdx];
   const uW=ex.user;
 
-  // 1. Inject waveform into the stream
-  liveWaveform=document.createElement('div');
-  liveWaveform.className='live-waveform';
-  for(let i=0;i<16;i++){const s=document.createElement('span');liveWaveform.appendChild(s);}
-  stream.appendChild(liveWaveform);
+  const a=document.getElementById('txArea');
+  a.classList.add('on');
+  document.getElementById('txText').innerHTML='';
+  document.getElementById('txText').classList.remove('dim');
+  document.getElementById('scan').classList.remove('on');
+  document.getElementById('scan').innerHTML='<div class="bar"></div>';
+  document.getElementById('sr').classList.remove('on');
+  document.getElementById('srText').innerHTML='';
+  document.getElementById('waveform').classList.remove('off');
 
-  // 2. Inject live user message container
-  liveUser=document.createElement('div');
-  liveUser.className='live-user';
-  liveUser.innerHTML='<div class="ch-role">YOU<span class="material-symbols-outlined">mic</span></div>';
-  liveUserText=document.createElement('div');
-  liveUserText.className='ch-text';
-  liveUser.appendChild(liveUserText);
-  stream.appendChild(liveUser);
-  smoothScroll();
-
-  // 3. Transcribe words into the live user element
   let wi=0;
+  const tt=document.getElementById('txText');
   wt=setInterval(()=>{
     if(wi<uW.length){
       const s=document.createElement('span');
       s.className='w';
       s.textContent=(wi>0?' ':'')+uW[wi];
-      liveUserText.appendChild(s);
+      tt.appendChild(s);
       wi++;
-      smoothScroll();
     } else {clearInterval(wt);wt=null}
   },200);
 }
@@ -449,79 +420,68 @@ function stopRec(){
   const uW=ex.user;
   const sW=ex.sara;
 
+  // FAB goes to processing state
   fab.classList.remove('active');
   fab.classList.add('processing');
   fabIcon.textContent='pending';
 
-  // Fill remaining words instantly
-  const have=liveUserText.querySelectorAll('.w').length;
+  // Fill remaining words
+  const tt=document.getElementById('txText');
+  const have=tt.querySelectorAll('.w').length;
   for(let i=have;i<uW.length;i++){
     const s=document.createElement('span');s.className='w';
-    s.textContent=(i>0?' ':'')+uW[i];liveUserText.appendChild(s);
+    s.textContent=(i>0?' ':'')+uW[i];tt.appendChild(s);
   }
 
-  // Fade out waveform
-  liveWaveform.classList.add('off');
+  document.getElementById('waveform').classList.add('off');
 
-  // After waveform collapses, settle user text + show scan
-  setTimeout(()=>{
-    // Remove waveform from DOM cleanly after fade
-    if(liveWaveform.parentNode) liveWaveform.remove();
-
-    // Settle user text (dim it)
-    liveUser.classList.add('settled');
-    // Record user message
-    msgs.push({r:'user',t:uW.join(' ')});
-
-    // Inject scan line
-    liveScan=document.createElement('div');
-    liveScan.className='live-scan';
-    liveScan.innerHTML='<div class="bar"></div>';
-    stream.appendChild(liveScan);
-    requestAnimationFrame(()=>liveScan.classList.add('on'));
-    smoothScroll();
-  },400);
-
+  // Scan
+  setTimeout(()=>{document.getElementById('scan').classList.add('on')},400);
+  // Dim
+  setTimeout(()=>{tt.classList.add('dim')},700);
   // SARA responds
   setTimeout(()=>{
+    // FAB shows speaker icon while SARA talks
     fab.classList.remove('processing');
     fabIcon.textContent='volume_up';
 
-    // Remove scan line
-    if(liveScan&&liveScan.parentNode) liveScan.remove();
-
-    // Inject live SARA response
-    liveSara=document.createElement('div');
-    liveSara.className='live-sara';
-    liveSara.innerHTML='<div class="ch-role"><span class="material-symbols-outlined">volume_up</span>SARA</div>';
-    liveSaraText=document.createElement('div');
-    liveSaraText.className='ch-text';
-    liveSara.appendChild(liveSaraText);
-    stream.appendChild(liveSara);
-    requestAnimationFrame(()=>liveSara.classList.add('on'));
-    smoothScroll();
-
-    // Word by word
+    document.getElementById('sr').classList.add('on');
+    const st=document.getElementById('srText');
     let si=0;
     const timer=setInterval(()=>{
       if(si<sW.length){
         const s=document.createElement('span');s.className='w';
-        s.textContent=(si>0?' ':'')+sW[si];liveSaraText.appendChild(s);si++;
-        smoothScroll();
+        s.textContent=(si>0?' ':'')+sW[si];st.appendChild(s);si++;
       } else {
         clearInterval(timer);
-        msgs.push({r:'sara',t:sW.join(' ')});
-
-        // Convert live elements to settled chat messages (no DOM thrash — just restyle)
-        liveUser.className='ch-msg user';
-        liveSara.className='ch-msg sara';
-
-        // Map action
+        // Map action fires immediately (visual feedback)
         if(typeof execMapAction==='function') execMapAction(exchanges[demoIdx].mapAction);
         demoIdx++;
-        processing=false;
         fabIcon.textContent='mic';
-        // Drawer stays open
+
+        // Smooth migration: animate TX area up/fade, THEN commit to chat history
+        setTimeout(()=>{
+          const txEl=document.getElementById('txArea');
+          txEl.classList.add('migrating');
+          setTimeout(()=>{
+            // Now safe to update DOM — animation masks the change
+            msgs.push({r:'user',t:uW.join(' ')});
+            msgs.push({r:'sara',t:sW.join(' ')});
+            renderChat();
+            // Reset TX area (hidden, so no visual jump)
+            txEl.classList.remove('on','migrating');
+            txEl.style.transform='';txEl.style.opacity='';
+            document.getElementById('txText').innerHTML='';
+            document.getElementById('txText').classList.remove('dim');
+            document.getElementById('srText').innerHTML='';
+            document.getElementById('sr').classList.remove('on');
+            document.getElementById('scan').classList.remove('on');
+            document.getElementById('scan').innerHTML='<div class="bar"></div>';
+            document.getElementById('waveform').classList.remove('off');
+            processing=false;
+            // Drawer stays open — user closes it manually
+          },450); // matches CSS transition duration
+        },800); // brief pause after SARA finishes
       }
     },120);
   },1800);
