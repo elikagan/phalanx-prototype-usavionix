@@ -49,6 +49,52 @@ body.drawer-open #map{transform:translateY(calc(var(--drawer-h) / -2))}
 .pause-btn{position:fixed;top:42px;right:14px;z-index:20;padding:4px 8px;border-radius:4px;font-family:var(--mono);font-size:9px;font-weight:500;border:1px solid rgba(184,84,84,.25);background:rgba(0,0,0,.5);color:var(--red);display:flex;align-items:center;gap:3px;pointer-events:auto}
 .pause-btn .material-symbols-outlined{font-size:12px}
 
+/* ═══════ VIEW TOGGLE THUMBNAIL ═══════ */
+.view-thumb{
+  position:fixed;top:42px;left:14px;z-index:20;
+  width:80px;height:56px;border-radius:6px;
+  overflow:hidden;cursor:pointer;
+  border:1.5px solid rgba(255,255,255,.15);
+  box-shadow:0 2px 12px rgba(0,0,0,.5);
+  transition:transform .2s ease,box-shadow .2s ease;
+}
+.view-thumb:active{transform:scale(.95)}
+.view-thumb img,.view-thumb .thumb-map{width:100%;height:100%;object-fit:cover;display:block}
+.view-thumb .thumb-map{background:#1a1a1a url('satellite.png') center/cover no-repeat}
+.view-thumb .thumb-label{
+  position:absolute;bottom:3px;left:5px;
+  font-family:var(--mono);font-size:7px;font-weight:600;
+  color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.04em;
+  text-shadow:0 1px 3px rgba(0,0,0,.8);
+}
+
+/* FPV fullscreen overlay — hidden by default */
+.fpv-view{
+  position:fixed;inset:0;z-index:1;
+  background:#0a0a0a url('aerial.jpg') center/cover no-repeat;
+  display:none;
+}
+.fpv-view.active{display:block}
+.fpv-scanlines{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 4px);pointer-events:none}
+.fpv-hud{position:absolute;top:50px;left:14px;right:14px;bottom:50px;border:1px solid rgba(255,255,255,.04);pointer-events:none}
+.fpv-hud .hud-corner{position:absolute;width:14px;height:14px;border-color:rgba(255,255,255,.18);border-style:solid}
+.fpv-hud .hud-tl{top:0;left:0;border-width:2px 0 0 2px}
+.fpv-hud .hud-tr{top:0;right:0;border-width:2px 2px 0 0}
+.fpv-hud .hud-bl{bottom:0;left:0;border-width:0 0 2px 2px}
+.fpv-hud .hud-br{bottom:0;right:0;border-width:0 2px 2px 0}
+.fpv-crosshair{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);width:28px;height:28px;pointer-events:none}
+.fpv-crosshair::before,.fpv-crosshair::after{content:'';position:absolute;background:rgba(255,255,255,.1)}
+.fpv-crosshair::before{width:1px;height:100%;left:50%}
+.fpv-crosshair::after{height:1px;width:100%;top:50%}
+.hud-text{position:absolute;font-family:var(--mono);font-size:9px;font-weight:500;color:rgba(255,255,255,.45);letter-spacing:.5px;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+.hud-text-tl{top:56px;left:20px}
+.hud-text-tr{top:56px;right:20px;text-align:right}
+.hud-text-bl{bottom:56px;left:20px}
+.hud-text-br{bottom:56px;right:20px;text-align:right}
+
+/* Map also transitions when FPV is active */
+.fpv-view.active ~ #map{pointer-events:none}
+
 /* ═══════ BOTTOM GRADIENT ═══════ */
 .bottom-grad{position:fixed;bottom:0;left:0;right:0;height:30%;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,rgba(0,0,0,.4) 50%,transparent 100%);pointer-events:none;z-index:10;transition:opacity .4s ease}
 body.drawer-open .bottom-grad{opacity:0}
@@ -224,10 +270,30 @@ body.drawer-open .sara-toast{opacity:0;pointer-events:none;transform:translateY(
 </head>
 <body>
 
+<!-- FPV VIEW — fullscreen drone camera, hidden by default -->
+<div class="fpv-view" id="fpvView">
+  <div class="fpv-scanlines"></div>
+  <div class="fpv-crosshair"></div>
+  <div class="fpv-hud">
+    <div class="hud-corner hud-tl"></div><div class="hud-corner hud-tr"></div>
+    <div class="hud-corner hud-bl"></div><div class="hud-corner hud-br"></div>
+  </div>
+  <div class="hud-text hud-text-tl">ALT 120m · SPD 45 km/h</div>
+  <div class="hud-text hud-text-tr">HEADING 247° NW</div>
+  <div class="hud-text hud-text-bl">REC · 00:04:23</div>
+  <div class="hud-text hud-text-br">DSA-128 · SEARCHING</div>
+</div>
+
 <!-- MAP — Leaflet satellite, full screen, real pinch/zoom/pan -->
 <div id="map"></div>
 <div class="map-scan"></div>
 <div class="crosshair"></div>
+
+<!-- VIEW TOGGLE THUMBNAIL -->
+<div class="view-thumb" id="viewThumb" onclick="toggleView()">
+  <img src="aerial.jpg" id="thumbImg" alt="FPV">
+  <div class="thumb-label" id="thumbLabel">FPV</div>
+</div>
 
 <!-- TOP -->
 <div class="top-grad"></div>
@@ -282,6 +348,36 @@ const msgs=[];
 // Intersection of Washington Blvd & Dupont St, Pasadena
 const WASHINGTON_DUPONT = [34.1502, -118.1398];
 const DRONE_START = [34.1478, -118.1445];
+
+// ═══════ VIEW TOGGLE — MAP ↔ FPV ═══════
+let isFpv=false;
+function toggleView(){
+  isFpv=!isFpv;
+  const fpv=document.getElementById('fpvView');
+  const mapEl=document.getElementById('map');
+  const scan=document.querySelector('.map-scan');
+  const cross=document.querySelector('.crosshair');
+  const thumb=document.getElementById('thumbImg');
+  const label=document.getElementById('thumbLabel');
+
+  if(isFpv){
+    fpv.classList.add('active');
+    mapEl.style.opacity='0';
+    scan.style.opacity='0';
+    cross.style.opacity='0';
+    // Thumbnail shows map
+    thumb.src='satellite.png';
+    label.textContent='MAP';
+  } else {
+    fpv.classList.remove('active');
+    mapEl.style.opacity='1';
+    scan.style.opacity='1';
+    cross.style.opacity='1';
+    // Thumbnail shows FPV
+    thumb.src='aerial.jpg';
+    label.textContent='FPV';
+  }
+}
 
 const exchanges=[
   {
