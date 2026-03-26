@@ -51,24 +51,40 @@ body{height:100%;overflow:hidden;position:fixed;inset:0;font-family:var(--sans);
 .bottom-grad{position:fixed;bottom:0;left:0;right:0;height:30%;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,rgba(0,0,0,.4) 50%,transparent 100%);pointer-events:none;z-index:10;transition:opacity .4s ease}
 body.drawer-open .bottom-grad{opacity:0}
 
-/* ═══════ RESIDUAL MESSAGES ═══════ */
-.residual{position:fixed;bottom:max(80px,calc(env(safe-area-inset-bottom) + 56px));left:0;right:0;z-index:15;padding:0 14px}
-.r-msg{padding:7px 0;border-top:1px solid rgba(255,255,255,.06);font-size:13px;line-height:1.4;display:flex;align-items:flex-start;gap:5px;max-width:80%}
-.r-msg:first-child{border-top:none;padding-top:4px}
-.r-msg.sara-r{color:rgba(255,255,255,.92)}
-.r-msg.user-r{flex-direction:row-reverse;margin-left:auto;text-align:right;color:rgba(255,255,255,.4)}
-.r-msg.op100.sara-r{color:rgba(255,255,255,.92)}
-.r-msg.op100.user-r{color:rgba(255,255,255,.4)}
-.r-msg.op50.sara-r{color:rgba(255,255,255,.45)}
-.r-msg.op50.user-r{color:rgba(255,255,255,.2)}
-.r-msg.op20{max-height:20px;overflow:hidden}
-.r-msg.op20.sara-r{color:rgba(255,255,255,.18)}
-.r-msg.op20.user-r{color:rgba(255,255,255,.1)}
-.r-msg .ico{font-size:11px;flex-shrink:0;margin-top:2px}
-.r-msg .ico.sara-ico{color:rgba(95,143,173,.5)}
-.r-msg .ico.user-ico{color:rgba(255,255,255,.15)}
-.r-msg .r-text{flex:1;min-width:0}
-.r-bottom{border-top:1px solid rgba(255,255,255,.08);margin-top:2px;padding-bottom:4px}
+/* ═══════ BOTTOM DRAG HANDLE — centered pill, pull up to open drawer ═══════ */
+.drag-bar{
+  position:fixed;bottom:max(12px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:15;
+  width:48px;height:5px;border-radius:3px;background:rgba(255,255,255,.2);
+  cursor:grab;touch-action:none;
+  transition:opacity .3s;
+}
+body.drawer-open .drag-bar{opacity:0;pointer-events:none}
+
+/* ═══════ SARA TOAST — appears above buttons when drawer is closed ═══════ */
+.sara-toast{
+  position:fixed;
+  bottom:max(90px,calc(env(safe-area-inset-bottom) + 66px));
+  left:16px;right:16px;z-index:15;
+  background:rgba(12,12,14,.92);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid rgba(95,143,173,.15);
+  border-left:2px solid rgba(95,143,173,.3);
+  border-radius:8px;
+  padding:10px 14px;
+  font-size:13px;line-height:1.45;color:rgba(255,255,255,.85);
+  cursor:pointer;
+  transform:translateY(20px);opacity:0;
+  transition:transform .4s cubic-bezier(.32,.72,0,1),opacity .4s ease;
+  pointer-events:none;
+}
+.sara-toast.visible{transform:translateY(0);opacity:1;pointer-events:auto}
+.sara-toast .toast-label{
+  font-family:var(--mono);font-size:9px;font-weight:600;color:var(--accent);
+  text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;
+  display:flex;align-items:center;gap:4px;
+}
+.sara-toast .toast-label .material-symbols-outlined{font-size:11px}
+body.drawer-open .sara-toast{opacity:0;pointer-events:none;transform:translateY(20px)}
 
 /* ═══════ FAB — Floating Action Button ═══════ */
 .fab{
@@ -225,8 +241,14 @@ body.drawer-open .bottom-grad{opacity:0}
 <!-- BOTTOM -->
 <div class="bottom-grad"></div>
 
-<!-- RESIDUAL -->
-<div class="residual" id="residual"></div>
+<!-- DRAG BAR — pull up to open drawer -->
+<div class="drag-bar" id="dragBar"></div>
+
+<!-- SARA TOAST — last SARA message when drawer is closed -->
+<div class="sara-toast" id="saraToast">
+  <div class="toast-label"><span class="material-symbols-outlined">volume_up</span> SARA</div>
+  <div id="toastText"></div>
+</div>
 
 <!-- BOTTOM CONTROLS — always visible -->
 <div class="bottom-controls">
@@ -313,17 +335,14 @@ function insertScanLine(){
   return sc;
 }
 
-function updateResidual(){
-  const el=document.getElementById('residual');
-  const last3=msgs.slice(-3);
-  const ops=['op20','op50','op100'];
-  el.innerHTML=last3.map((m,i)=>{
-    const side=m.r==='sara'?'sara-r':'user-r';
-    const ic=m.r==='sara'
-      ?'<span class="material-symbols-outlined ico sara-ico">volume_up</span>'
-      :'<span class="material-symbols-outlined ico user-ico">mic</span>';
-    return `<div class="r-msg ${ops[i]} ${side}">${ic}<span class="r-text">${m.t}</span></div>`;
-  }).join('')+'<div class="r-bottom"></div>';
+// Show the latest SARA message as a toast when drawer is closed
+function showToast(text){
+  const toast=document.getElementById('saraToast');
+  document.getElementById('toastText').textContent=text;
+  toast.classList.add('visible');
+}
+function hideToast(){
+  document.getElementById('saraToast').classList.remove('visible');
 }
 
 // ═══════ FAB + DRAWER ═══════
@@ -336,7 +355,7 @@ function openDrawer(forRecording){
   document.body.classList.add('drawer-open');
   document.getElementById('drawer').classList.add('open');
   document.getElementById('scrim').classList.add('on');
-  document.getElementById('residual').style.pointerEvents='none';
+  hideToast();
   if(!forRecording){
     fab.classList.add('close-mode');
     fabIcon.textContent='close';
@@ -353,17 +372,28 @@ function closeDrawer(){
   document.body.classList.remove('drawer-open');
   document.getElementById('drawer').classList.remove('open');
   document.getElementById('scrim').classList.remove('on');
-  document.getElementById('residual').style.pointerEvents='auto';
   // Reset FAB
   fab.classList.remove('close-mode','active','processing');
   fabIcon.textContent='mic';
-  updateResidual();
+  // Show toast with latest SARA message
+  const saraMsgs=msgs.filter(m=>m.r==='sara');
+  if(saraMsgs.length>0) showToast(saraMsgs[saraMsgs.length-1].t);
 }
 
 // Scrim tap closes
 document.getElementById('scrim').addEventListener('click',closeDrawer);
-// Residual tap opens history
-document.getElementById('residual').addEventListener('click',()=>{if(!open)openDrawer(false)});
+// Toast tap opens history
+document.getElementById('saraToast').addEventListener('click',()=>{if(!open)openDrawer(false)});
+// Keyboard button opens drawer
+document.querySelector('.bottom-controls .btn-icon').addEventListener('click',()=>{if(!open)openDrawer(false)});
+
+// Drag bar — pull up gesture to open drawer
+const dragBar=document.getElementById('dragBar');
+let dragStartY=0;
+dragBar.addEventListener('touchstart',e=>{dragStartY=e.touches[0].clientY},{passive:true});
+dragBar.addEventListener('touchmove',e=>{
+  if(dragStartY-e.touches[0].clientY>40 && !open) openDrawer(false);
+},{passive:true});
 
 // Swipe down on handle
 let sy=0;
@@ -494,7 +524,6 @@ async function stopRec(){
   demoIdx++;
   processing=false;
   fabIcon.textContent='mic';
-  updateResidual();
 }
 
 // FAB — PRESS AND HOLD (walkie-talkie)
@@ -523,7 +552,6 @@ fab.addEventListener('mouseup',e=>{
 });
 
 // ═══════ INIT ═══════
-updateResidual();
 </script>
 
 <!-- Leaflet JS -->
