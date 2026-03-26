@@ -295,7 +295,7 @@ function appendUserMsg(){
     const delays=[0,.08,.16,.04,.12,.2,.06,.14,.1,.18,.02,.15,.07,.13,.09,.17];
     return `<span style="animation-delay:${delays[i]}s"></span>`;
   }).join('');
-  el.innerHTML=`<div class="live-waveform" id="liveWaveform">${wfHTML}</div><div class="ch-role">YOU<span class="material-symbols-outlined">mic</span></div><div class="ch-text"></div>`;
+  el.innerHTML=`<div class="live-waveform">${wfHTML}</div><div class="ch-role">YOU<span class="material-symbols-outlined">mic</span></div><div class="ch-text"></div>`;
   document.getElementById('chatHistory').appendChild(el);
   return el.querySelector('.ch-text');
 }
@@ -449,7 +449,7 @@ async function stopRec(){
   }
 
   // Step 1: Fade waveform (opacity only — no layout shift)
-  const wf=document.getElementById('liveWaveform');
+  const wf=lastUserMsg.querySelector('.live-waveform');
   if(wf) wf.classList.add('off');
   await wait(350);
 
