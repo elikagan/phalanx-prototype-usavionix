@@ -53,10 +53,14 @@ body.drawer-open .bottom-grad{opacity:0}
 
 /* ═══════ BOTTOM DRAG HANDLE — centered pill, pull up to open drawer ═══════ */
 .drag-bar{
-  position:fixed;bottom:max(12px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:15;
-  width:48px;height:5px;border-radius:3px;background:rgba(255,255,255,.2);
+  position:fixed;bottom:max(6px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:115;
+  width:100px;height:44px;
   cursor:grab;touch-action:none;
   transition:opacity .3s;
+  display:flex;align-items:center;justify-content:center;
+}
+.drag-bar::after{
+  content:'';width:48px;height:5px;border-radius:3px;background:rgba(255,255,255,.35);
 }
 body.drawer-open .drag-bar{opacity:0;pointer-events:none}
 
@@ -212,8 +216,8 @@ body.drawer-open .sara-toast{opacity:0;pointer-events:none;transform:translateY(
 
 /* Bottom controls — always visible, left of FAB */
 .bottom-controls{position:fixed;bottom:max(38px,calc(env(safe-area-inset-bottom) + 14px));left:16px;z-index:110;display:flex;gap:8px}
-.bottom-controls .btn-icon{width:36px;height:36px;border-radius:8px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-.bottom-controls .btn-icon .material-symbols-outlined{font-size:16px;color:rgba(255,255,255,.25)}
+.bottom-controls .btn-icon{width:40px;height:40px;border-radius:10px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.bottom-controls .btn-icon .material-symbols-outlined{font-size:18px;color:rgba(255,255,255,.4)}
 </style>
 </head>
 <body>
