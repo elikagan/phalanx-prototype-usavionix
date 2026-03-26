@@ -364,10 +364,10 @@ function openDrawer(forRecording){
     fab.classList.add('close-mode');
     fabIcon.textContent='close';
   }
-  // Pan map up so action is centered in visible area above drawer
+  // Pan map so action is centered in visible area above drawer
   if(typeof map!=='undefined'){
     const offset=Math.round(window.innerHeight*0.15);
-    map.panBy([0,-offset],{duration:0.4,easeLinearity:0.4});
+    map.panBy([0,offset],{duration:0.4,easeLinearity:0.4});
   }
   // Smooth scroll to bottom after drawer opens
   setTimeout(()=>{
@@ -384,7 +384,7 @@ function closeDrawer(){
   // Pan map back to true center
   if(typeof map!=='undefined'){
     const offset=Math.round(window.innerHeight*0.15);
-    map.panBy([0,offset],{duration:0.4,easeLinearity:0.4});
+    map.panBy([0,-offset],{duration:0.4,easeLinearity:0.4});
   }
   // Reset FAB
   fab.classList.remove('close-mode','active','processing');
