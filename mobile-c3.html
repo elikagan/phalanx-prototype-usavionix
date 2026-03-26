@@ -171,18 +171,14 @@ body.drawer-open .bottom-grad{opacity:0}
 .ch-msg.fade-in{animation:fadeIn .25s ease both}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
-/* Live waveform */
-.live-waveform{display:flex;align-items:center;justify-content:center;gap:2px;height:28px;padding:8px 0;transition:opacity .3s,height .3s}
-.live-waveform span{width:3px;border-radius:1px;background:var(--red);animation:wave .7s ease-in-out infinite}
-@keyframes wave{0%,100%{height:4px}50%{height:22px}}
+/* Live waveform — inline with YOU label, small horizontal bars */
+.live-waveform{display:inline-flex;align-items:center;gap:1.5px;height:12px;margin-right:6px;vertical-align:middle;transition:opacity .3s}
+.live-waveform span{width:2px;border-radius:1px;background:var(--red);animation:wave .7s ease-in-out infinite}
+@keyframes wave{0%,100%{height:3px}50%{height:11px}}
 .live-waveform span:nth-child(1){animation-delay:0s}.live-waveform span:nth-child(2){animation-delay:.08s}
 .live-waveform span:nth-child(3){animation-delay:.16s}.live-waveform span:nth-child(4){animation-delay:.04s}
 .live-waveform span:nth-child(5){animation-delay:.12s}.live-waveform span:nth-child(6){animation-delay:.2s}
 .live-waveform span:nth-child(7){animation-delay:.06s}.live-waveform span:nth-child(8){animation-delay:.14s}
-.live-waveform span:nth-child(9){animation-delay:.1s}.live-waveform span:nth-child(10){animation-delay:.18s}
-.live-waveform span:nth-child(11){animation-delay:.02s}.live-waveform span:nth-child(12){animation-delay:.15s}
-.live-waveform span:nth-child(13){animation-delay:.07s}.live-waveform span:nth-child(14){animation-delay:.13s}
-.live-waveform span:nth-child(15){animation-delay:.09s}.live-waveform span:nth-child(16){animation-delay:.17s}
 .live-waveform.off{opacity:0;pointer-events:none}
 
 /* Scan line */
@@ -291,11 +287,11 @@ function appendUserMsg(){
   const el=document.createElement('div');
   el.className='ch-msg user fade-in';
   // Waveform lives INSIDE the user message — no layout shift when removed
-  const wfHTML = Array.from({length:16}, (_,i) => {
-    const delays=[0,.08,.16,.04,.12,.2,.06,.14,.1,.18,.02,.15,.07,.13,.09,.17];
+  const wfHTML = Array.from({length:8}, (_,i) => {
+    const delays=[0,.08,.16,.04,.12,.2,.06,.14];
     return `<span style="animation-delay:${delays[i]}s"></span>`;
   }).join('');
-  el.innerHTML=`<div class="live-waveform">${wfHTML}</div><div class="ch-role">YOU<span class="material-symbols-outlined">mic</span></div><div class="ch-text"></div>`;
+  el.innerHTML=`<div class="ch-role"><div class="live-waveform">${wfHTML}</div>YOU<span class="material-symbols-outlined">mic</span></div><div class="ch-text"></div>`;
   document.getElementById('chatHistory').appendChild(el);
   return el.querySelector('.ch-text');
 }
