@@ -127,10 +127,11 @@ body.drawer-open .bottom-grad{opacity:0}
 
 .drawer{
   position:fixed;bottom:0;left:0;right:0;z-index:90;
+  height:40vh;
   background:#0c0c0e;
   border-top-left-radius:14px;border-top-right-radius:14px;
   transform:translateY(100%);
-  transition:transform .4s cubic-bezier(.32,.72,0,1), max-height .4s cubic-bezier(.32,.72,0,1);
+  transition:transform .4s cubic-bezier(.32,.72,0,1);
   display:flex;flex-direction:column;
   touch-action:none;
   box-shadow:none;
@@ -167,8 +168,8 @@ body.drawer-open .bottom-grad{opacity:0}
 /* ═══════ LIVE ELEMENTS — inserted into chatHistory during recording ═══════ */
 
 /* Slide-in animation for new messages */
-.ch-msg.slide-in{animation:slideIn .35s cubic-bezier(.32,.72,0,1) both}
-@keyframes slideIn{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
+.ch-msg.fade-in{animation:fadeIn .25s ease both}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
 /* Live waveform */
 .live-waveform{display:flex;align-items:center;justify-content:center;gap:2px;height:28px;padding:8px 0;transition:opacity .3s,height .3s}
@@ -182,10 +183,11 @@ body.drawer-open .bottom-grad{opacity:0}
 .live-waveform span:nth-child(11){animation-delay:.02s}.live-waveform span:nth-child(12){animation-delay:.15s}
 .live-waveform span:nth-child(13){animation-delay:.07s}.live-waveform span:nth-child(14){animation-delay:.13s}
 .live-waveform span:nth-child(15){animation-delay:.09s}.live-waveform span:nth-child(16){animation-delay:.17s}
-.live-waveform.off{opacity:0;height:0;padding:0;overflow:hidden}
+.live-waveform.off{opacity:0;pointer-events:none}
 
 /* Scan line */
-.live-scan{height:2px;margin:8px 0;overflow:hidden}
+.live-scan{height:2px;margin:8px 0;overflow:hidden;opacity:0;transition:opacity .3s}
+.live-scan.visible{opacity:1}
 .live-scan .bar{height:100%;width:50px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scanMove 1.2s ease-out forwards}
 @keyframes scanMove{from{transform:translateX(-50px)}to{transform:translateX(calc(100vw + 50px))}}
 
@@ -246,6 +248,7 @@ body.drawer-open .bottom-grad{opacity:0}
 <script>
 // ═══════ STATE ═══════
 let open=false, recording=false, wt=null, demoIdx=0;
+const wait = ms => new Promise(r => setTimeout(r, ms));
 
 // Start with empty chat — user builds it up through interactions
 const msgs=[];
@@ -286,30 +289,30 @@ const exchanges=[
 // ═══════ HELPERS — append messages directly into chatHistory ═══════
 function appendUserMsg(){
   const el=document.createElement('div');
-  el.className='ch-msg user slide-in';
-  el.innerHTML='<div class="ch-role">YOU<span class="material-symbols-outlined">mic</span></div><div class="ch-text"></div>';
+  el.className='ch-msg user fade-in';
+  // Waveform lives INSIDE the user message — no layout shift when removed
+  const wfHTML = Array.from({length:16}, (_,i) => {
+    const delays=[0,.08,.16,.04,.12,.2,.06,.14,.1,.18,.02,.15,.07,.13,.09,.17];
+    return `<span style="animation-delay:${delays[i]}s"></span>`;
+  }).join('');
+  el.innerHTML=`<div class="live-waveform" id="liveWaveform">${wfHTML}</div><div class="ch-role">YOU<span class="material-symbols-outlined">mic</span></div><div class="ch-text"></div>`;
   document.getElementById('chatHistory').appendChild(el);
   return el.querySelector('.ch-text');
 }
 function appendSaraMsg(){
   const el=document.createElement('div');
-  el.className='ch-msg sara slide-in';
+  el.className='ch-msg sara fade-in';
   el.innerHTML='<div class="ch-role"><span class="material-symbols-outlined">volume_up</span>SARA</div><div class="ch-text"></div>';
   document.getElementById('chatHistory').appendChild(el);
   return el.querySelector('.ch-text');
 }
-function insertWaveform(){
-  const wf=document.createElement('div');
-  wf.className='live-waveform';wf.id='liveWaveform';
-  const delays=[0,.08,.16,.04,.12,.2,.06,.14,.1,.18,.02,.15,.07,.13,.09,.17];
-  for(let i=0;i<16;i++){const s=document.createElement('span');s.style.animationDelay=delays[i]+'s';wf.appendChild(s);}
-  document.getElementById('chatHistory').appendChild(wf);
-  return wf;
-}
 function insertScanLine(){
   const sc=document.createElement('div');
-  sc.className='live-scan';sc.innerHTML='<div class="bar"></div>';
+  sc.className='live-scan';
+  sc.innerHTML='<div class="bar"></div>';
   document.getElementById('chatHistory').appendChild(sc);
+  // Fade in after next frame
+  requestAnimationFrame(()=>sc.classList.add('visible'));
   return sc;
 }
 
@@ -326,43 +329,6 @@ function updateResidual(){
   }).join('')+'<div class="r-bottom"></div>';
 }
 
-// ═══════ DRAWER SIZING — hug content, never crop ═══════
-function fitDrawer(){
-  const drawer=document.getElementById('drawer');
-  const handle=document.querySelector('.drawer-handle-area');
-  const chatEl=document.getElementById('chatHistory');
-  const bottom=document.querySelector('.drawer-bottom');
-
-  const chromeH=(handle?handle.offsetHeight:0)+(bottom?bottom.offsetHeight:0);
-  const isHistoryMode=fab.classList.contains('close-mode');
-
-  let contentH=0;
-
-  if(isHistoryMode){
-    contentH=chatEl.scrollHeight;
-    const maxH=Math.min(chromeH+contentH+16, window.innerHeight*0.5);
-    drawer.style.maxHeight=maxH+'px';
-    return;
-  }
-
-  // Normal mode — measure last 2 ch-msg elements + any live elements
-  const msgs_els=chatEl.querySelectorAll('.ch-msg');
-  const lastTwo=[...msgs_els].slice(-2);
-
-  if(lastTwo.length>0){
-    const firstEl=lastTwo[0];
-    const containerTop=chatEl.getBoundingClientRect().top;
-    const firstTop=firstEl.getBoundingClientRect().top;
-    contentH=chatEl.scrollHeight-(firstTop-containerTop+chatEl.scrollTop);
-    const wf=chatEl.querySelector('.live-waveform:not(.off)');
-    if(wf) contentH+=wf.offsetHeight;
-  }
-
-  contentH+=16;
-  const maxH=Math.min(chromeH+contentH, window.innerHeight*0.45);
-  drawer.style.maxHeight=maxH+'px';
-}
-
 // ═══════ FAB + DRAWER ═══════
 const fab=document.getElementById('fab');
 const fabIcon=document.getElementById('fabIcon');
@@ -371,18 +337,18 @@ function openDrawer(forRecording){
   if(open) return;
   open=true;
   document.body.classList.add('drawer-open');
-  const drawer=document.getElementById('drawer');
-  drawer.classList.add('open');
+  document.getElementById('drawer').classList.add('open');
   document.getElementById('scrim').classList.add('on');
   document.getElementById('residual').style.pointerEvents='none';
   if(!forRecording){
     fab.classList.add('close-mode');
     fabIcon.textContent='close';
   }
-  requestAnimationFrame(()=>{
-    fitDrawer();
-    document.getElementById('chatHistory').scrollTop=document.getElementById('chatHistory').scrollHeight;
-  });
+  // Smooth scroll to bottom after drawer opens
+  setTimeout(()=>{
+    const ch=document.getElementById('chatHistory');
+    ch.scrollTo({top:ch.scrollHeight,behavior:'smooth'});
+  },100);
 }
 function closeDrawer(){
   if(!open) return;
@@ -420,7 +386,6 @@ function startRec(){
   if(recording||processing||demoIdx>=exchanges.length) return;
   recording=true;
 
-  // FAB goes active (red)
   fab.classList.remove('close-mode');
   fab.classList.add('active');
   fabIcon.textContent='mic';
@@ -429,40 +394,35 @@ function startRec(){
 
   const ex=exchanges[demoIdx];
   const uW=ex.user;
+  const ch=document.getElementById('chatHistory');
 
-  // Insert waveform + empty user message directly into chatHistory
-  const wf=insertWaveform();
+  // Append user message (includes waveform inside it)
   const textEl=appendUserMsg();
 
-  // Scroll to bottom
-  const ch=document.getElementById('chatHistory');
-  ch.scrollTop=ch.scrollHeight;
+  // Smooth scroll
+  setTimeout(()=>ch.scrollTo({top:ch.scrollHeight,behavior:'smooth'}),50);
 
-  // Size drawer to fit
-  requestAnimationFrame(fitDrawer);
-
-  // Start word-by-word transcription after brief delay for drawer to open
+  // Start word-by-word after drawer is open
   setTimeout(()=>{
     if(!recording) return;
     let wi=0;
     wt=setInterval(()=>{
       if(wi<uW.length){
-        const s=document.createElement('span');
-        s.className='w';
+        const s=document.createElement('span');s.className='w';
         s.textContent=(wi>0?' ':'')+uW[wi];
-        textEl.appendChild(s);
-        wi++;
-        ch.scrollTop=ch.scrollHeight;
+        textEl.appendChild(s);wi++;
+        // Smooth scroll every 3rd word to avoid constant scrolling
+        if(wi%3===0) ch.scrollTo({top:ch.scrollHeight,behavior:'smooth'});
       } else {
         clearInterval(wt);wt=null;
-        // Auto-stop after all words transcribed
+        ch.scrollTo({top:ch.scrollHeight,behavior:'smooth'});
         setTimeout(()=>{ if(recording) stopRec(); },600);
       }
     },220);
-  },100);
+  },400);
 }
 
-function stopRec(){
+async function stopRec(){
   if(!recording) return;
   recording=false;
   processing=true;
@@ -473,7 +433,7 @@ function stopRec(){
   const sW=ex.sara;
   const ch=document.getElementById('chatHistory');
 
-  // FAB processing state
+  // FAB processing
   fab.classList.remove('active');
   fab.classList.add('processing');
   fabIcon.textContent='pending';
@@ -488,54 +448,56 @@ function stopRec(){
     s.textContent=(i>0?' ':'')+uW[i];textEl.appendChild(s);
   }
 
-  // 1. Fade out waveform
+  // Step 1: Fade waveform (opacity only — no layout shift)
   const wf=document.getElementById('liveWaveform');
-  if(wf){wf.classList.add('off');setTimeout(()=>wf.remove(),400);}
+  if(wf) wf.classList.add('off');
+  await wait(350);
 
-  // 2. Insert scan line
-  setTimeout(()=>{
-    const scan=insertScanLine();
-    setTimeout(()=>{scan.style.opacity='0';scan.style.transition='opacity .3s';setTimeout(()=>scan.remove(),300);},1400);
-  },400);
+  // Step 2: Dim user text
+  lastUserMsg.classList.add('dimmed');
+  await wait(200);
 
-  // 3. Dim user text
-  setTimeout(()=>{lastUserMsg.classList.add('dimmed');},800);
+  // Step 3: Scan line sweeps
+  const scan=insertScanLine();
+  await wait(1400);
+  // Fade out scan
+  scan.classList.remove('visible');
+  await wait(300);
+  scan.remove();
 
-  // 4. SARA responds
-  setTimeout(()=>{
-    fab.classList.remove('processing');
-    fabIcon.textContent='volume_up';
+  // Step 4: SARA responds
+  fab.classList.remove('processing');
+  fabIcon.textContent='volume_up';
 
-    const saraTextEl=appendSaraMsg();
-    fitDrawer();
-    ch.scrollTop=ch.scrollHeight;
+  const saraTextEl=appendSaraMsg();
+  ch.scrollTo({top:ch.scrollHeight,behavior:'smooth'});
 
+  // Drip SARA words
+  await new Promise(resolve=>{
     let si=0;
     const timer=setInterval(()=>{
       if(si<sW.length){
         const s=document.createElement('span');s.className='w';
         s.textContent=(si>0?' ':'')+sW[si];saraTextEl.appendChild(s);si++;
-        ch.scrollTop=ch.scrollHeight;
+        if(si%3===0) ch.scrollTo({top:ch.scrollHeight,behavior:'smooth'});
       } else {
         clearInterval(timer);
-
-        // Push to msgs for residual display
-        msgs.push({r:'user',t:uW.join(' ')});
-        msgs.push({r:'sara',t:sW.join(' ')});
-
-        // Map action
-        if(typeof execMapAction==='function') execMapAction(exchanges[demoIdx].mapAction);
-
-        demoIdx++;
-        processing=false;
-        fabIcon.textContent='mic';
-
-        // Settle drawer to latest 2 messages
-        fitDrawer();
-        updateResidual();
+        ch.scrollTo({top:ch.scrollHeight,behavior:'smooth'});
+        resolve();
       }
     },120);
-  },1800);
+  });
+
+  // Step 5: Done
+  msgs.push({r:'user',t:uW.join(' ')});
+  msgs.push({r:'sara',t:sW.join(' ')});
+
+  if(typeof execMapAction==='function') execMapAction(exchanges[demoIdx].mapAction);
+
+  demoIdx++;
+  processing=false;
+  fabIcon.textContent='mic';
+  updateResidual();
 }
 
 // FAB — PRESS AND HOLD (walkie-talkie)
