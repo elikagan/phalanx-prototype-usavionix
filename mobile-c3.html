@@ -23,7 +23,7 @@ html{height:100%;overflow:hidden;position:fixed;inset:0}
 body{height:100%;overflow:hidden;position:fixed;inset:0;font-family:var(--sans);background:#000;color:#fff;-webkit-font-smoothing:antialiased;touch-action:none}
 
 /* ═══════ MAP — Leaflet, full screen ═══════ */
-#map{position:fixed;top:0;left:0;right:0;bottom:0;z-index:1;transition:bottom 1.4s cubic-bezier(.16,1,.3,1)}
+#map{position:fixed;top:0;left:0;right:0;bottom:0;z-index:1;transition:bottom 1.8s cubic-bezier(.3,.0,.15,1)}
 body.drawer-open #map{bottom:30vh}
 /* Hide Leaflet UI chrome */
 .leaflet-control-attribution,.leaflet-control-zoom{display:none!important}
@@ -368,7 +368,7 @@ function openDrawer(forRecording){
   // Map container resizes via CSS — tell Leaflet to recenter
   if(typeof map!=='undefined'){
     setTimeout(()=>map.invalidateSize({animate:true}),50);
-    setTimeout(()=>map.invalidateSize({animate:false}),1500);
+    setTimeout(()=>map.invalidateSize({animate:false}),1900);
   }
   // Smooth scroll to bottom after drawer opens
   setTimeout(()=>{
