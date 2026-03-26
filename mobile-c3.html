@@ -23,7 +23,8 @@ html{height:100%;overflow:hidden;position:fixed;inset:0}
 body{height:100%;overflow:hidden;position:fixed;inset:0;font-family:var(--sans);background:#000;color:#fff;-webkit-font-smoothing:antialiased;touch-action:none}
 
 /* ═══════ MAP — Leaflet, full screen ═══════ */
-#map{position:fixed;inset:0;z-index:1}
+#map{position:fixed;top:0;left:0;right:0;bottom:0;z-index:1;transition:bottom .4s cubic-bezier(.32,.72,0,1)}
+body.drawer-open #map{bottom:30vh}
 /* Hide Leaflet UI chrome */
 .leaflet-control-attribution,.leaflet-control-zoom{display:none!important}
 .map-scan{position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.06) 2px,rgba(0,0,0,.06) 4px);pointer-events:none;z-index:2}
@@ -364,10 +365,11 @@ function openDrawer(forRecording){
     fab.classList.add('close-mode');
     fabIcon.textContent='close';
   }
-  // Pan map so action is centered in visible area above drawer
+  // Map container resizes via CSS — tell Leaflet to recenter
   if(typeof map!=='undefined'){
-    const offset=Math.round(window.innerHeight*0.15);
-    map.panBy([0,offset],{duration:0.4,easeLinearity:0.4});
+    setTimeout(()=>map.invalidateSize({animate:true}),50);
+    // Re-invalidate after transition completes
+    setTimeout(()=>map.invalidateSize({animate:false}),450);
   }
   // Smooth scroll to bottom after drawer opens
   setTimeout(()=>{
@@ -381,10 +383,10 @@ function closeDrawer(){
   document.body.classList.remove('drawer-open');
   document.getElementById('drawer').classList.remove('open');
   document.getElementById('scrim').classList.remove('on');
-  // Pan map back to true center
+  // Map container resizes via CSS — tell Leaflet to recenter
   if(typeof map!=='undefined'){
-    const offset=Math.round(window.innerHeight*0.15);
-    map.panBy([0,-offset],{duration:0.4,easeLinearity:0.4});
+    setTimeout(()=>map.invalidateSize({animate:true}),50);
+    setTimeout(()=>map.invalidateSize({animate:false}),450);
   }
   // Reset FAB
   fab.classList.remove('close-mode','active','processing');
