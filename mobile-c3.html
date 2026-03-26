@@ -194,10 +194,10 @@ body.drawer-open .bottom-grad{opacity:0}
 /* Dimmed user text after transcription complete */
 .ch-msg.user.dimmed .ch-text{color:rgba(255,255,255,.35);transition:color .4s ease}
 
-/* Drawer bottom bar — keyboard toggle + spacing for FAB */
-.drawer-bottom{flex-shrink:0;padding:8px 16px;padding-bottom:max(14px,env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,.04);display:flex;align-items:center;background:#0c0c0e}
-.drawer-bottom .kb-btn{width:40px;height:40px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center}
-.drawer-bottom .kb-btn .material-symbols-outlined{font-size:18px;color:rgba(255,255,255,.2)}
+/* Drawer bottom bar — buttons left, space for FAB right */
+.drawer-bottom{flex-shrink:0;padding:10px 100px 10px 16px;padding-bottom:max(16px,env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:8px;background:#0c0c0e}
+.drawer-bottom .btn-icon{width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.drawer-bottom .btn-icon .material-symbols-outlined{font-size:16px;color:rgba(255,255,255,.2)}
 </style>
 </head>
 <body>
@@ -237,7 +237,8 @@ body.drawer-open .bottom-grad{opacity:0}
   <div class="drawer-handle-area" id="handleArea"><div class="drawer-handle"></div></div>
   <div class="chat-history" id="chatHistory"></div>
   <div class="drawer-bottom">
-    <div class="kb-btn"><span class="material-symbols-outlined">keyboard</span></div>
+    <div class="btn-icon"><span class="material-symbols-outlined">keyboard</span></div>
+    <div class="btn-icon"><span class="material-symbols-outlined">more_horiz</span></div>
   </div>
 </div>
 
